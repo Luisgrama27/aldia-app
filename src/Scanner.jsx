@@ -1,52 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import Quagga from "@ericblade/quagga2";
+import { useRef, useState } from "react";
 
 export default function Scanner({ onResult, onClose }) {
-  const [error, setError] = useState('');
-  const [activo, setActivo] = useState(false);
+  const inputRef = useRef(null);
   const [buscando, setBuscando] = useState(false);
-
-  useEffect(() => {
-    iniciar();
-    return () => { try { Quagga.stop(); } catch(e) {} };
-  }, []);
-
-  const iniciar = () => {
-    Quagga.init({
-      inputStream: {
-        type: 'LiveStream',
-        target: document.getElementById('qrscanner'),
-        constraints: {
-          facingMode: 'environment',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      },
-      decoder: {
-        readers: ['ean_reader', 'ean_8_reader', 'upc_reader', 'upc_e_reader', 'code_128_reader'],
-      },
-      locate: true,
-    }, (err) => {
-      if(err) {
-        setError('No se pudo acceder a la cámara.');
-        return;
-      }
-      Quagga.start();
-      setActivo(true);
-    });
-
-    Quagga.onDetected((data) => {
-      const codigo = data.codeResult.code;
-      if(codigo) {
-        Quagga.stop();
-        setActivo(false);
-        setBuscando(true);
-        buscarProducto(codigo);
-      }
-    });
-  };
+  const [codigoManual, setCodigoManual] = useState('');
 
   const buscarProducto = async (barcode) => {
+    setBuscando(true);
     try {
       const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
       const data = await res.json();
@@ -59,35 +19,85 @@ export default function Scanner({ onResult, onClose }) {
     } catch(e) {
       onResult({ nombre: '', barcode });
     }
+    setBuscando(false);
+  };
+
+  const buscarManual = () => {
+    if(!codigoManual.trim()) return;
+    buscarProducto(codigoManual.trim());
   };
 
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.97)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 20px'}}>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.97)',zIndex:100,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 24px'}}>
       <div style={{width:'100%',maxWidth:400}}>
-        <div style={{textAlign:'center',marginBottom:16}}>
-          <div style={{fontSize:16,fontWeight:500,color:'#fff',marginBottom:4}}>📷 Escanea el código de barras</div>
-          <div style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Apunta la cámara al código del producto</div>
-        </div>
 
-        <div id="qrscanner" style={{width:'100%',borderRadius:16,overflow:'hidden',background:'#111',marginBottom:12,position:'relative'}}>
-          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',pointerEvents:'none',zIndex:10}}>
-            <div style={{width:220,height:100,border:'2px solid #2DB54E',borderRadius:8}}/>
+        <div style={{textAlign:'center',marginBottom:32}}>
+          <div style={{fontSize:48,marginBottom:12}}>📷</div>
+          <div style={{fontSize:18,fontWeight:600,color:'#fff',marginBottom:8}}>Agregar por código</div>
+          <div style={{fontSize:13,color:'rgba(255,255,255,0.6)',lineHeight:1.5}}>
+            Toca el botón para abrir la cámara y apunta al código de barras del producto
           </div>
         </div>
 
-        {buscando && (
-          <div style={{textAlign:'center',color:'#2DB54E',fontSize:14,fontWeight:500,marginBottom:10}}>
-            Buscando producto...
-          </div>
-        )}
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*"
+          capture="environment"
+          style={{display:'none'}}
+          onChange={async (e) => {
+            const file = e.target.files[0];
+            if(!file) return;
+            setBuscando(true);
+            try {
+              const detector = new window.BarcodeDetector({
+                formats: ['ean_13','ean_8','upc_a','upc_e','code_128']
+              });
+              const bitmap = await createImageBitmap(file);
+              const barcodes = await detector.detect(bitmap);
+              if(barcodes.length > 0) {
+                await buscarProducto(barcodes[0].rawValue);
+              } else {
+                onResult({ nombre: '', barcode: '' });
+              }
+            } catch(e) {
+              onResult({ nombre: '', barcode: '' });
+            }
+            setBuscando(false);
+          }}
+        />
 
-        {error && (
-          <div style={{background:'rgba(255,59,48,0.2)',border:'0.5px solid rgba(255,59,48,0.4)',borderRadius:10,padding:'8px 12px',fontSize:12,color:'#FF3B30',marginBottom:10,textAlign:'center'}}>
-            {error}
-          </div>
-        )}
+        <button
+          onClick={() => inputRef.current.click()}
+          disabled={buscando}
+          style={{width:'100%',height:52,borderRadius:14,background:'#2DB54E',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:12,opacity:buscando?0.6:1}}
+        >
+          {buscando ? 'Buscando producto...' : '📷 Abrir cámara'}
+        </button>
 
-        <button onClick={()=>{ try{Quagga.stop();}catch(e){} onClose(); }} style={{width:'100%',height:42,borderRadius:13,background:'rgba(255,255,255,0.1)',color:'#fff',border:'none',fontSize:14,cursor:'pointer'}}>
+        <div style={{textAlign:'center',color:'rgba(255,255,255,0.4)',fontSize:12,marginBottom:16}}>— o escribe el código manualmente —</div>
+
+        <div style={{display:'flex',gap:8,marginBottom:12}}>
+          <input
+            value={codigoManual}
+            onChange={e=>setCodigoManual(e.target.value)}
+            placeholder="Ej: 7702001020"
+            style={{flex:1,height:44,borderRadius:12,border:'0.5px solid rgba(255,255,255,0.2)',background:'rgba(255,255,255,0.1)',color:'#fff',padding:'0 14px',fontSize:14,outline:'none'}}
+            onKeyDown={e=>e.key==='Enter'&&buscarManual()}
+          />
+          <button
+            onClick={buscarManual}
+            disabled={buscando}
+            style={{height:44,padding:'0 18px',borderRadius:12,background:'#2DB54E',color:'#fff',border:'none',fontSize:14,fontWeight:600,cursor:'pointer'}}
+          >
+            Buscar
+          </button>
+        </div>
+
+        <button
+          onClick={onClose}
+          style={{width:'100%',height:44,borderRadius:13,background:'rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.7)',border:'none',fontSize:14,cursor:'pointer'}}
+        >
           Cancelar
         </button>
       </div>
