@@ -4,14 +4,12 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
-import Scanner from "./Scanner";
 import "./index.css";
 
 const EMAILJS_SERVICE = "service_vi35bf4";
 const EMAILJS_TEMPLATE = "template_ndvpdby";
 const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
 
-// ── Splash Screen ──────────────────────────────────────────────
 function Splash({ onDone }) {
   const [fase, setFase] = useState(0);
   useEffect(() => {
@@ -47,25 +45,21 @@ function Splash({ onDone }) {
           <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'var(--green)':'var(--border)',transition:'all 0.3s'}}/>
         ))}
       </div>
-      <style>{`@keyframes pulse{from{opacity:0.3}to{opacity:1}}`}</style>
     </div>
   );
 }
 
 const LOGO = () => (
-  <svg width="40" height="40" viewBox="0 0 80 80" style={{filter: 'drop-shadow(0 2px 8px rgba(45, 181, 78, 0.3))'}}>
+  <svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}>
     <defs>
       <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}} />
-        <stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}} />
-        <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}} />
+        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/>
+        <stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/>
+        <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/>
       </linearGradient>
       <filter id="glow">
         <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
     </defs>
     <circle cx="40" cy="40" r="36" fill="url(#logoGrad)" stroke="#fff" strokeWidth="1.5" filter="url(#glow)"/>
@@ -88,28 +82,28 @@ today.setHours(0,0,0,0);
 
 const HomeIcon = (active) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <polyline points="9,22 9,12 15,12 15,22" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <polyline points="9,22 9,12 15,12 15,22" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <defs><linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
   </svg>
 );
 
 const StatsIcon = (active) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="2" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2"/>
-    <line x1="7" y1="9" x2="12" y2="9" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="16" y1="9" x2="16" y2="9" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="7" y1="13" x2="10" y2="13" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="14" y1="13" x2="17" y2="13" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="7" y1="17" x2="15" y2="17" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
+    <rect x="3" y="3" width="18" height="18" rx="2" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2"/>
+    <line x1="7" y1="9" x2="12" y2="9" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
+    <line x1="16" y1="9" x2="16" y2="9" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
+    <line x1="7" y1="13" x2="10" y2="13" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
+    <line x1="14" y1="13" x2="17" y2="13" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
+    <line x1="7" y1="17" x2="15" y2="17" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
     <defs><linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
   </svg>
 );
 
 const HistoryIcon = (active) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="10" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2"/>
-    <polyline points="12,6 12,12 16,14" stroke={active ? "url(#navGrad)" : "var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    <circle cx="12" cy="12" r="10" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2"/>
+    <polyline points="12,6 12,12 16,14" stroke={active?"url(#navGrad)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
     <defs><linearGradient id="navGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
   </svg>
 );
@@ -135,8 +129,8 @@ function daysLabel(d){
   return `${d} días`;
 }
 
-const stColor = (st) => ({ ok:'#34C759', warn:'#FF9500', danger:'#FF3B30', expired:'#FF3B30' }[st]);
-const icBg = (st) => ({ ok:'#f0fff4', warn:'#fff8ee', danger:'#fff2f2', expired:'#fff2f2' }[st]);
+const stColor = (st) => ({ok:'#34C759',warn:'#FF9500',danger:'#FF3B30',expired:'#FF3B30'}[st]);
+const icBg = (st) => ({ok:'#f0fff4',warn:'#fff8ee',danger:'#fff2f2',expired:'#fff2f2'}[st]);
 
 const S = {
   screen:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:70},
@@ -181,9 +175,9 @@ const S = {
 
 function Navbar({ tab, setTab, setPantalla }) {
   const items = [
-    { id:'home', ico:HomeIcon, lbl:'Inicio' },
-    { id:'estadisticas', ico:StatsIcon, lbl:'Estadísticas' },
-    { id:'historial', ico:HistoryIcon, lbl:'Historial' },
+    {id:'home',ico:HomeIcon,lbl:'Inicio'},
+    {id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},
+    {id:'historial',ico:HistoryIcon,lbl:'Historial'},
   ];
   return (
     <div style={S.navbar}>
@@ -241,8 +235,6 @@ export default function App() {
   const [form, setForm] = useState({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''});
   const [guardando, setGuardando] = useState(false);
   const [correoEnviado, setCorreoEnviado] = useState(false);
-  const [scanner, setScanner] = useState(false);
-  const [scanMsg, setScanMsg] = useState('');
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [meta, setMeta] = useState(null);
   const [editandoMeta, setEditandoMeta] = useState(false);
@@ -306,15 +298,7 @@ export default function App() {
     setValorMeta('');
   };
 
-  const onScanResult = ({ nombre, barcode }) => {
-    setScanner(false);
-    if(nombre){ setForm(f=>({...f,name:nombre})); setScanMsg(`✓ Producto encontrado: ${nombre}`); }
-    else { setScanMsg(`Código ${barcode} no encontrado. Escribe el nombre manualmente.`); }
-    setTimeout(()=>setScanMsg(''), 4000);
-  };
-
-  // ── Splash ──
-  if(splash) return <Splash onDone={() => setSplash(false)} />;
+  if(splash) return <Splash onDone={()=>setSplash(false)}/>;
 
   if(cargando) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'-apple-system,sans-serif',color:'var(--text2)',background:'var(--bg)'}}>
@@ -338,35 +322,34 @@ export default function App() {
     const descartadosCat = descartados.filter(p=>p.cat===cat);
     const consumidosCat = consumidos.filter(p=>p.cat===cat);
     const totalCat = descartadosCat.length + consumidosCat.length;
-    const pctDesperdicio = totalCat>0 ? Math.round((descartadosCat.length/totalCat)*100) : 0;
-    return {cat, descartados: descartadosCat.length, total: totalCat, pctDesperdicio, pérdidaCat: descartadosCat.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
+    const pctDesperdicio = totalCat>0?Math.round((descartadosCat.length/totalCat)*100):0;
+    return {cat,descartados:descartadosCat.length,total:totalCat,pctDesperdicio,pérdidaCat:descartadosCat.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
   }).filter(x=>x.descartados>0).sort((a,b)=>b.descartados-a.descartados);
 
   const hoyDate = new Date();
   const mesActual = hoyDate.getMonth();
   const añoActual = hoyDate.getFullYear();
-  const inicioMesActual = new Date(añoActual, mesActual, 1);
-  const finMesActual = new Date(añoActual, mesActual+1, 0);
-  const mesAnterior = mesActual===0 ? 11 : mesActual-1;
-  const añoAnterior = mesActual===0 ? añoActual-1 : añoActual;
-  const inicioMesAnterior = new Date(añoAnterior, mesAnterior, 1);
-  const finMesAnterior = new Date(añoAnterior, mesAnterior+1, 0);
-  const descartadosActual = descartados.filter(p=>p.fechaEstado && new Date(p.fechaEstado) >= inicioMesActual && new Date(p.fechaEstado) <= finMesActual);
-  const descartadosAnterior = descartados.filter(p=>p.fechaEstado && new Date(p.fechaEstado) >= inicioMesAnterior && new Date(p.fechaEstado) <= finMesAnterior);
+  const inicioMesActual = new Date(añoActual,mesActual,1);
+  const mesAnterior = mesActual===0?11:mesActual-1;
+  const añoAnterior = mesActual===0?añoActual-1:añoActual;
+  const inicioMesAnterior = new Date(añoAnterior,mesAnterior,1);
+  const finMesAnterior = new Date(añoAnterior,mesAnterior+1,0);
+  const descartadosActual = descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesActual);
+  const descartadosAnterior = descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesAnterior&&new Date(p.fechaEstado)<=finMesAnterior);
   const pérdidaActual = descartadosActual.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const pérdidaAnterior = descartadosAnterior.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
-  const cambioMesAMes = pérdidaAnterior>0 ? Math.round(((pérdidaActual-pérdidaAnterior)/pérdidaAnterior)*100) : 0;
+  const cambioMesAMes = pérdidaAnterior>0?Math.round(((pérdidaActual-pérdidaAnterior)/pérdidaAnterior)*100):0;
 
   const expired = activos.filter(p=>status(p)==='expired').length;
   const danger = activos.filter(p=>status(p)==='danger').length;
   const warn = activos.filter(p=>status(p)==='warn').length;
   const ok = activos.filter(p=>status(p)==='ok').length;
-  const alertas = expired + danger + warn;
+  const alertas = expired+danger+warn;
   const cats = ['Todos',...new Set(activos.map(p=>p.cat))];
   const filtered = activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
-  const abrirNuevo = () => { setEditId(null); setForm({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''}); setScanMsg(''); setPantalla('form'); };
-  const abrirEditar = (p) => { setEditId(p.id); setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''}); setScanMsg(''); setPantalla('form'); };
+  const abrirNuevo = () => { setEditId(null); setForm({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''}); setPantalla('form'); };
+  const abrirEditar = (p) => { setEditId(p.id); setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''}); setPantalla('form'); };
 
   const guardar = async () => {
     if(!form.name||!form.exp) return;
@@ -415,14 +398,11 @@ export default function App() {
 
   if(pantalla==='form') return (
     <div style={S.formWrap}>
-      {scanner && <Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
       <div style={S.formHeader}>
         <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
         <span style={S.formTitle}>{editId?'Editar producto':'Nuevo producto'}</span>
-        {!editId && <button onClick={()=>setScanner(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:22,cursor:'pointer'}}>📷</button>}
       </div>
       <div style={S.formBody}>
-        {scanMsg && <div style={{borderRadius:10,padding:'9px 12px',fontSize:13,fontWeight:500,background:scanMsg.startsWith('✓')?'#f0fff4':'#fff8ee',color:scanMsg.startsWith('✓')?'var(--green)':'#FF9500'}}>{scanMsg}</div>}
         <div style={S.formSection}>
           <div style={S.formRow}><span style={S.formLabel}>Nombre</span><input style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/></div>
           <div style={S.formRow}><span style={S.formLabel}>Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
@@ -458,7 +438,7 @@ export default function App() {
               }
               <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
             </div>
-            {alertas > 0 && (
+            {alertas>0 && (
               <div style={{position:'absolute',top:-6,right:-6,minWidth:20,height:20,borderRadius:999,background:'#FF3B30',color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',boxShadow:'0 0 0 3px rgba(255,255,255,0.8)'}}>
                 {alertas}
               </div>
@@ -561,15 +541,15 @@ export default function App() {
               <div style={{fontSize:12,color:'var(--text2)'}}>🎯 Tu meta de desperdicio</div>
               <button onClick={()=>{setEditandoMeta(!editandoMeta);setValorMeta(meta?meta.toString():'');}} style={{background:'none',border:'none',color:'var(--green)',fontSize:12,cursor:'pointer',fontWeight:500}}>{editandoMeta?'Cancelar':'Editar'}</button>
             </div>
-            {!editandoMeta ? (
-              meta ? (
+            {!editandoMeta?(
+              meta?(
                 <>
                   <div style={{fontSize:28,fontWeight:700,color:pérdidaActual<=meta?'#34C759':'#FF3B30',letterSpacing:-0.5}}>${Math.round(pérdidaActual).toLocaleString('es-CO')} / ${Math.round(meta).toLocaleString('es-CO')}</div>
                   <div style={{height:8,borderRadius:4,background:'var(--input)',marginTop:10,overflow:'hidden'}}><div style={{height:8,borderRadius:4,background:pérdidaActual<=meta?'#34C759':'#FF3B30',width:`${Math.min(100,(pérdidaActual/meta)*100)}%`,transition:'width 0.3s'}}/></div>
                   <div style={{fontSize:11,color:'var(--text2)',marginTop:6}}>{pérdidaActual<=meta?'✓ ¡Lo lograste! Estás por debajo de tu meta':`⚠ Vas ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima de tu meta`}</div>
                 </>
-              ) : <div style={{fontSize:13,color:'var(--text2)',fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</div>
-            ) : (
+              ):<div style={{fontSize:13,color:'var(--text2)',fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</div>
+            ):(
               <div style={{display:'flex',gap:8}}>
                 <input type="number" value={valorMeta} onChange={e=>setValorMeta(e.target.value)} placeholder="Ej: 50000" style={{flex:1,padding:'8px 12px',borderRadius:10,border:'0.5px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:13,outline:'none'}}/>
                 <button onClick={guardarMeta} style={{padding:'8px 16px',borderRadius:10,background:'var(--green)',color:'#fff',border:'none',fontSize:13,fontWeight:600,cursor:'pointer'}}>Guardar</button>
@@ -610,14 +590,14 @@ export default function App() {
             <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
               <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>💡 Recomendaciones inteligentes</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {catStats.length>0 && catStats[0].pctDesperdicio>50 && <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,59,48,0.1)',border:'0.5px solid rgba(255,59,48,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF3B30'}}>⚠ {catStats[0].cat}:</strong> {catStats[0].pctDesperdicio}% de desperdicio. Considera comprar menos cantidad.</div>}
-                {consumidos.length>descartados.length && <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>✓ Mejorando:</strong> Consumes más de lo que descartas. ¡Sigue así!</div>}
-                {cambioMesAMes<0 && <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>🎯 Progreso:</strong> Este mes reduciste desperdicio {Math.abs(cambioMesAMes)}% respecto al anterior.</div>}
-                {meta && pérdidaActual>meta && <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,149,0,0.1)',border:'0.5px solid rgba(255,149,0,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF9500'}}>🚀 Meta:</strong> Necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
+                {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,59,48,0.1)',border:'0.5px solid rgba(255,59,48,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF3B30'}}>⚠ {catStats[0].cat}:</strong> {catStats[0].pctDesperdicio}% de desperdicio. Considera comprar menos cantidad.</div>}
+                {consumidos.length>descartados.length&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>✓ Mejorando:</strong> Consumes más de lo que descartas. ¡Sigue así!</div>}
+                {cambioMesAMes<0&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>🎯 Progreso:</strong> Este mes reduciste desperdicio {Math.abs(cambioMesAMes)}% respecto al anterior.</div>}
+                {meta&&pérdidaActual>meta&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,149,0,0.1)',border:'0.5px solid rgba(255,149,0,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF9500'}}>🚀 Meta:</strong> Necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
               </div>
             </div>
           )}
-          {historial.length===0 && <div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>Aún no hay datos. Marca productos como consumidos o descartados para ver tus estadísticas.</div>}
+          {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>Aún no hay datos. Marca productos como consumidos o descartados para ver tus estadísticas.</div>}
         </div>
       )}
 
@@ -625,9 +605,9 @@ export default function App() {
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:8}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0 8px'}}>
             <div style={{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3}}>Historial</div>
-            {historial.length>0 && <button onClick={eliminarTodoHistorial} style={{background:'none',border:'none',color:'#FF3B30',fontSize:13,cursor:'pointer',fontWeight:500}}>Borrar todo</button>}
+            {historial.length>0&&<button onClick={eliminarTodoHistorial} style={{background:'none',border:'none',color:'#FF3B30',fontSize:13,cursor:'pointer',fontWeight:500}}>Borrar todo</button>}
           </div>
-          {historial.length>0 && (
+          {historial.length>0&&(
             <div style={{background:'var(--card)',borderRadius:16,padding:'16px',border:'0.5px solid var(--border2)',marginBottom:8}}>
               <div style={{fontSize:14,fontWeight:600,color:'var(--text)',marginBottom:12}}>📊 Estadísticas del Historial</div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:16}}>
@@ -669,7 +649,7 @@ export default function App() {
               </div>
             </div>
           )}
-          {historial.length===0 && <div style={{textAlign:'center',padding:32,color:'var(--text2)',fontSize:13}}>No hay productos en el historial aún.</div>}
+          {historial.length===0&&<div style={{textAlign:'center',padding:32,color:'var(--text2)',fontSize:13}}>No hay productos en el historial aún.</div>}
           {historial.sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado)).map(p=>(
             <div key={p.id} style={{background:'var(--card)',borderRadius:13,padding:'12px 14px',border:'0.5px solid var(--border2)'}}>
               <div style={{display:'flex',alignItems:'center',gap:10}}>
