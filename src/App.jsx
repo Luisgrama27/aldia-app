@@ -16,8 +16,7 @@ function Splash({ onDone }) {
     const t1 = setTimeout(() => setFase(1), 100);
     const t2 = setTimeout(() => setFase(2), 600);
     const t3 = setTimeout(() => setFase(3), 1200);
-    const t4 = setTimeout(() => onDone(), 2400);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
   return (
     <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24}}>
@@ -40,10 +39,15 @@ function Splash({ onDone }) {
         <div style={{fontSize:38,fontWeight:700,color:'var(--text)',letterSpacing:-1}}>Al Día</div>
         <div style={{fontSize:15,color:'var(--text2)',marginTop:8}}>Controla lo que tienes en casa</div>
       </div>
-      <div style={{position:'absolute',bottom:60,opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',gap:8}}>
-        {[0,1,2].map(i=>(
-          <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'var(--green)':'var(--border)',transition:'all 0.3s'}}/>
-        ))}
+      <div style={{position:'absolute',bottom:60,opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+        <div style={{display:'flex',gap:8}}>
+          {[0,1,2].map(i=>(
+            <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'var(--green)':'var(--border)',transition:'all 0.3s'}}/>
+          ))}
+        </div>
+        <button onClick={onDone} style={{height:46,padding:'0 32px',borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+          Empezar →
+        </button>
       </div>
     </div>
   );
@@ -57,19 +61,18 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
     {name:'Ibuprofeno',cat:'Medicamentos',exp:'2026-12-30'},
     {name:'Jugo natural',cat:'Bebidas',exp:'2025-06-12'},
   ];
-  
   return (
     <div style={{padding:'24px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
       <svg width="140" height="140" viewBox="0 0 140 140">
         <defs>
           <radialGradient id="pulseGrad" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#30D158" stopOpacity="0.16" />
-            <stop offset="100%" stopColor="#30D158" stopOpacity="0" />
+            <stop offset="0%" stopColor="#30D158" stopOpacity="0.16"/>
+            <stop offset="100%" stopColor="#30D158" stopOpacity="0"/>
           </radialGradient>
         </defs>
         <circle cx="70" cy="70" r="42" fill="url(#pulseGrad)">
-          <animate attributeName="r" values="42;52;42" dur="2.6s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.16;0.06;0.16" dur="2.6s" repeatCount="indefinite" />
+          <animate attributeName="r" values="42;52;42" dur="2.6s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.16;0.06;0.16" dur="2.6s" repeatCount="indefinite"/>
         </circle>
         <circle cx="70" cy="70" r="55" fill="var(--card)"/>
         <circle cx="70" cy="70" r="42" fill="var(--input)"/>
@@ -87,19 +90,13 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
         <line x1="35" y1="96" x2="35" y2="100" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
         <circle cx="35" cy="100" r="1.5" fill="#fff"/>
       </svg>
-
-      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>
-        ¡Bienvenido a Al Día!
-      </div>
-      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>
-        Empieza registrando tus productos y nunca más se te vencerá nada en casa.
-      </div>
-
+      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>¡Bienvenido a Al Día!</div>
+      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>Empieza registrando tus productos y nunca más se te vencerá nada en casa.</div>
       <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8}}>
         {[
-          {n:'1', title:'Agrega un producto', sub:'con su fecha de vencimiento'},
-          {n:'2', title:'Recibe alertas', sub:'antes de que venza'},
-          {n:'3', title:'Marca como consumido', sub:'y lleva el control'},
+          {n:'1',title:'Agrega un producto',sub:'con su fecha de vencimiento'},
+          {n:'2',title:'Recibe alertas',sub:'antes de que venza'},
+          {n:'3',title:'Marca como consumido',sub:'y lleva el control'},
         ].map(s=>(
           <div key={s.n} style={{display:'flex',alignItems:'center',gap:10,background:'var(--card)',borderRadius:12,padding:'10px 14px',border:'0.5px solid var(--border2)'}}>
             <div style={{width:26,height:26,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{s.n}</div>
@@ -110,31 +107,28 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
           </div>
         ))}
       </div>
-
       <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
         ✨ Agregar mi primer producto
       </button>
-
       <div style={{width:'100%',borderTop:'0.5px solid var(--border2)',paddingTop:16}}>
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,textAlign:'center',fontWeight:500}}>💡 O prueba con estos ejemplos</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
           {ejemplos.map((ej,i)=>(
-            <div key={i} style={{display:'flex',flexDirection:'column',gap:6,background:'linear-gradient(180deg, var(--card), #fafbfaf0)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)',boxShadow:'0 6px 18px rgba(15,15,15,0.04)'}}>
+            <div key={i} style={{display:'flex',flexDirection:'column',gap:6,background:'var(--card)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
-                <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:44,height:44,borderRadius:10,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>{CATS[ej.cat]}</div>
+                <div style={{display:'flex',alignItems:'center',gap:8}}>
+                  <div style={{width:36,height:36,borderRadius:9,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{CATS[ej.cat]}</div>
                   <div style={{minWidth:0}}>
-                    <div style={{fontSize:14,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat} · {new Date(ej.exp+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat}</div>
                   </div>
                 </div>
-                <button onClick={()=>onAgregarEjemplo(ej)} style={{padding:'8px 10px',borderRadius:10,background:'var(--green)',color:'#fff',border:'none',fontSize:13,fontWeight:600,cursor:'pointer'}}>Agregar</button>
               </div>
+              <button onClick={()=>onAgregarEjemplo(ej)} style={{width:'100%',height:32,borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>+ Agregar</button>
             </div>
           ))}
         </div>
       </div>
-
       <div style={{width:'100%'}}>
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>O empieza por categoría</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
@@ -179,43 +173,43 @@ const LOGO = () => (
 
 function SimpleCharts({descartados, consumidos, catStats}){
   const total = Math.max(1, descartados.length + consumidos.length);
-  const maxCat = catStats.length?Math.max(...catStats.map(c=>c.count||0)):1;
+  const maxCat = catStats.length?Math.max(...catStats.map(c=>c.count||c.descartados||0)):1;
   return (
     <div style={{display:'flex',gap:12,flexDirection:'column'}}>
-      <div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
-        <div style={{flex:'0 0 260px',background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
-          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>🎯 Consumidos vs Descartados</div>
-          <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden'}}>
-              <div title={`${consumidos.length} consumidos`} style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'linear-gradient(90deg,var(--green),#30D158)'}}/>
-              <div title={`${descartados.length} descartados`} style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#FF3B30'}}/>
-            </div>
-            <div style={{fontSize:12,color:'var(--text2)',minWidth:100,textAlign:'right'}}>{consumidos.length} ✓ &nbsp; / &nbsp; {descartados.length} ✗</div>
+      <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
+        <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>🎯 Consumidos vs Descartados</div>
+        <div style={{display:'flex',alignItems:'center',gap:8}}>
+          <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden'}}>
+            <div style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'linear-gradient(90deg,var(--green),#30D158)'}}/>
+            <div style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#FF3B30'}}/>
           </div>
-          <div style={{display:'flex',gap:8,marginTop:8,alignItems:'center'}}>
-            <div style={{display:'flex',alignItems:'center',gap:6}}>
-              <div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/>
-              <div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',gap:6}}>
-              <div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/>
-              <div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div>
-            </div>
+          <div style={{fontSize:12,color:'var(--text2)',minWidth:100,textAlign:'right'}}>{consumidos.length} ✓ / {descartados.length} ✗</div>
+        </div>
+        <div style={{display:'flex',gap:12,marginTop:8,alignItems:'center'}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/>
+            <div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/>
+            <div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div>
           </div>
         </div>
-
-        <div style={{flex:1,background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
+      </div>
+      {catStats.length>0 && (
+        <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
           <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías (historial)</div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {catStats.slice(0,5).map((c,i)=>{
-              const pct = maxCat>0?Math.round((c.count/maxCat)*100):0;
+            {catStats.slice(0,5).map((c)=>{
+              const val = c.count||c.descartados||0;
+              const pct = maxCat>0?Math.round((val/maxCat)*100):0;
               return (
                 <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
                   <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
                       <span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span>
-                      <span style={{fontSize:11,color:'var(--text2)'}}>{c.count}</span>
+                      <span style={{fontSize:11,color:'var(--text2)'}}>{val}</span>
                     </div>
                     <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}>
                       <div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green) 0%, #30D158 100%)'}}/>
@@ -224,10 +218,9 @@ function SimpleCharts({descartados, consumidos, catStats}){
                 </div>
               );
             })}
-            {catStats.length===0 && <div style={{fontSize:12,color:'var(--text2)'}}>Sin datos por categoría aún.</div>}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -381,7 +374,7 @@ function Widget({ activos }) {
 }
 
 export default function App() {
-  const [splash, setSplash] = useState(true);
+  const [splash, setSplash] = useState(() => !localStorage.getItem('aldia_splash_visto'));
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [products, setProducts] = useState([]);
@@ -456,7 +449,10 @@ export default function App() {
     setValorMeta('');
   };
 
-  if(splash) return <Splash onDone={()=>setSplash(false)}/>;
+  if(splash) return <Splash onDone={()=>{
+    localStorage.setItem('aldia_splash_visto','true');
+    setSplash(false);
+  }}/>;
 
   if(cargando) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'-apple-system,sans-serif',color:'var(--text2)',background:'var(--bg)'}}>
@@ -476,25 +472,23 @@ export default function App() {
   const perdida = descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro = consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
 
-  // Calcular productos frecuentes
   const todosLosProductos = [...activos, ...historial];
   const frecuentesCont = {};
   todosLosProductos.forEach(p=>{
     const key = `${p.name}-${p.cat}`;
-    frecuentesCont[key] = (frecuentesCont[key] || 0) + 1;
+    frecuentesCont[key] = (frecuentesCont[key]||0)+1;
   });
-  const productosFrecuentes = Object.entries(frecuentesCont)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,5)
-    .map(([key,count])=>{
-      const [name,cat] = key.split('-');
-      return {name,cat,count};
-    });
+  const productosFrecuentes = Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{
+    const idx = key.lastIndexOf('-');
+    const name = key.substring(0,idx);
+    const cat = key.substring(idx+1);
+    return {name,cat};
+  });
 
   const catStats = Object.keys(CATS).map(cat=>{
     const descartadosCat = descartados.filter(p=>p.cat===cat);
     const consumidosCat = consumidos.filter(p=>p.cat===cat);
-    const totalCat = descartadosCat.length + consumidosCat.length;
+    const totalCat = descartadosCat.length+consumidosCat.length;
     const pctDesperdicio = totalCat>0?Math.round((descartadosCat.length/totalCat)*100):0;
     return {cat,descartados:descartadosCat.length,total:totalCat,pctDesperdicio,pérdidaCat:descartadosCat.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
   }).filter(x=>x.descartados>0).sort((a,b)=>b.descartados-a.descartados);
@@ -521,11 +515,7 @@ export default function App() {
   const cats = ['Todos',...new Set(activos.map(p=>p.cat))];
   const filtered = activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
-  const abrirNuevo = (catInicial) => {
-    setEditId(null);
-    setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});
-    setPantalla('form');
-  };
+  const abrirNuevo = (catInicial) => { setEditId(null); setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''}); setPantalla('form'); };
   const abrirEditar = (p) => { setEditId(p.id); setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''}); setPantalla('form'); };
 
   const guardar = async () => {
@@ -579,15 +569,12 @@ export default function App() {
         <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
         <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
       </div>
-      {!editId && productosFrecuentes.length > 0 && (
+      {!editId && productosFrecuentes.length>0 && (
         <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)'}}>
           <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:8}}>⚡ Productos frecuentes</div>
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
             {productosFrecuentes.map((p,i)=>(
-              <button key={i} onClick={()=>{
-                setForm({...form,name:p.name,cat:p.cat});
-                document.querySelector('[placeholder="Ej: Leche entera"]')?.focus();
-              }} style={{padding:'6px 10px',borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:11,fontWeight:500,cursor:'pointer',transition:'opacity 0.2s',opacity:0.9}} onMouseEnter={(e)=>e.currentTarget.style.opacity='1'} onMouseLeave={(e)=>e.currentTarget.style.opacity='0.9'}>
+              <button key={i} onClick={()=>setForm({...form,name:p.name,cat:p.cat})} style={{padding:'6px 10px',borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:11,fontWeight:500,cursor:'pointer'}}>
                 {CATS[p.cat]} {p.name}
               </button>
             ))}
@@ -598,17 +585,9 @@ export default function App() {
         <div style={S.formSection}>
           <div style={S.formRow}>
             <span style={S.formLabel}>📝 Nombre</span>
-            <input 
-              list="nombresSugeridos"
-              style={S.formInput} 
-              value={form.name} 
-              onChange={e=>setForm({...form,name:e.target.value})} 
-              placeholder="Ej: Leche entera"
-            />
+            <input list="nombresSugeridos" style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
             <datalist id="nombresSugeridos">
-              {todosLosProductos.map((p,i)=>(
-                <option key={i} value={p.name}/>
-              ))}
+              {todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}
             </datalist>
           </div>
           <div style={S.formRow}><span style={S.formLabel}>🏷️ Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
@@ -634,7 +613,7 @@ export default function App() {
     <div style={S.screen}>
       <div style={S.header}>
         <div style={S.titleRow}>
-          <LOGO />
+          <LOGO/>
           <div style={S.title}>Al Día</div>
           <div style={{position:'relative',marginLeft:'auto'}} ref={menuRef}>
             <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
@@ -663,37 +642,32 @@ export default function App() {
                     <div style={{fontSize:11,color:'#34C759',marginTop:2}}>Activo ahora</div>
                   </div>
                 </div>
-                
                 <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
-
                 <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>{alert('Editar perfil - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,transition:'background 0.2s',':hover':{background:'var(--input)'}}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                  <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                     <span>✏️</span> Editar perfil
                   </div>
-                  <div onClick={()=>{alert('Preferencias - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,transition:'background 0.2s'}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                  <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                     <span>⚙️</span> Preferencias
                   </div>
                 </div>
-
                 <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
-                  <div onClick={()=>{alert('Ayuda y FAQ - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                  <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                     <span>❓</span> Ayuda y FAQ
                   </div>
-                  <div onClick={()=>{alert('Contacto: soporte@aldia.com');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                  <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                     <span>📧</span> Contacto y soporte
                   </div>
                 </div>
-
                 <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>{alert('Términos y privacidad - En desarrollo');}} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                  <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                     <span>📋</span> Términos y privacidad
                   </div>
-                  <div onClick={()=>{alert('Versión 1.0.0');}} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
-                    <span>ℹ️</span> Versión
+                  <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                    <span>ℹ️</span> Versión 1.0.0
                   </div>
                 </div>
-
-                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                   <span>🚪</span> Cerrar sesión
                 </div>
               </div>
@@ -709,29 +683,19 @@ export default function App() {
       )}
 
       {tab==='home' && <>
-        {activos.length === 0 ? (
+        {activos.length===0 ? (
           <EmptyState
-            onAgregar={() => abrirNuevo()}
-            onCategoria={(cat) => abrirNuevo(cat)}
-            onAgregarEjemplo={async (ej) => {
+            onAgregar={()=>abrirNuevo()}
+            onCategoria={(cat)=>abrirNuevo(cat)}
+            onAgregarEjemplo={async(ej)=>{
               setGuardando(true);
               try {
-                await addDoc(collection(db,"productos"),{
-                  name:ej.name,
-                  cat:ej.cat,
-                  exp:ej.exp,
-                  qty:'',
-                  alert:7,
-                  precio:'',
-                  uid:usuario.uid,
-                  estado:null,
-                  fechaCreacion:new Date().toISOString()
-                });
+                await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
               } catch(e){ console.error(e); }
               setGuardando(false);
             }}
           />
-        ) : (
+        ):(
           <>
             <Widget activos={activos}/>
             <div style={S.statsGrid}>
@@ -787,9 +751,9 @@ export default function App() {
 
       {tab==='estadisticas' && (
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
-            <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
-              <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats} />
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
+          <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Consumidos</div><div style={{fontSize:22,fontWeight:600,color:'#34C759'}}>{consumidos.length}</div></div>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Descartados</div><div style={{fontSize:22,fontWeight:600,color:'#FF9500'}}>{descartados.length}</div></div>
           </div>
