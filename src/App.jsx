@@ -61,6 +61,16 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
   return (
     <div style={{padding:'24px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
       <svg width="140" height="140" viewBox="0 0 140 140">
+        <defs>
+          <radialGradient id="pulseGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#30D158" stopOpacity="0.16" />
+            <stop offset="100%" stopColor="#30D158" stopOpacity="0" />
+          </radialGradient>
+        </defs>
+        <circle cx="70" cy="70" r="42" fill="url(#pulseGrad)">
+          <animate attributeName="r" values="42;52;42" dur="2.6s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.16;0.06;0.16" dur="2.6s" repeatCount="indefinite" />
+        </circle>
         <circle cx="70" cy="70" r="55" fill="var(--card)"/>
         <circle cx="70" cy="70" r="42" fill="var(--input)"/>
         <rect x="44" y="48" width="52" height="44" rx="6" fill="none" stroke="#2DB54E" strokeWidth="2"/>
@@ -107,12 +117,20 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
 
       <div style={{width:'100%',borderTop:'0.5px solid var(--border2)',paddingTop:16}}>
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,textAlign:'center',fontWeight:500}}>💡 O prueba con estos ejemplos</div>
-        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
           {ejemplos.map((ej,i)=>(
-            <button key={i} onClick={()=>onAgregarEjemplo(ej)} style={{width:'100%',padding:'10px 12px',borderRadius:10,background:'var(--card)',border:'0.5px solid var(--border2)',fontSize:12,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',transition:'background 0.2s'}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='var(--card)'}>
-              <span>{CATS[ej.cat]} {ej.name}</span>
-              <span style={{fontSize:11,color:'var(--text2)'}}>+ Agregar</span>
-            </button>
+            <div key={i} style={{display:'flex',flexDirection:'column',gap:6,background:'linear-gradient(180deg, var(--card), #fafbfaf0)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)',boxShadow:'0 6px 18px rgba(15,15,15,0.04)'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
+                <div style={{display:'flex',alignItems:'center',gap:10}}>
+                  <div style={{width:44,height:44,borderRadius:10,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>{CATS[ej.cat]}</div>
+                  <div style={{minWidth:0}}>
+                    <div style={{fontSize:14,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div>
+                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat} · {new Date(ej.exp+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</div>
+                  </div>
+                </div>
+                <button onClick={()=>onAgregarEjemplo(ej)} style={{padding:'8px 10px',borderRadius:10,background:'var(--green)',color:'#fff',border:'none',fontSize:13,fontWeight:600,cursor:'pointer'}}>Agregar</button>
+              </div>
+            </div>
           ))}
         </div>
       </div>
