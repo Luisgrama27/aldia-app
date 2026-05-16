@@ -513,7 +513,7 @@ export default function App() {
               </div>
             )}
             {menuAbierto && (
-              <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:200,zIndex:51}}>
+              <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:51}}>
                 <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
                   <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
                     {usuario.photoURL
@@ -526,7 +526,37 @@ export default function App() {
                     <div style={{fontSize:11,color:'#34C759',marginTop:2}}>Activo ahora</div>
                   </div>
                 </div>
-                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'13px 14px',fontSize:14,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8}}>
+                
+                <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
+
+                <div style={{padding:'6px 0'}}>
+                  <div onClick={()=>{alert('Editar perfil - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,transition:'background 0.2s',':hover':{background:'var(--input)'}}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>✏️</span> Editar perfil
+                  </div>
+                  <div onClick={()=>{alert('Preferencias - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8,transition:'background 0.2s'}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>⚙️</span> Preferencias
+                  </div>
+                </div>
+
+                <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
+                  <div onClick={()=>{alert('Ayuda y FAQ - En desarrollo');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>❓</span> Ayuda y FAQ
+                  </div>
+                  <div onClick={()=>{alert('Contacto: soporte@aldia.com');}} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>📧</span> Contacto y soporte
+                  </div>
+                </div>
+
+                <div style={{padding:'6px 0'}}>
+                  <div onClick={()=>{alert('Términos y privacidad - En desarrollo');}} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>📋</span> Términos y privacidad
+                  </div>
+                  <div onClick={()=>{alert('Versión 1.0.0');}} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
+                    <span>ℹ️</span> Versión
+                  </div>
+                </div>
+
+                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={(e)=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={(e)=>e.currentTarget.style.background='transparent'}>
                   <span>🚪</span> Cerrar sesión
                 </div>
               </div>
