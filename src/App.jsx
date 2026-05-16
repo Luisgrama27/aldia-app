@@ -49,6 +49,73 @@ function Splash({ onDone }) {
   );
 }
 
+function EmptyState({ onAgregar, onCategoria }) {
+  return (
+    <div style={{padding:'24px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+      <svg width="140" height="140" viewBox="0 0 140 140">
+        <circle cx="70" cy="70" r="55" fill="var(--card)"/>
+        <circle cx="70" cy="70" r="42" fill="var(--input)"/>
+        <rect x="44" y="48" width="52" height="44" rx="6" fill="none" stroke="#2DB54E" strokeWidth="2"/>
+        <line x1="44" y1="58" x2="96" y2="58" stroke="#2DB54E" strokeWidth="1.5"/>
+        <line x1="52" y1="44" x2="52" y2="52" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="88" y1="44" x2="88" y2="52" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
+        <rect x="52" y="65" width="12" height="10" rx="2" fill="#2DB54E" opacity="0.3"/>
+        <rect x="68" y="65" width="12" height="10" rx="2" fill="#2DB54E" opacity="0.6"/>
+        <rect x="84" y="65" width="8" height="10" rx="2" fill="#2DB54E"/>
+        <circle cx="105" cy="38" r="12" fill="#30D158"/>
+        <line x1="105" y1="33" x2="105" y2="38" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="105" y1="38" x2="108" y2="40" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
+        <circle cx="35" cy="100" r="8" fill="#FF9500" opacity="0.8"/>
+        <line x1="35" y1="96" x2="35" y2="100" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="35" cy="100" r="1.5" fill="#fff"/>
+      </svg>
+
+      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>
+        ¡Bienvenido a Al Día!
+      </div>
+      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>
+        Empieza registrando tus productos y nunca más se te vencerá nada en casa.
+      </div>
+
+      <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8}}>
+        {[
+          {n:'1', title:'Agrega un producto', sub:'con su fecha de vencimiento'},
+          {n:'2', title:'Recibe alertas', sub:'antes de que venza'},
+          {n:'3', title:'Marca como consumido', sub:'y lleva el control'},
+        ].map(s=>(
+          <div key={s.n} style={{display:'flex',alignItems:'center',gap:10,background:'var(--card)',borderRadius:12,padding:'10px 14px',border:'0.5px solid var(--border2)'}}>
+            <div style={{width:26,height:26,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{s.n}</div>
+            <div>
+              <div style={{fontSize:13,fontWeight:500,color:'var(--text)'}}>{s.title}</div>
+              <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{s.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+        + Agregar mi primer producto
+      </button>
+
+      <div style={{width:'100%'}}>
+        <div style={{fontSize:12,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>O empieza por categoría</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+          {[
+            {cat:'Lácteos',emoji:'🥛'},
+            {cat:'Carnes',emoji:'🥩'},
+            {cat:'Medicamentos',emoji:'💊'},
+            {cat:'Bebidas',emoji:'🧃'},
+          ].map(c=>(
+            <button key={c.cat} onClick={()=>onCategoria(c.cat)} style={{height:40,borderRadius:10,background:'var(--card)',border:'0.5px solid var(--border2)',fontSize:13,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
+              {c.emoji} {c.cat}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const LOGO = () => (
   <svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}>
     <defs>
@@ -135,10 +202,8 @@ const icBg = (st) => ({ok:'#f0fff4',warn:'#fff8ee',danger:'#fff2f2',expired:'#ff
 const S = {
   screen:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:70},
   header:{background:'var(--bg2)',padding:'12px 20px 14px',borderBottom:'0.5px solid var(--border)'},
-  headerTop:{display:'flex',justifyContent:'space-between',alignItems:'center'},
-  greeting:{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3},
   avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
-  titleRow:{display:'flex',alignItems:'center',gap:10,marginTop:6},
+  titleRow:{display:'flex',alignItems:'center',gap:10},
   title:{fontSize:26,fontWeight:700,color:'var(--text)',letterSpacing:-0.5},
   statsGrid:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,padding:'10px 14px 4px'},
   statCard:{background:'var(--card)',borderRadius:13,padding:'10px 12px',border:'0.5px solid var(--border2)'},
@@ -348,7 +413,11 @@ export default function App() {
   const cats = ['Todos',...new Set(activos.map(p=>p.cat))];
   const filtered = activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
-  const abrirNuevo = () => { setEditId(null); setForm({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''}); setPantalla('form'); };
+  const abrirNuevo = (catInicial) => {
+    setEditId(null);
+    setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});
+    setPantalla('form');
+  };
   const abrirEditar = (p) => { setEditId(p.id); setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''}); setPantalla('form'); };
 
   const guardar = async () => {
@@ -473,54 +542,63 @@ export default function App() {
       )}
 
       {tab==='home' && <>
-        <Widget activos={activos}/>
-        <div style={S.statsGrid}>
-          {[
-            {n:expired+danger,l:'Urgentes',c:'#FF3B30'},
-            {n:warn,l:'Próximos',c:'#FF9500'},
-            {n:ok,l:'En buen estado',c:'#34C759'},
-            {n:activos.length,l:'Total',c:'var(--green)'},
-          ].map(s=>(
-            <div key={s.l} style={S.statCard}>
-              <div style={S.statLabel}>{s.l}</div>
-              <div style={{fontSize:22,fontWeight:600,letterSpacing:-0.5,color:s.c}}>{s.n}</div>
+        {activos.length === 0 ? (
+          <EmptyState
+            onAgregar={() => abrirNuevo()}
+            onCategoria={(cat) => abrirNuevo(cat)}
+          />
+        ) : (
+          <>
+            <Widget activos={activos}/>
+            <div style={S.statsGrid}>
+              {[
+                {n:expired+danger,l:'Urgentes',c:'#FF3B30'},
+                {n:warn,l:'Próximos',c:'#FF9500'},
+                {n:ok,l:'En buen estado',c:'#34C759'},
+                {n:activos.length,l:'Total',c:'var(--green)'},
+              ].map(s=>(
+                <div key={s.l} style={S.statCard}>
+                  <div style={S.statLabel}>{s.l}</div>
+                  <div style={{fontSize:22,fontWeight:600,letterSpacing:-0.5,color:s.c}}>{s.n}</div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        {expired>0 && <div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
-        {danger>0 && <div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
-        <div style={S.sectionHeader}><span style={S.sectionTitle}>Mis productos</span></div>
-        <div style={S.filters}>
-          {cats.map(c=>(
-            <button key={c} onClick={()=>setFiltro(c)} style={{padding:'5px 12px',borderRadius:999,fontSize:12,fontWeight:500,border:'none',cursor:'pointer',whiteSpace:'nowrap',background:filtro===c?'var(--green)':'var(--card)',color:filtro===c?'#fff':'var(--text2)'}}>{c}</button>
-          ))}
-        </div>
-        <div style={S.searchWrap}>
-          <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
-        </div>
-        <div style={S.plist}>
-          {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)'}}>No tienes productos aún. ¡Agrega el primero!</div>}
-          {filtered.map((p,i)=>{
-            const d=daysUntil(p.exp); const st=status(p);
-            const isFirst=i===0; const isLast=i===filtered.length-1;
-            const radius=`${isFirst?'14px 14px':' 0 0'} ${isLast?'14px 14px':'0 0'}`;
-            return (
-              <div key={p.id} onClick={()=>abrirEditar(p)} style={{...S.pcard,borderRadius:radius}}>
-                <div style={{...S.iconWrap,background:icBg(st)}}><span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span></div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
-                </div>
-                <div style={{textAlign:'right',flexShrink:0}}>
-                  <div style={{fontSize:13,fontWeight:500,color:stColor(st)}}>{daysLabel(d)}</div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{new Date(p.exp+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</div>
-                </div>
-                <span style={{fontSize:12,color:'var(--text2)',marginLeft:2}}>›</span>
-              </div>
-            );
-          })}
-        </div>
-        <div style={S.fabWrap}><button style={S.fab} onClick={abrirNuevo}>+ Agregar producto</button></div>
+            {expired>0 && <div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
+            {danger>0 && <div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
+            <div style={S.sectionHeader}><span style={S.sectionTitle}>Mis productos</span></div>
+            <div style={S.filters}>
+              {cats.map(c=>(
+                <button key={c} onClick={()=>setFiltro(c)} style={{padding:'5px 12px',borderRadius:999,fontSize:12,fontWeight:500,border:'none',cursor:'pointer',whiteSpace:'nowrap',background:filtro===c?'var(--green)':'var(--card)',color:filtro===c?'#fff':'var(--text2)'}}>{c}</button>
+              ))}
+            </div>
+            <div style={S.searchWrap}>
+              <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
+            </div>
+            <div style={S.plist}>
+              {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)'}}>Sin resultados para tu búsqueda.</div>}
+              {filtered.map((p,i)=>{
+                const d=daysUntil(p.exp); const st=status(p);
+                const isFirst=i===0; const isLast=i===filtered.length-1;
+                const radius=`${isFirst?'14px 14px':' 0 0'} ${isLast?'14px 14px':'0 0'}`;
+                return (
+                  <div key={p.id} onClick={()=>abrirEditar(p)} style={{...S.pcard,borderRadius:radius}}>
+                    <div style={{...S.iconWrap,background:icBg(st)}}><span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span></div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
+                      <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
+                    </div>
+                    <div style={{textAlign:'right',flexShrink:0}}>
+                      <div style={{fontSize:13,fontWeight:500,color:stColor(st)}}>{daysLabel(d)}</div>
+                      <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{new Date(p.exp+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</div>
+                    </div>
+                    <span style={{fontSize:12,color:'var(--text2)',marginLeft:2}}>›</span>
+                  </div>
+                );
+              })}
+            </div>
+            <div style={S.fabWrap}><button style={S.fab} onClick={()=>abrirNuevo()}>+ Agregar producto</button></div>
+          </>
+        )}
       </>}
 
       {tab==='estadisticas' && (
