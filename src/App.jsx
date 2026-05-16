@@ -49,7 +49,15 @@ function Splash({ onDone }) {
   );
 }
 
-function EmptyState({ onAgregar, onCategoria }) {
+function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
+  const ejemplos = [
+    {name:'Leche entera',cat:'Lácteos',exp:'2025-06-15'},
+    {name:'Pollo fresco',cat:'Carnes',exp:'2025-06-10'},
+    {name:'Zanahorias',cat:'Frutas y verduras',exp:'2025-06-20'},
+    {name:'Ibuprofeno',cat:'Medicamentos',exp:'2026-12-30'},
+    {name:'Jugo natural',cat:'Bebidas',exp:'2025-06-12'},
+  ];
+  
   return (
     <div style={{padding:'24px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
       <svg width="140" height="140" viewBox="0 0 140 140">
@@ -94,8 +102,20 @@ function EmptyState({ onAgregar, onCategoria }) {
       </div>
 
       <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
-        + Agregar mi primer producto
+        ✨ Agregar mi primer producto
       </button>
+
+      <div style={{width:'100%',borderTop:'0.5px solid var(--border2)',paddingTop:16}}>
+        <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,textAlign:'center',fontWeight:500}}>💡 O prueba con estos ejemplos</div>
+        <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          {ejemplos.map((ej,i)=>(
+            <button key={i} onClick={()=>onAgregarEjemplo(ej)} style={{width:'100%',padding:'10px 12px',borderRadius:10,background:'var(--card)',border:'0.5px solid var(--border2)',fontSize:12,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',transition:'background 0.2s'}} onMouseEnter={(e)=>e.currentTarget.style.background='var(--input)'} onMouseLeave={(e)=>e.currentTarget.style.background='var(--card)'}>
+              <span>{CATS[ej.cat]} {ej.name}</span>
+              <span style={{fontSize:11,color:'var(--text2)'}}>+ Agregar</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div style={{width:'100%'}}>
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>O empieza por categoría</div>
@@ -383,6 +403,21 @@ export default function App() {
   const perdida = descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro = consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
 
+  // Calcular productos frecuentes
+  const todosLosProductos = [...activos, ...historial];
+  const frecuentesCont = {};
+  todosLosProductos.forEach(p=>{
+    const key = `${p.name}-${p.cat}`;
+    frecuentesCont[key] = (frecuentesCont[key] || 0) + 1;
+  });
+  const productosFrecuentes = Object.entries(frecuentesCont)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,5)
+    .map(([key,count])=>{
+      const [name,cat] = key.split('-');
+      return {name,cat,count};
+    });
+
   const catStats = Object.keys(CATS).map(cat=>{
     const descartadosCat = descartados.filter(p=>p.cat===cat);
     const consumidosCat = consumidos.filter(p=>p.cat===cat);
@@ -469,16 +504,45 @@ export default function App() {
     <div style={S.formWrap}>
       <div style={S.formHeader}>
         <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
-        <span style={S.formTitle}>{editId?'Editar producto':'Nuevo producto'}</span>
+        <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
       </div>
+      {!editId && productosFrecuentes.length > 0 && (
+        <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)'}}>
+          <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:8}}>⚡ Productos frecuentes</div>
+          <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
+            {productosFrecuentes.map((p,i)=>(
+              <button key={i} onClick={()=>{
+                setForm({...form,name:p.name,cat:p.cat});
+                document.querySelector('[placeholder="Ej: Leche entera"]')?.focus();
+              }} style={{padding:'6px 10px',borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:11,fontWeight:500,cursor:'pointer',transition:'opacity 0.2s',opacity:0.9}} onMouseEnter={(e)=>e.currentTarget.style.opacity='1'} onMouseLeave={(e)=>e.currentTarget.style.opacity='0.9'}>
+                {CATS[p.cat]} {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div style={S.formBody}>
         <div style={S.formSection}>
-          <div style={S.formRow}><span style={S.formLabel}>Nombre</span><input style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/></div>
-          <div style={S.formRow}><span style={S.formLabel}>Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
-          <div style={S.formRow}><span style={S.formLabel}>Fecha de vencimiento</span><input type="date" style={S.formInput} value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/></div>
-          <div style={S.formRow}><span style={S.formLabel}>Cantidad / notas</span><input style={S.formInput} value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/></div>
-          <div style={S.formRow}><span style={S.formLabel}>Precio (opcional)</span><input type="number" style={S.formInput} value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/></div>
-          <div style={S.formRowLast}><span style={S.formLabel}>Alertar con anticipación</span><select style={S.formSelect} value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}><option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option></select></div>
+          <div style={S.formRow}>
+            <span style={S.formLabel}>📝 Nombre</span>
+            <input 
+              list="nombresSugeridos"
+              style={S.formInput} 
+              value={form.name} 
+              onChange={e=>setForm({...form,name:e.target.value})} 
+              placeholder="Ej: Leche entera"
+            />
+            <datalist id="nombresSugeridos">
+              {todosLosProductos.map((p,i)=>(
+                <option key={i} value={p.name}/>
+              ))}
+            </datalist>
+          </div>
+          <div style={S.formRow}><span style={S.formLabel}>🏷️ Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
+          <div style={S.formRow}><span style={S.formLabel}>📅 Fecha de vencimiento</span><input type="date" style={S.formInput} value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/></div>
+          <div style={S.formRow}><span style={S.formLabel}>📊 Cantidad / notas</span><input style={S.formInput} value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/></div>
+          <div style={S.formRow}><span style={S.formLabel}>💰 Precio (opcional)</span><input type="number" style={S.formInput} value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/></div>
+          <div style={S.formRowLast}><span style={S.formLabel}>🔔 Alertar con anticipación</span><select style={S.formSelect} value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}><option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option></select></div>
         </div>
         <button style={{...S.saveBtn,opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
         {editId && (
@@ -576,6 +640,23 @@ export default function App() {
           <EmptyState
             onAgregar={() => abrirNuevo()}
             onCategoria={(cat) => abrirNuevo(cat)}
+            onAgregarEjemplo={async (ej) => {
+              setGuardando(true);
+              try {
+                await addDoc(collection(db,"productos"),{
+                  name:ej.name,
+                  cat:ej.cat,
+                  exp:ej.exp,
+                  qty:'',
+                  alert:7,
+                  precio:'',
+                  uid:usuario.uid,
+                  estado:null,
+                  fechaCreacion:new Date().toISOString()
+                });
+              } catch(e){ console.error(e); }
+              setGuardando(false);
+            }}
           />
         ) : (
           <>
@@ -595,14 +676,14 @@ export default function App() {
             </div>
             {expired>0 && <div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
             {danger>0 && <div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
-            <div style={S.sectionHeader}><span style={S.sectionTitle}>Mis productos</span></div>
+            <div style={S.sectionHeader}><span style={S.sectionTitle}>📦 Mis productos</span></div>
             <div style={S.filters}>
               {cats.map(c=>(
                 <button key={c} onClick={()=>setFiltro(c)} style={{padding:'5px 12px',borderRadius:999,fontSize:12,fontWeight:500,border:'none',cursor:'pointer',whiteSpace:'nowrap',background:filtro===c?'var(--green)':'var(--card)',color:filtro===c?'#fff':'var(--text2)'}}>{c}</button>
               ))}
             </div>
             <div style={S.searchWrap}>
-              <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
+              <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
             </div>
             <div style={S.plist}>
               {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)'}}>Sin resultados para tu búsqueda.</div>}
@@ -626,14 +707,14 @@ export default function App() {
                 );
               })}
             </div>
-            <div style={S.fabWrap}><button style={S.fab} onClick={()=>abrirNuevo()}>+ Agregar producto</button></div>
+            <div style={S.fabWrap}><button style={S.fab} onClick={()=>abrirNuevo()}>✨ Agregar producto</button></div>
           </>
         )}
       </>}
 
       {tab==='estadisticas' && (
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>Estadísticas</div>
+          <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Consumidos</div><div style={{fontSize:22,fontWeight:600,color:'#34C759'}}>{consumidos.length}</div></div>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Descartados</div><div style={{fontSize:22,fontWeight:600,color:'#FF9500'}}>{descartados.length}</div></div>
@@ -705,14 +786,14 @@ export default function App() {
               </div>
             </div>
           )}
-          {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>Aún no hay datos. Marca productos como consumidos o descartados para ver tus estadísticas.</div>}
+          {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>📊 Aún no hay datos. Marca productos como consumidos o descartados para ver tus estadísticas.</div>}
         </div>
       )}
 
       {tab==='historial' && (
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:8}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0 8px'}}>
-            <div style={{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3}}>Historial</div>
+            <div style={{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3}}>📜 Historial</div>
             {historial.length>0&&<button onClick={eliminarTodoHistorial} style={{background:'none',border:'none',color:'#FF3B30',fontSize:13,cursor:'pointer',fontWeight:500}}>Borrar todo</button>}
           </div>
           {historial.length>0&&(
