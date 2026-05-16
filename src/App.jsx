@@ -159,6 +159,61 @@ const LOGO = () => (
   </svg>
 );
 
+function SimpleCharts({descartados, consumidos, catStats}){
+  const total = Math.max(1, descartados.length + consumidos.length);
+  const maxCat = catStats.length?Math.max(...catStats.map(c=>c.count||0)):1;
+  return (
+    <div style={{display:'flex',gap:12,flexDirection:'column'}}>
+      <div style={{display:'flex',gap:12,alignItems:'center',flexWrap:'wrap'}}>
+        <div style={{flex:'0 0 260px',background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
+          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>🎯 Consumidos vs Descartados</div>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden'}}>
+              <div title={`${consumidos.length} consumidos`} style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'linear-gradient(90deg,var(--green),#30D158)'}}/>
+              <div title={`${descartados.length} descartados`} style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#FF3B30'}}/>
+            </div>
+            <div style={{fontSize:12,color:'var(--text2)',minWidth:100,textAlign:'right'}}>{consumidos.length} ✓ &nbsp; / &nbsp; {descartados.length} ✗</div>
+          </div>
+          <div style={{display:'flex',gap:8,marginTop:8,alignItems:'center'}}>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/>
+              <div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div>
+            </div>
+            <div style={{display:'flex',alignItems:'center',gap:6}}>
+              <div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/>
+              <div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{flex:1,background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
+          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías (historial)</div>
+          <div style={{display:'flex',flexDirection:'column',gap:8}}>
+            {catStats.slice(0,5).map((c,i)=>{
+              const pct = maxCat>0?Math.round((c.count/maxCat)*100):0;
+              return (
+                <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
+                  <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                      <span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span>
+                      <span style={{fontSize:11,color:'var(--text2)'}}>{c.count}</span>
+                    </div>
+                    <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}>
+                      <div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green) 0%, #30D158 100%)'}}/>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {catStats.length===0 && <div style={{fontSize:12,color:'var(--text2)'}}>Sin datos por categoría aún.</div>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const CATS = {
   'Lácteos':'🥛','Carnes':'🥩','Frutas y verduras':'🥦','Granos y cereales':'🌾',
   'Enlatados':'🥫','Bebidas':'🧃','Medicamentos':'💊','Limpieza':'🧴','Otro':'📦'
@@ -714,8 +769,9 @@ export default function App() {
 
       {tab==='estadisticas' && (
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
-          <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
+              <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats} />
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Consumidos</div><div style={{fontSize:22,fontWeight:600,color:'#34C759'}}>{consumidos.length}</div></div>
             <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Descartados</div><div style={{fontSize:22,fontWeight:600,color:'#FF9500'}}>{descartados.length}</div></div>
           </div>
