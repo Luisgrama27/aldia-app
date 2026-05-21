@@ -24,9 +24,7 @@ function Splash({ onDone }) {
         <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(45,181,78,0.4))'}}>
           <defs>
             <linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{stopColor:'#2DB54E'}}/>
-              <stop offset="50%" style={{stopColor:'#30D158'}}/>
-              <stop offset="100%" style={{stopColor:'#1E8E3E'}}/>
+              <stop offset="0%" style={{stopColor:'#2DB54E'}}/><stop offset="50%" style={{stopColor:'#30D158'}}/><stop offset="100%" style={{stopColor:'#1E8E3E'}}/>
             </linearGradient>
           </defs>
           <circle cx="40" cy="40" r="36" fill="url(#splashGrad)" stroke="#fff" strokeWidth="1.5"/>
@@ -114,14 +112,12 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,textAlign:'center',fontWeight:500}}>💡 O prueba con estos ejemplos</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
           {ejemplos.map((ej,i)=>(
-            <div key={i} style={{display:'flex',flexDirection:'column',gap:6,background:'var(--card)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)'}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:8}}>
-                <div style={{display:'flex',alignItems:'center',gap:8}}>
-                  <div style={{width:36,height:36,borderRadius:9,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{CATS[ej.cat]}</div>
-                  <div style={{minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat}</div>
-                  </div>
+            <div key={i} style={{background:'var(--card)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)'}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+                <div style={{width:36,height:36,borderRadius:9,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{CATS[ej.cat]}</div>
+                <div style={{minWidth:0}}>
+                  <div style={{fontSize:13,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div>
+                  <div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat}</div>
                 </div>
               </div>
               <button onClick={()=>onAgregarEjemplo(ej)} style={{width:'100%',height:32,borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>+ Agregar</button>
@@ -132,12 +128,7 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
       <div style={{width:'100%'}}>
         <div style={{fontSize:12,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>O empieza por categoría</div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          {[
-            {cat:'Lácteos',emoji:'🥛'},
-            {cat:'Carnes',emoji:'🥩'},
-            {cat:'Medicamentos',emoji:'💊'},
-            {cat:'Bebidas',emoji:'🧃'},
-          ].map(c=>(
+          {[{cat:'Lácteos',emoji:'🥛'},{cat:'Carnes',emoji:'🥩'},{cat:'Medicamentos',emoji:'💊'},{cat:'Bebidas',emoji:'🧃'}].map(c=>(
             <button key={c.cat} onClick={()=>onCategoria(c.cat)} style={{height:40,borderRadius:10,background:'var(--card)',border:'0.5px solid var(--border2)',fontSize:13,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>
               {c.emoji} {c.cat}
             </button>
@@ -152,14 +143,9 @@ const LOGO = () => (
   <svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}>
     <defs>
       <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/>
-        <stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/>
-        <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/>
+        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/><stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/>
       </linearGradient>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-      </filter>
+      <filter id="glow"><feGaussianBlur stdDeviation="2" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
     <circle cx="40" cy="40" r="36" fill="url(#logoGrad)" stroke="#fff" strokeWidth="1.5" filter="url(#glow)"/>
     <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
@@ -173,7 +159,7 @@ const LOGO = () => (
 
 function SimpleCharts({descartados, consumidos, catStats}){
   const total = Math.max(1, descartados.length + consumidos.length);
-  const maxCat = catStats.length?Math.max(...catStats.map(c=>c.count||c.descartados||0)):1;
+  const maxCat = catStats.length?Math.max(...catStats.map(c=>c.descartados||0)):1;
   return (
     <div style={{display:'flex',gap:12,flexDirection:'column'}}>
       <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
@@ -185,34 +171,27 @@ function SimpleCharts({descartados, consumidos, catStats}){
           </div>
           <div style={{fontSize:12,color:'var(--text2)',minWidth:100,textAlign:'right'}}>{consumidos.length} ✓ / {descartados.length} ✗</div>
         </div>
-        <div style={{display:'flex',gap:12,marginTop:8,alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/>
-            <div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div>
-          </div>
-          <div style={{display:'flex',alignItems:'center',gap:6}}>
-            <div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/>
-            <div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div>
-          </div>
+        <div style={{display:'flex',gap:12,marginTop:8}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/><div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div></div>
+          <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/><div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div></div>
         </div>
       </div>
       {catStats.length>0 && (
         <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
-          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías (historial)</div>
+          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías</div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {catStats.slice(0,5).map((c)=>{
-              const val = c.count||c.descartados||0;
-              const pct = maxCat>0?Math.round((val/maxCat)*100):0;
+            {catStats.slice(0,5).map(c=>{
+              const pct = maxCat>0?Math.round((c.descartados/maxCat)*100):0;
               return (
                 <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
                   <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
                       <span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span>
-                      <span style={{fontSize:11,color:'var(--text2)'}}>{val}</span>
+                      <span style={{fontSize:11,color:'var(--text2)'}}>{c.descartados}</span>
                     </div>
                     <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}>
-                      <div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green) 0%, #30D158 100%)'}}/>
+                      <div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)'}}/>
                     </div>
                   </div>
                 </div>
@@ -232,6 +211,49 @@ const CATS = {
 
 const today = new Date();
 today.setHours(0,0,0,0);
+
+function getSaludo(){
+  const h = new Date().getHours();
+  if(h < 12) return '☀️ Buenos días';
+  if(h < 18) return '🌤️ Buenas tardes';
+  return '🌙 Buenas noches';
+}
+
+function getBarWidth(days, alert){
+  if(days < 0) return 100;
+  if(days === 0) return 95;
+  if(days <= 3) return 75;
+  if(days <= alert) return 45;
+  if(days <= 30) return 20;
+  return 8;
+}
+
+function getBarColor(st){
+  if(st==='expired') return '#FF3B30';
+  if(st==='danger') return '#FF3B30';
+  if(st==='warn') return '#FF9500';
+  return '#2DB54E';
+}
+
+function getCardBg(st){
+  if(st==='expired') return 'rgba(255,59,48,0.07)';
+  if(st==='danger') return 'rgba(255,59,48,0.05)';
+  if(st==='warn') return 'rgba(255,149,0,0.05)';
+  return 'rgba(45,181,78,0.04)';
+}
+
+function getCardBorder(st){
+  if(st==='expired') return '0.5px solid rgba(255,59,48,0.25)';
+  if(st==='danger') return '0.5px solid rgba(255,59,48,0.15)';
+  if(st==='warn') return '0.5px solid rgba(255,149,0,0.2)';
+  return '0.5px solid rgba(45,181,78,0.15)';
+}
+
+function getBadgeBg(st){
+  if(st==='expired'||st==='danger') return '#FF3B30';
+  if(st==='warn') return '#FF9500';
+  return 'var(--green)';
+}
 
 const HomeIcon = (active) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -282,9 +304,6 @@ function daysLabel(d){
   return `${d} días`;
 }
 
-const stColor = (st) => ({ok:'#34C759',warn:'#FF9500',danger:'#FF3B30',expired:'#FF3B30'}[st]);
-const icBg = (st) => ({ok:'#f0fff4',warn:'#fff8ee',danger:'#fff2f2',expired:'#fff2f2'}[st]);
-
 const S = {
   screen:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:70},
   header:{background:'var(--bg2)',padding:'12px 20px 14px',borderBottom:'0.5px solid var(--border)'},
@@ -300,8 +319,7 @@ const S = {
   filters:{display:'flex',gap:6,padding:'2px 14px 10px',overflowX:'auto'},
   searchWrap:{padding:'0 14px 10px'},
   search:{width:'100%',height:34,borderRadius:10,border:'0.5px solid var(--border)',padding:'0 12px',fontSize:13,background:'var(--card)',boxSizing:'border-box',color:'var(--text)'},
-  plist:{display:'flex',flexDirection:'column',gap:'0.5px',background:'var(--border2)',borderRadius:14,overflow:'hidden',margin:'0 14px'},
-  pcard:{background:'var(--card)',padding:'10px 12px',display:'flex',alignItems:'center',gap:10,cursor:'pointer'},
+  plist:{display:'flex',flexDirection:'column',gap:7,padding:'0 14px'},
   iconWrap:{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0},
   fabWrap:{padding:'12px 14px 24px'},
   fab:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
@@ -325,11 +343,7 @@ const S = {
 };
 
 function Navbar({ tab, setTab, setPantalla }) {
-  const items = [
-    {id:'home',ico:HomeIcon,lbl:'Inicio'},
-    {id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},
-    {id:'historial',ico:HistoryIcon,lbl:'Historial'},
-  ];
+  const items = [{id:'home',ico:HomeIcon,lbl:'Inicio'},{id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},{id:'historial',ico:HistoryIcon,lbl:'Historial'}];
   return (
     <div style={S.navbar}>
       {items.map(it=>(
@@ -373,6 +387,52 @@ function Widget({ activos }) {
   );
 }
 
+// Tarjeta de producto animada
+function ProductCard({ p, index, onClick }) {
+  const [visible, setVisible] = useState(false);
+  const [barW, setBarW] = useState(0);
+  const d = daysUntil(p.exp);
+  const st = status(p);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setVisible(true), index * 80);
+    const t2 = setTimeout(() => setBarW(getBarWidth(d, p.alert)), index * 80 + 300);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, []);
+
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        borderRadius:13,
+        padding:'10px 12px',
+        background: getCardBg(st),
+        border: getCardBorder(st),
+        cursor:'pointer',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(14px)',
+        transition:'opacity 0.4s ease, transform 0.4s ease',
+      }}
+    >
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:7}}>
+        <div style={{...S.iconWrap,background:'var(--card)'}}>
+          <span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span>
+        </div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
+          <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
+        </div>
+        <div style={{padding:'4px 10px',borderRadius:999,background:getBadgeBg(st),color:'#fff',fontSize:12,fontWeight:600,flexShrink:0,textAlign:'center'}}>
+          {daysLabel(d)}
+        </div>
+      </div>
+      <div style={{width:'100%',height:4,borderRadius:2,background:'var(--input)',overflow:'hidden'}}>
+        <div style={{height:4,borderRadius:2,background:getBarColor(st),width:`${barW}%`,transition:'width 0.8s ease'}}/>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [splash, setSplash] = useState(() => !localStorage.getItem('aldia_splash_visto'));
   const [usuario, setUsuario] = useState(null);
@@ -390,14 +450,12 @@ export default function App() {
   const [meta, setMeta] = useState(null);
   const [editandoMeta, setEditandoMeta] = useState(false);
   const [valorMeta, setValorMeta] = useState('');
+  const [listKey, setListKey] = useState(0);
   const correoEnviadoHoy = useRef(false);
   const menuRef = useRef(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      setUsuario(user);
-      setCargando(false);
-    });
+    const unsub = onAuthStateChanged(auth, (user) => { setUsuario(user); setCargando(false); });
     return () => unsub();
   }, []);
 
@@ -407,6 +465,7 @@ export default function App() {
     const unsub = onSnapshot(q, (snap) => {
       const prods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setProducts(prods);
+      setListKey(k => k + 1);
       if (!correoEnviadoHoy.current) {
         const urgentes = prods.filter(p => !p.estado && (status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if (urgentes.length > 0) {
@@ -419,7 +478,7 @@ export default function App() {
           }, EMAILJS_KEY).then(() => {
             setCorreoEnviado(true);
             setTimeout(() => setCorreoEnviado(false), 5000);
-          }).catch(e => console.error('Error enviando correo:', e));
+          }).catch(e => console.error(e));
         }
       }
     });
@@ -427,21 +486,19 @@ export default function App() {
   }, [usuario]);
 
   useEffect(() => {
-    function handleClick(e){
-      if(menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false);
-    }
+    function handleClick(e){ if(menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false); }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   useEffect(() => {
     if(!usuario) return;
-    const metaGuardada = localStorage.getItem(`meta_${usuario.uid}`);
-    if(metaGuardada) setMeta(parseFloat(metaGuardada));
+    const m = localStorage.getItem(`meta_${usuario.uid}`);
+    if(m) setMeta(parseFloat(m));
   }, [usuario]);
 
   const guardarMeta = () => {
-    if(!valorMeta || isNaN(valorMeta)) return;
+    if(!valorMeta||isNaN(valorMeta)) return;
     const valor = parseFloat(valorMeta);
     setMeta(valor);
     localStorage.setItem(`meta_${usuario.uid}`, valor);
@@ -449,10 +506,7 @@ export default function App() {
     setValorMeta('');
   };
 
-  if(splash) return <Splash onDone={()=>{
-    localStorage.setItem('aldia_splash_visto','true');
-    setSplash(false);
-  }}/>;
+  if(splash) return <Splash onDone={()=>{ localStorage.setItem('aldia_splash_visto','true'); setSplash(false); }}/>;
 
   if(cargando) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'-apple-system,sans-serif',color:'var(--text2)',background:'var(--bg)'}}>
@@ -464,6 +518,7 @@ export default function App() {
   const nombre = usuario.displayName || usuario.email.split('@')[0];
   const nombreCorto = nombre.split(' ')[0];
   const iniciales = nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  const saludo = getSaludo();
 
   const activos = products.filter(p=>!p.estado);
   const historial = products.filter(p=>p.estado==='consumido'||p.estado==='descartado');
@@ -472,33 +527,23 @@ export default function App() {
   const perdida = descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro = consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
 
-  const todosLosProductos = [...activos, ...historial];
+  const todosLosProductos = [...activos,...historial];
   const frecuentesCont = {};
-  todosLosProductos.forEach(p=>{
-    const key = `${p.name}-${p.cat}`;
-    frecuentesCont[key] = (frecuentesCont[key]||0)+1;
-  });
-  const productosFrecuentes = Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{
-    const idx = key.lastIndexOf('-');
-    const name = key.substring(0,idx);
-    const cat = key.substring(idx+1);
-    return {name,cat};
-  });
+  todosLosProductos.forEach(p=>{ const key=`${p.name}|||${p.cat}`; frecuentesCont[key]=(frecuentesCont[key]||0)+1; });
+  const productosFrecuentes = Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{ const [name,cat]=key.split('|||'); return {name,cat}; });
 
   const catStats = Object.keys(CATS).map(cat=>{
-    const descartadosCat = descartados.filter(p=>p.cat===cat);
-    const consumidosCat = consumidos.filter(p=>p.cat===cat);
-    const totalCat = descartadosCat.length+consumidosCat.length;
-    const pctDesperdicio = totalCat>0?Math.round((descartadosCat.length/totalCat)*100):0;
-    return {cat,descartados:descartadosCat.length,total:totalCat,pctDesperdicio,pérdidaCat:descartadosCat.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
+    const dc = descartados.filter(p=>p.cat===cat);
+    const cc = consumidos.filter(p=>p.cat===cat);
+    const totalCat = dc.length+cc.length;
+    const pctDesperdicio = totalCat>0?Math.round((dc.length/totalCat)*100):0;
+    return {cat,descartados:dc.length,total:totalCat,pctDesperdicio,pérdidaCat:dc.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
   }).filter(x=>x.descartados>0).sort((a,b)=>b.descartados-a.descartados);
 
   const hoyDate = new Date();
-  const mesActual = hoyDate.getMonth();
-  const añoActual = hoyDate.getFullYear();
+  const mesActual = hoyDate.getMonth(); const añoActual = hoyDate.getFullYear();
   const inicioMesActual = new Date(añoActual,mesActual,1);
-  const mesAnterior = mesActual===0?11:mesActual-1;
-  const añoAnterior = mesActual===0?añoActual-1:añoActual;
+  const mesAnterior = mesActual===0?11:mesActual-1; const añoAnterior = mesActual===0?añoActual-1:añoActual;
   const inicioMesAnterior = new Date(añoAnterior,mesAnterior,1);
   const finMesAnterior = new Date(añoAnterior,mesAnterior+1,0);
   const descartadosActual = descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesActual);
@@ -545,22 +590,17 @@ export default function App() {
 
   const eliminarDelHistorial = async (id) => {
     if(!window.confirm('¿Eliminar este producto del historial?')) return;
-    try { await deleteDoc(doc(db,"productos",id)); }
-    catch(e){ console.error(e); }
+    try { await deleteDoc(doc(db,"productos",id)); } catch(e){ console.error(e); }
   };
 
   const eliminarTodoHistorial = async () => {
     if(!window.confirm(`¿Eliminar todo el historial? (${historial.length} productos)`)) return;
-    try {
-      const batch = writeBatch(db);
-      historial.forEach(p=>batch.delete(doc(db,"productos",p.id)));
-      await batch.commit();
-    } catch(e){ console.error(e); }
+    try { const batch=writeBatch(db); historial.forEach(p=>batch.delete(doc(db,"productos",p.id))); await batch.commit(); }
+    catch(e){ console.error(e); }
   };
 
   const restaurar = async (id) => {
-    try { await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null}); }
-    catch(e){ console.error(e); }
+    try { await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null}); } catch(e){ console.error(e); }
   };
 
   if(pantalla==='form') return (
@@ -586,9 +626,7 @@ export default function App() {
           <div style={S.formRow}>
             <span style={S.formLabel}>📝 Nombre</span>
             <input list="nombresSugeridos" style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
-            <datalist id="nombresSugeridos">
-              {todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}
-            </datalist>
+            <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
           </div>
           <div style={S.formRow}><span style={S.formLabel}>🏷️ Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
           <div style={S.formRow}><span style={S.formLabel}>📅 Fecha de vencimiento</span><input type="date" style={S.formInput} value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/></div>
@@ -617,10 +655,7 @@ export default function App() {
           <div style={S.title}>Al Día</div>
           <div style={{position:'relative',marginLeft:'auto'}} ref={menuRef}>
             <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
-              {usuario.photoURL
-                ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/>
-                : iniciales
-              }
+              {usuario.photoURL ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/> : iniciales}
               <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
             </div>
             {alertas>0 && (
@@ -632,10 +667,7 @@ export default function App() {
               <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:51}}>
                 <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
                   <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
-                    {usuario.photoURL
-                      ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/>
-                      : iniciales
-                    }
+                    {usuario.photoURL ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/> : iniciales}
                   </div>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nombre}</div>
@@ -644,32 +676,18 @@ export default function App() {
                 </div>
                 <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
                 <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>✏️</span> Editar perfil
-                  </div>
-                  <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>⚙️</span> Preferencias
-                  </div>
+                  <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>✏️</span> Editar perfil</div>
+                  <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>⚙️</span> Preferencias</div>
                 </div>
                 <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
-                  <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>❓</span> Ayuda y FAQ
-                  </div>
-                  <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>📧</span> Contacto y soporte
-                  </div>
+                  <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>❓</span> Ayuda y FAQ</div>
+                  <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📧</span> Contacto y soporte</div>
                 </div>
                 <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>📋</span> Términos y privacidad
-                  </div>
-                  <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                    <span>ℹ️</span> Versión 1.0.0
-                  </div>
+                  <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📋</span> Términos y privacidad</div>
+                  <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>ℹ️</span> Versión 1.0.0</div>
                 </div>
-                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                  <span>🚪</span> Cerrar sesión
-                </div>
+                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>🚪</span> Cerrar sesión</div>
               </div>
             )}
           </div>
@@ -689,14 +707,14 @@ export default function App() {
             onCategoria={(cat)=>abrirNuevo(cat)}
             onAgregarEjemplo={async(ej)=>{
               setGuardando(true);
-              try {
-                await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
-              } catch(e){ console.error(e); }
+              try { await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}); }
+              catch(e){ console.error(e); }
               setGuardando(false);
             }}
           />
         ):(
           <>
+            <div style={{padding:'10px 14px 4px',fontSize:15,fontWeight:600,color:'var(--text)'}}>{saludo}, {nombreCorto} 👋</div>
             <Widget activos={activos}/>
             <div style={S.statsGrid}>
               {[
@@ -722,27 +740,11 @@ export default function App() {
             <div style={S.searchWrap}>
               <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
             </div>
-            <div style={S.plist}>
-              {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)'}}>Sin resultados para tu búsqueda.</div>}
-              {filtered.map((p,i)=>{
-                const d=daysUntil(p.exp); const st=status(p);
-                const isFirst=i===0; const isLast=i===filtered.length-1;
-                const radius=`${isFirst?'14px 14px':' 0 0'} ${isLast?'14px 14px':'0 0'}`;
-                return (
-                  <div key={p.id} onClick={()=>abrirEditar(p)} style={{...S.pcard,borderRadius:radius}}>
-                    <div style={{...S.iconWrap,background:icBg(st)}}><span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span></div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
-                      <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
-                    </div>
-                    <div style={{textAlign:'right',flexShrink:0}}>
-                      <div style={{fontSize:13,fontWeight:500,color:stColor(st)}}>{daysLabel(d)}</div>
-                      <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{new Date(p.exp+'T12:00:00').toLocaleDateString('es-CO',{day:'numeric',month:'short'})}</div>
-                    </div>
-                    <span style={{fontSize:12,color:'var(--text2)',marginLeft:2}}>›</span>
-                  </div>
-                );
-              })}
+            <div style={S.plist} key={listKey}>
+              {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)',borderRadius:13}}>Sin resultados para tu búsqueda.</div>}
+              {filtered.map((p,i)=>(
+                <ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>
+              ))}
             </div>
             <div style={S.fabWrap}><button style={S.fab} onClick={()=>abrirNuevo()}>✨ Agregar producto</button></div>
           </>
@@ -761,7 +763,7 @@ export default function App() {
             <div style={{fontSize:12,color:'var(--text2)',marginBottom:6}}>💰 Comparativa mes a mes</div>
             <div style={{fontSize:28,fontWeight:700,color:cambioMesAMes<=0?'#34C759':'#FF3B30',letterSpacing:-0.5}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
             <div style={{fontSize:12,color:'var(--text2)',marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</div>
-            <div style={{fontSize:11,color:'var(--text2)',marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio respecto a mes anterior':'→ Igual que el mes anterior'}</div>
+            <div style={{fontSize:11,color:'var(--text2)',marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</div>
           </div>
           <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
@@ -773,7 +775,7 @@ export default function App() {
                 <>
                   <div style={{fontSize:28,fontWeight:700,color:pérdidaActual<=meta?'#34C759':'#FF3B30',letterSpacing:-0.5}}>${Math.round(pérdidaActual).toLocaleString('es-CO')} / ${Math.round(meta).toLocaleString('es-CO')}</div>
                   <div style={{height:8,borderRadius:4,background:'var(--input)',marginTop:10,overflow:'hidden'}}><div style={{height:8,borderRadius:4,background:pérdidaActual<=meta?'#34C759':'#FF3B30',width:`${Math.min(100,(pérdidaActual/meta)*100)}%`,transition:'width 0.3s'}}/></div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:6}}>{pérdidaActual<=meta?'✓ ¡Lo lograste! Estás por debajo de tu meta':`⚠ Vas ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima de tu meta`}</div>
+                  <div style={{fontSize:11,color:'var(--text2)',marginTop:6}}>{pérdidaActual<=meta?'✓ ¡Lo lograste!':` ⚠ Vas ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima`}</div>
                 </>
               ):<div style={{fontSize:13,color:'var(--text2)',fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</div>
             ):(
@@ -817,14 +819,14 @@ export default function App() {
             <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
               <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>💡 Recomendaciones inteligentes</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,59,48,0.1)',border:'0.5px solid rgba(255,59,48,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF3B30'}}>⚠ {catStats[0].cat}:</strong> {catStats[0].pctDesperdicio}% de desperdicio. Considera comprar menos cantidad.</div>}
+                {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,59,48,0.1)',border:'0.5px solid rgba(255,59,48,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF3B30'}}>⚠ {catStats[0].cat}:</strong> {catStats[0].pctDesperdicio}% de desperdicio.</div>}
                 {consumidos.length>descartados.length&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>✓ Mejorando:</strong> Consumes más de lo que descartas. ¡Sigue así!</div>}
-                {cambioMesAMes<0&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>🎯 Progreso:</strong> Este mes reduciste desperdicio {Math.abs(cambioMesAMes)}% respecto al anterior.</div>}
+                {cambioMesAMes<0&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>🎯 Progreso:</strong> Este mes reduciste desperdicio {Math.abs(cambioMesAMes)}%.</div>}
                 {meta&&pérdidaActual>meta&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,149,0,0.1)',border:'0.5px solid rgba(255,149,0,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF9500'}}>🚀 Meta:</strong> Necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
               </div>
             </div>
           )}
-          {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>📊 Aún no hay datos. Marca productos como consumidos o descartados para ver tus estadísticas.</div>}
+          {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>📊 Aún no hay datos.</div>}
         </div>
       )}
 
@@ -857,12 +859,12 @@ export default function App() {
                     <div key={cat} style={{display:'flex',alignItems:'center',gap:8}}>
                       <span style={{fontSize:14}}>{CATS[cat]||'📦'}</span>
                       <div style={{flex:1,minWidth:0}}>
-                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:2}}>
+                        <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}>
                           <span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{cat}</span>
                           <span style={{fontSize:11,color:'var(--text2)'}}>{count}</span>
                         </div>
                         <div style={{width:'100%',height:4,background:'var(--input)',borderRadius:2,overflow:'hidden'}}>
-                          <div style={{width:`${(count/historial.length)*100}%`,height:'100%',background:'linear-gradient(90deg, var(--green) 0%, #30D158 100%)',borderRadius:2}}/>
+                          <div style={{width:`${(count/historial.length)*100}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:2}}/>
                         </div>
                       </div>
                     </div>
