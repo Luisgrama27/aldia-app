@@ -6,189 +6,44 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: var(--bg);
+  background: #000;
+  overscroll-behavior: none;
 }
 
 :root {
   --bg: #f2f2f7;
   --bg2: #fff;
   --bg3: #f2f2f7;
-  --text: #1d1d1f;
-  --text2: #86868b;
-  --text3: #636366;
+  --text: #000;
+  --text2: #8e8e93;
   --border: rgba(0,0,0,0.08);
   --border2: rgba(0,0,0,0.06);
   --card: #fff;
-  --input: #f8f9fa;
+  --input: #f2f2f7;
   --green: #2DB54E;
-  --green-dark: #1E8E3E;
-  --blue: #007AFF;
-  --red: #FF3B30;
-  --orange: #FF9500;
-  --shadow: 0 4px 16px rgba(0,0,0,0.08);
-  --shadow-hover: 0 8px 32px rgba(0,0,0,0.12);
-  --radius: 16px;
-  --radius-large: 28px;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #000000;
+    --bg: #000;
     --bg2: #1c1c1e;
-    --bg3: #000000;
-    --text: #ffffff;
-    --text2: #98989d;
-    --text3: #c7c7cc;
+    --bg3: #000;
+    --text: #fff;
+    --text2: #8e8e93;
     --border: rgba(255,255,255,0.08);
     --border2: rgba(255,255,255,0.06);
     --card: #1c1c1e;
     --input: #2c2c2e;
     --green: #30D158;
-    --green-dark: #28CD54;
-    --blue: #0A84FF;
-    --red: #FF453A;
-    --orange: #FF9F0A;
-    --shadow: 0 4px 16px rgba(0,0,0,0.3);
-    --shadow-hover: 0 8px 32px rgba(0,0,0,0.5);
   }
 }
 
-/* Animaciones globales */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200px 0; }
-  100% { background-position: calc(200px + 100%) 0; }
-}
-
-/* Utilidades */
-.animate-slide-in {
-  animation: slideIn 0.3s ease-out;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.4s ease-out;
-}
-
-.animate-pulse {
-  animation: pulse 2s infinite;
-}
-
-/* Estilos para botones */
-.btn-primary {
-  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
-  border: none;
-  border-radius: var(--radius);
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-  padding: 14px 20px;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Estilos para inputs */
-.input-modern {
-  background: var(--input);
-  border: 2px solid transparent;
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  font-size: 16px;
-  color: var(--text);
-  transition: var(--transition);
-  width: 100%;
-  outline: none;
-}
-
-.input-modern:focus {
-  border-color: var(--green);
-  background: var(--card);
-  box-shadow: 0 0 0 3px rgba(45, 181, 78, 0.1);
-}
-
-.input-modern::placeholder {
-  color: var(--text2);
-  opacity: 0.7;
-}
-
-/* Estilos para cards */
-.card-modern {
-  background: var(--card);
-  border-radius: var(--radius-large);
-  padding: 24px;
-  box-shadow: var(--shadow);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  transition: var(--transition);
-}
-
-.card-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-/* Gradientes sutiles */
-.gradient-bg {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .card-modern {
-    margin: 16px;
-    padding: 20px;
-  }
-}
+/* Scrollbar oculta en móvil */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }

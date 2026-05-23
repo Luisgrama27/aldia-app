@@ -19,7 +19,7 @@ function Splash({ onDone }) {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
   return (
-    <div style={{minHeight:'100vh',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24}}>
+    <div style={{minHeight:'100vh',minHeight:'-webkit-fill-available',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24,paddingTop:'env(safe-area-inset-top, 0px)',paddingBottom:'env(safe-area-inset-bottom, 0px)'}}>
       <div style={{transform:fase>=1?'scale(1)':'scale(0.2)',opacity:fase>=1?1:0,transition:'transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease'}}>
         <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(45,181,78,0.4))'}}>
           <defs>
@@ -37,7 +37,7 @@ function Splash({ onDone }) {
         <div style={{fontSize:38,fontWeight:700,color:'var(--text)',letterSpacing:-1}}>Al Día</div>
         <div style={{fontSize:15,color:'var(--text2)',marginTop:8}}>Controla lo que tienes en casa</div>
       </div>
-      <div style={{position:'absolute',bottom:60,opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
+      <div style={{position:'absolute',bottom:'calc(60px + env(safe-area-inset-bottom, 0px))',opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
         <div style={{display:'flex',gap:8}}>
           {[0,1,2].map(i=>(
             <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'var(--green)':'var(--border)',transition:'all 0.3s'}}/>
@@ -228,32 +228,10 @@ function getBarWidth(days, alert){
   return 8;
 }
 
-function getBarColor(st){
-  if(st==='expired') return '#FF3B30';
-  if(st==='danger') return '#FF3B30';
-  if(st==='warn') return '#FF9500';
-  return '#2DB54E';
-}
-
-function getCardBg(st){
-  if(st==='expired') return 'rgba(255,59,48,0.07)';
-  if(st==='danger') return 'rgba(255,59,48,0.05)';
-  if(st==='warn') return 'rgba(255,149,0,0.05)';
-  return 'rgba(45,181,78,0.04)';
-}
-
-function getCardBorder(st){
-  if(st==='expired') return '0.5px solid rgba(255,59,48,0.25)';
-  if(st==='danger') return '0.5px solid rgba(255,59,48,0.15)';
-  if(st==='warn') return '0.5px solid rgba(255,149,0,0.2)';
-  return '0.5px solid rgba(45,181,78,0.15)';
-}
-
-function getBadgeBg(st){
-  if(st==='expired'||st==='danger') return '#FF3B30';
-  if(st==='warn') return '#FF9500';
-  return 'var(--green)';
-}
+function getBarColor(st){ return st==='ok'?'#2DB54E':st==='warn'?'#FF9500':'#FF3B30'; }
+function getCardBg(st){ return st==='expired'?'rgba(255,59,48,0.07)':st==='danger'?'rgba(255,59,48,0.05)':st==='warn'?'rgba(255,149,0,0.05)':'rgba(45,181,78,0.04)'; }
+function getCardBorder(st){ return st==='expired'?'0.5px solid rgba(255,59,48,0.25)':st==='danger'?'0.5px solid rgba(255,59,48,0.15)':st==='warn'?'0.5px solid rgba(255,149,0,0.2)':'0.5px solid rgba(45,181,78,0.15)'; }
+function getBadgeBg(st){ return (st==='expired'||st==='danger')?'#FF3B30':st==='warn'?'#FF9500':'var(--green)'; }
 
 const HomeIcon = (active) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -305,8 +283,8 @@ function daysLabel(d){
 }
 
 const S = {
-  screen:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:70},
-  header:{background:'var(--bg2)',padding:'12px 20px 14px',borderBottom:'0.5px solid var(--border)'},
+  screen:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))'},
+  header:{background:'var(--bg2)',paddingTop:'calc(12px + env(safe-area-inset-top, 0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)'},
   avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
   titleRow:{display:'flex',alignItems:'center',gap:10},
   title:{fontSize:26,fontWeight:700,color:'var(--text)',letterSpacing:-0.5},
@@ -321,10 +299,10 @@ const S = {
   search:{width:'100%',height:34,borderRadius:10,border:'0.5px solid var(--border)',padding:'0 12px',fontSize:13,background:'var(--card)',boxSizing:'border-box',color:'var(--text)'},
   plist:{display:'flex',flexDirection:'column',gap:7,padding:'0 14px'},
   iconWrap:{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0},
-  fabWrap:{padding:'12px 14px 24px'},
+  fabWrap:{padding:'12px 14px',paddingBottom:'calc(12px + env(safe-area-inset-bottom, 0px))'},
   fab:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
-  formWrap:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:70},
-  formHeader:{background:'var(--bg2)',padding:'14px 20px',borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12},
+  formWrap:{maxWidth:480,margin:'0 auto',minHeight:'100vh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))'},
+  formHeader:{background:'var(--bg2)',paddingTop:'calc(14px + env(safe-area-inset-top, 0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12},
   backBtn:{background:'none',border:'none',fontSize:16,color:'var(--green)',cursor:'pointer',fontWeight:500},
   formTitle:{fontSize:17,fontWeight:600,color:'var(--text)'},
   formBody:{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12},
@@ -336,8 +314,8 @@ const S = {
   formSelect:{fontSize:15,color:'var(--text)',border:'none',outline:'none',background:'transparent',width:'100%'},
   saveBtn:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
   delBtn:{width:'100%',height:46,borderRadius:13,background:'var(--card)',color:'#FF3B30',border:'0.5px solid rgba(255,59,48,0.3)',fontSize:15,cursor:'pointer'},
-  navbar:{position:'fixed',bottom:0,left:0,right:0,maxWidth:480,margin:'0 auto',height:60,background:'var(--bg2)',borderTop:'0.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-around',zIndex:50},
-  navBtn:{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 16px'},
+  navbar:{position:'fixed',bottom:0,left:0,right:0,maxWidth:480,margin:'0 auto',background:'var(--bg2)',borderTop:'0.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-around',zIndex:50,paddingBottom:'env(safe-area-inset-bottom, 0px)',height:'calc(60px + env(safe-area-inset-bottom, 0px))'},
+  navBtn:{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 16px',paddingBottom:0},
   navIco:{display:'flex',alignItems:'center',justifyContent:'center',width:24,height:24},
   navLbl:{fontSize:10,fontWeight:500},
 };
@@ -387,44 +365,25 @@ function Widget({ activos }) {
   );
 }
 
-// Tarjeta de producto animada
 function ProductCard({ p, index, onClick }) {
   const [visible, setVisible] = useState(false);
   const [barW, setBarW] = useState(0);
   const d = daysUntil(p.exp);
   const st = status(p);
-
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), index * 80);
     const t2 = setTimeout(() => setBarW(getBarWidth(d, p.alert)), index * 80 + 300);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
-
   return (
-    <div
-      onClick={onClick}
-      style={{
-        borderRadius:13,
-        padding:'10px 12px',
-        background: getCardBg(st),
-        border: getCardBorder(st),
-        cursor:'pointer',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(14px)',
-        transition:'opacity 0.4s ease, transform 0.4s ease',
-      }}
-    >
+    <div onClick={onClick} style={{borderRadius:13,padding:'10px 12px',background:getCardBg(st),border:getCardBorder(st),cursor:'pointer',opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)',transition:'opacity 0.4s ease, transform 0.4s ease'}}>
       <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:7}}>
-        <div style={{...S.iconWrap,background:'var(--card)'}}>
-          <span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span>
-        </div>
+        <div style={{...S.iconWrap,background:'var(--card)'}}><span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span></div>
         <div style={{flex:1,minWidth:0}}>
           <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
           <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
         </div>
-        <div style={{padding:'4px 10px',borderRadius:999,background:getBadgeBg(st),color:'#fff',fontSize:12,fontWeight:600,flexShrink:0,textAlign:'center'}}>
-          {daysLabel(d)}
-        </div>
+        <div style={{padding:'4px 10px',borderRadius:999,background:getBadgeBg(st),color:'#fff',fontSize:12,fontWeight:600,flexShrink:0}}>{daysLabel(d)}</div>
       </div>
       <div style={{width:'100%',height:4,borderRadius:2,background:'var(--input)',overflow:'hidden'}}>
         <div style={{height:4,borderRadius:2,background:getBarColor(st),width:`${barW}%`,transition:'width 0.8s ease'}}/>
@@ -465,20 +424,15 @@ export default function App() {
     const unsub = onSnapshot(q, (snap) => {
       const prods = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       setProducts(prods);
-      setListKey(k => k + 1);
+      setListKey(k => k+1);
       if (!correoEnviadoHoy.current) {
         const urgentes = prods.filter(p => !p.estado && (status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if (urgentes.length > 0) {
           correoEnviadoHoy.current = true;
           const lista = urgentes.map(p=>`• ${p.name} (${p.cat}) — ${daysLabel(daysUntil(p.exp))}`).join('\n');
-          emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-            to_email: usuario.email,
-            nombre: usuario.displayName || usuario.email,
-            lista_productos: lista,
-          }, EMAILJS_KEY).then(() => {
-            setCorreoEnviado(true);
-            setTimeout(() => setCorreoEnviado(false), 5000);
-          }).catch(e => console.error(e));
+          emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {to_email:usuario.email,nombre:usuario.displayName||usuario.email,lista_productos:lista}, EMAILJS_KEY)
+            .then(()=>{setCorreoEnviado(true);setTimeout(()=>setCorreoEnviado(false),5000);})
+            .catch(e=>console.error(e));
         }
       }
     });
@@ -486,7 +440,7 @@ export default function App() {
   }, [usuario]);
 
   useEffect(() => {
-    function handleClick(e){ if(menuRef.current && !menuRef.current.contains(e.target)) setMenuAbierto(false); }
+    function handleClick(e){ if(menuRef.current&&!menuRef.current.contains(e.target)) setMenuAbierto(false); }
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
@@ -506,7 +460,7 @@ export default function App() {
     setValorMeta('');
   };
 
-  if(splash) return <Splash onDone={()=>{ localStorage.setItem('aldia_splash_visto','true'); setSplash(false); }}/>;
+  if(splash) return <Splash onDone={()=>{localStorage.setItem('aldia_splash_visto','true');setSplash(false);}}/>;
 
   if(cargando) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'-apple-system,sans-serif',color:'var(--text2)',background:'var(--bg)'}}>
@@ -533,74 +487,74 @@ export default function App() {
   const productosFrecuentes = Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{ const [name,cat]=key.split('|||'); return {name,cat}; });
 
   const catStats = Object.keys(CATS).map(cat=>{
-    const dc = descartados.filter(p=>p.cat===cat);
-    const cc = consumidos.filter(p=>p.cat===cat);
-    const totalCat = dc.length+cc.length;
-    const pctDesperdicio = totalCat>0?Math.round((dc.length/totalCat)*100):0;
+    const dc=descartados.filter(p=>p.cat===cat);
+    const cc=consumidos.filter(p=>p.cat===cat);
+    const totalCat=dc.length+cc.length;
+    const pctDesperdicio=totalCat>0?Math.round((dc.length/totalCat)*100):0;
     return {cat,descartados:dc.length,total:totalCat,pctDesperdicio,pérdidaCat:dc.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
   }).filter(x=>x.descartados>0).sort((a,b)=>b.descartados-a.descartados);
 
-  const hoyDate = new Date();
-  const mesActual = hoyDate.getMonth(); const añoActual = hoyDate.getFullYear();
-  const inicioMesActual = new Date(añoActual,mesActual,1);
-  const mesAnterior = mesActual===0?11:mesActual-1; const añoAnterior = mesActual===0?añoActual-1:añoActual;
-  const inicioMesAnterior = new Date(añoAnterior,mesAnterior,1);
-  const finMesAnterior = new Date(añoAnterior,mesAnterior+1,0);
-  const descartadosActual = descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesActual);
-  const descartadosAnterior = descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesAnterior&&new Date(p.fechaEstado)<=finMesAnterior);
-  const pérdidaActual = descartadosActual.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
-  const pérdidaAnterior = descartadosAnterior.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
-  const cambioMesAMes = pérdidaAnterior>0?Math.round(((pérdidaActual-pérdidaAnterior)/pérdidaAnterior)*100):0;
+  const hoyDate=new Date();
+  const mesActual=hoyDate.getMonth(); const añoActual=hoyDate.getFullYear();
+  const inicioMesActual=new Date(añoActual,mesActual,1);
+  const mesAnterior=mesActual===0?11:mesActual-1; const añoAnterior=mesActual===0?añoActual-1:añoActual;
+  const inicioMesAnterior=new Date(añoAnterior,mesAnterior,1);
+  const finMesAnterior=new Date(añoAnterior,mesAnterior+1,0);
+  const descartadosActual=descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesActual);
+  const descartadosAnterior=descartados.filter(p=>p.fechaEstado&&new Date(p.fechaEstado)>=inicioMesAnterior&&new Date(p.fechaEstado)<=finMesAnterior);
+  const pérdidaActual=descartadosActual.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
+  const pérdidaAnterior=descartadosAnterior.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
+  const cambioMesAMes=pérdidaAnterior>0?Math.round(((pérdidaActual-pérdidaAnterior)/pérdidaAnterior)*100):0;
 
-  const expired = activos.filter(p=>status(p)==='expired').length;
-  const danger = activos.filter(p=>status(p)==='danger').length;
-  const warn = activos.filter(p=>status(p)==='warn').length;
-  const ok = activos.filter(p=>status(p)==='ok').length;
-  const alertas = expired+danger+warn;
-  const cats = ['Todos',...new Set(activos.map(p=>p.cat))];
-  const filtered = activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  const expired=activos.filter(p=>status(p)==='expired').length;
+  const danger=activos.filter(p=>status(p)==='danger').length;
+  const warn=activos.filter(p=>status(p)==='warn').length;
+  const ok=activos.filter(p=>status(p)==='ok').length;
+  const alertas=expired+danger+warn;
+  const cats=['Todos',...new Set(activos.map(p=>p.cat))];
+  const filtered=activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
-  const abrirNuevo = (catInicial) => { setEditId(null); setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''}); setPantalla('form'); };
-  const abrirEditar = (p) => { setEditId(p.id); setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''}); setPantalla('form'); };
+  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});setPantalla('form');};
+  const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setPantalla('form');};
 
-  const guardar = async () => {
+  const guardar=async()=>{
     if(!form.name||!form.exp) return;
     setGuardando(true);
     try {
-      if(editId){ await updateDoc(doc(db,"productos",editId),form); }
-      else { await addDoc(collection(db,"productos"),{...form,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}); }
+      if(editId){await updateDoc(doc(db,"productos",editId),form);}
+      else{await addDoc(collection(db,"productos"),{...form,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
       setPantalla('');
-    } catch(e){ console.error(e); }
+    }catch(e){console.error(e);}
     setGuardando(false);
   };
 
-  const marcarEstado = async (estado) => {
+  const marcarEstado=async(estado)=>{
     setGuardando(true);
-    try { await updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()}); setPantalla(''); }
-    catch(e){ console.error(e); }
+    try{await updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()});setPantalla('');}
+    catch(e){console.error(e);}
     setGuardando(false);
   };
 
-  const eliminar = async () => {
+  const eliminar=async()=>{
     setGuardando(true);
-    try { await deleteDoc(doc(db,"productos",editId)); setPantalla(''); }
-    catch(e){ console.error(e); }
+    try{await deleteDoc(doc(db,"productos",editId));setPantalla('');}
+    catch(e){console.error(e);}
     setGuardando(false);
   };
 
-  const eliminarDelHistorial = async (id) => {
+  const eliminarDelHistorial=async(id)=>{
     if(!window.confirm('¿Eliminar este producto del historial?')) return;
-    try { await deleteDoc(doc(db,"productos",id)); } catch(e){ console.error(e); }
+    try{await deleteDoc(doc(db,"productos",id));}catch(e){console.error(e);}
   };
 
-  const eliminarTodoHistorial = async () => {
+  const eliminarTodoHistorial=async()=>{
     if(!window.confirm(`¿Eliminar todo el historial? (${historial.length} productos)`)) return;
-    try { const batch=writeBatch(db); historial.forEach(p=>batch.delete(doc(db,"productos",p.id))); await batch.commit(); }
-    catch(e){ console.error(e); }
+    try{const batch=writeBatch(db);historial.forEach(p=>batch.delete(doc(db,"productos",p.id)));await batch.commit();}
+    catch(e){console.error(e);}
   };
 
-  const restaurar = async (id) => {
-    try { await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null}); } catch(e){ console.error(e); }
+  const restaurar=async(id)=>{
+    try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){console.error(e);}
   };
 
   if(pantalla==='form') return (
@@ -609,7 +563,7 @@ export default function App() {
         <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
         <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
       </div>
-      {!editId && productosFrecuentes.length>0 && (
+      {!editId&&productosFrecuentes.length>0&&(
         <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)'}}>
           <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:8}}>⚡ Productos frecuentes</div>
           <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
@@ -635,7 +589,7 @@ export default function App() {
           <div style={S.formRowLast}><span style={S.formLabel}>🔔 Alertar con anticipación</span><select style={S.formSelect} value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}><option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option></select></div>
         </div>
         <button style={{...S.saveBtn,opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
-        {editId && (
+        {editId&&(
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             <button style={{...S.saveBtn,background:'#34C759',opacity:guardando?0.6:1}} onClick={()=>marcarEstado('consumido')} disabled={guardando}>✓ Marcar como consumido</button>
             <button style={{...S.saveBtn,background:'#FF9500',opacity:guardando?0.6:1}} onClick={()=>marcarEstado('descartado')} disabled={guardando}>🗑 Marcar como descartado</button>
@@ -655,19 +609,19 @@ export default function App() {
           <div style={S.title}>Al Día</div>
           <div style={{position:'relative',marginLeft:'auto'}} ref={menuRef}>
             <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
-              {usuario.photoURL ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/> : iniciales}
+              {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/>:iniciales}
               <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
             </div>
-            {alertas>0 && (
+            {alertas>0&&(
               <div style={{position:'absolute',top:-6,right:-6,minWidth:20,height:20,borderRadius:999,background:'#FF3B30',color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',boxShadow:'0 0 0 3px rgba(255,255,255,0.8)'}}>
                 {alertas}
               </div>
             )}
-            {menuAbierto && (
+            {menuAbierto&&(
               <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:51}}>
                 <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
                   <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
-                    {usuario.photoURL ? <img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/> : iniciales}
+                    {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/>:iniciales}
                   </div>
                   <div style={{minWidth:0}}>
                     <div style={{fontSize:13,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nombre}</div>
@@ -694,21 +648,21 @@ export default function App() {
         </div>
       </div>
 
-      {correoEnviado && (
+      {correoEnviado&&(
         <div style={{margin:'8px 14px 0',borderRadius:12,padding:'9px 12px',background:'#f0fff4',border:'0.5px solid rgba(45,181,78,0.3)',fontSize:12,fontWeight:500,color:'var(--green)'}}>
           📧 Te enviamos un correo con los productos por vencer
         </div>
       )}
 
-      {tab==='home' && <>
-        {activos.length===0 ? (
+      {tab==='home'&&<>
+        {activos.length===0?(
           <EmptyState
             onAgregar={()=>abrirNuevo()}
             onCategoria={(cat)=>abrirNuevo(cat)}
             onAgregarEjemplo={async(ej)=>{
               setGuardando(true);
-              try { await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}); }
-              catch(e){ console.error(e); }
+              try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
+              catch(e){console.error(e);}
               setGuardando(false);
             }}
           />
@@ -729,8 +683,8 @@ export default function App() {
                 </div>
               ))}
             </div>
-            {expired>0 && <div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
-            {danger>0 && <div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
+            {expired>0&&<div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
+            {danger>0&&<div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
             <div style={S.sectionHeader}><span style={S.sectionTitle}>📦 Mis productos</span></div>
             <div style={S.filters}>
               {cats.map(c=>(
@@ -741,7 +695,7 @@ export default function App() {
               <input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
             </div>
             <div style={S.plist} key={listKey}>
-              {filtered.length===0 && <div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)',borderRadius:13}}>Sin resultados para tu búsqueda.</div>}
+              {filtered.length===0&&<div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)',borderRadius:13}}>Sin resultados.</div>}
               {filtered.map((p,i)=>(
                 <ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>
               ))}
@@ -751,7 +705,7 @@ export default function App() {
         )}
       </>}
 
-      {tab==='estadisticas' && (
+      {tab==='estadisticas'&&(
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
           <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
           <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
@@ -795,7 +749,7 @@ export default function App() {
             <div style={{fontSize:28,fontWeight:700,color:'var(--green)',letterSpacing:-0.5}}>${Math.round(ahorro).toLocaleString('es-CO')}</div>
             <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>Productos que consumiste a tiempo</div>
           </div>
-          {catStats.length>0 && (
+          {catStats.length>0&&(
             <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
               <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>📊 Categorías con más desperdicios</div>
               {catStats.map(c=>(
@@ -815,7 +769,7 @@ export default function App() {
               ))}
             </div>
           )}
-          {historial.length>0 && (
+          {historial.length>0&&(
             <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
               <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>💡 Recomendaciones inteligentes</div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
@@ -830,7 +784,7 @@ export default function App() {
         </div>
       )}
 
-      {tab==='historial' && (
+      {tab==='historial'&&(
         <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:8}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0 8px'}}>
             <div style={{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3}}>📜 Historial</div>
