@@ -51,7 +51,6 @@ function Splash({ onDone }) {
   );
 }
 
-// Estado vacío para usuario NUEVO (nunca ha tenido productos)
 function EmptyStateNuevo({ onAgregar, onCategoria, onAgregarEjemplo }) {
   const ejemplos = [
     {name:'Leche entera',cat:'Lácteos',exp:'2025-06-15'},
@@ -140,7 +139,6 @@ function EmptyStateNuevo({ onAgregar, onCategoria, onAgregarEjemplo }) {
   );
 }
 
-// Estado vacío para usuario EXISTENTE (ya usó la app pero no tiene productos activos)
 function EmptyStateExistente({ onAgregar, catsUsadas }) {
   return (
     <div style={{padding:'40px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:20}}>
@@ -436,7 +434,8 @@ function ProductCard({ p, index, onClick }) {
 }
 
 export default function App() {
-  const [splash, setSplash] = useState(() => !localStorage.getItem('aldia_splash_visto'));
+  // ✅ FIX: Splash aparece siempre al abrir la app
+  const [splash, setSplash] = useState(true);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [products, setProducts] = useState([]);
@@ -503,7 +502,8 @@ export default function App() {
     setValorMeta('');
   };
 
-  if(splash) return <Splash onDone={()=>{localStorage.setItem('aldia_splash_visto','true');setSplash(false);}}/>;
+  // ✅ FIX: onDone solo cierra el splash, sin guardar en localStorage
+  if(splash) return <Splash onDone={()=>setSplash(false)}/>;
 
   if(cargando) return (
     <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'-apple-system,sans-serif',color:'var(--text2)',background:'var(--bg)'}}>
@@ -524,10 +524,7 @@ export default function App() {
   const perdida = descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro = consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
 
-  // Detectar si es usuario nuevo (nunca ha tenido productos) o existente
   const esUsuarioNuevo = products.length === 0;
-
-  // Categorías usadas en el historial para mostrar en EmptyStateExistente
   const catsUsadas = [...new Set(historial.map(p => p.cat))];
 
   const todosLosProductos = [...activos,...historial];
