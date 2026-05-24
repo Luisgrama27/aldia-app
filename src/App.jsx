@@ -16,36 +16,22 @@ function Splash({ onDone }) {
     const t1 = setTimeout(() => setFase(1), 100);
     const t2 = setTimeout(() => setFase(2), 600);
     const t3 = setTimeout(() => setFase(3), 1200);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    const t4 = setTimeout(() => onDone(), 2500);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, []);
   return (
-    <div style={{minHeight:'100vh',minHeight:'-webkit-fill-available',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24,paddingTop:'env(safe-area-inset-top, 0px)',paddingBottom:'env(safe-area-inset-bottom, 0px)'}}>
+    <div style={{minHeight:'100vh',minHeight:'-webkit-fill-available',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--green)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24,paddingTop:'env(safe-area-inset-top, 0px)',paddingBottom:'env(safe-area-inset-bottom, 0px)'}}>
       <div style={{transform:fase>=1?'scale(1)':'scale(0.2)',opacity:fase>=1?1:0,transition:'transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease'}}>
-        <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(45,181,78,0.4))'}}>
-          <defs>
-            <linearGradient id="splashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style={{stopColor:'#2DB54E'}}/><stop offset="50%" style={{stopColor:'#30D158'}}/><stop offset="100%" style={{stopColor:'#1E8E3E'}}/>
-            </linearGradient>
-          </defs>
-          <circle cx="40" cy="40" r="36" fill="url(#splashGrad)" stroke="#fff" strokeWidth="1.5"/>
-          <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
-          <polyline points="33,38 38,43 47,32" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M25 50 Q40 45 55 50" stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.6"/>
+        <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(0,0,0,0.2))'}}>
+          <circle cx="40" cy="40" r="36" fill="#fff" stroke="#fff" strokeWidth="1.5"/>
+          <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#2DB54E" strokeWidth="2.5" strokeLinecap="round"/>
+          <polyline points="33,38 38,43 47,32" fill="none" stroke="#2DB54E" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
+          <path d="M25 50 Q40 45 55 50" stroke="#2DB54E" strokeWidth="1.5" fill="none" opacity="0.6"/>
         </svg>
       </div>
       <div style={{opacity:fase>=2?1:0,transform:fase>=2?'translateY(0)':'translateY(16px)',transition:'opacity 0.5s ease, transform 0.5s ease',textAlign:'center'}}>
-        <div style={{fontSize:38,fontWeight:700,color:'var(--text)',letterSpacing:-1}}>Al Día</div>
-        <div style={{fontSize:15,color:'var(--text2)',marginTop:8}}>Controla lo que tienes en casa</div>
-      </div>
-      <div style={{position:'absolute',bottom:'calc(60px + env(safe-area-inset-bottom, 0px))',opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
-        <div style={{display:'flex',gap:8}}>
-          {[0,1,2].map(i=>(
-            <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'var(--green)':'var(--border)',transition:'all 0.3s'}}/>
-          ))}
-        </div>
-        <button onClick={onDone} style={{height:46,padding:'0 32px',borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
-          Empezar →
-        </button>
+        <div style={{fontSize:38,fontWeight:700,color:'#fff',letterSpacing:-1}}>Al Día</div>
+        <div style={{fontSize:15,color:'rgba(255,255,255,0.8)',marginTop:8}}>Controla lo que tienes en casa</div>
       </div>
     </div>
   );
@@ -434,7 +420,6 @@ function ProductCard({ p, index, onClick }) {
 }
 
 export default function App() {
-  // ✅ FIX: Splash aparece siempre al abrir la app
   const [splash, setSplash] = useState(true);
   const [usuario, setUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
@@ -502,7 +487,6 @@ export default function App() {
     setValorMeta('');
   };
 
-  // ✅ FIX: onDone solo cierra el splash, sin guardar en localStorage
   if(splash) return <Splash onDone={()=>setSplash(false)}/>;
 
   if(cargando) return (
