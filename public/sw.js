@@ -1,5 +1,11 @@
-const CACHE_NAME = 'aldia-v1';
-const urlsToCache = ['/', '/index.html'];
+const CACHE_NAME = 'aldia-v2';
+const urlsToCache = [
+  '/',
+  '/index.html',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/apple-touch-icon.png',
+];
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -18,9 +24,14 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  if(event.request.method !== 'GET') return;
   event.respondWith(
-    fetch(event.request).catch(() =>
-      caches.match(event.request).then(r => r || caches.match('/'))
-    )
+    fetch(event.request)
+      .then(res => {
+        const clone = res.clone();
+        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(event.request).then(r => r || caches.match('/')))
   );
 });
