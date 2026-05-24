@@ -51,7 +51,8 @@ function Splash({ onDone }) {
   );
 }
 
-function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
+// Estado vacío para usuario NUEVO (nunca ha tenido productos)
+function EmptyStateNuevo({ onAgregar, onCategoria, onAgregarEjemplo }) {
   const ejemplos = [
     {name:'Leche entera',cat:'Lácteos',exp:'2025-06-15'},
     {name:'Pollo fresco',cat:'Carnes',exp:'2025-06-10'},
@@ -135,6 +136,48 @@ function EmptyState({ onAgregar, onCategoria, onAgregarEjemplo }) {
           ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+// Estado vacío para usuario EXISTENTE (ya usó la app pero no tiene productos activos)
+function EmptyStateExistente({ onAgregar, catsUsadas }) {
+  return (
+    <div style={{padding:'40px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:20}}>
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle cx="65" cy="65" r="52" fill="var(--card)"/>
+        <circle cx="65" cy="65" r="38" fill="var(--input)"/>
+        <circle cx="65" cy="48" r="16" fill="none" stroke="var(--border)" strokeWidth="2.5"/>
+        <path d="M49 48 a16 16 0 0 1 32 0" fill="none" stroke="#2DB54E" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1="65" y1="32" x2="65" y2="40" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
+        <line x1="65" y1="40" x2="70" y2="45" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
+        <rect x="35" y="72" width="60" height="6" rx="3" fill="var(--border)"/>
+        <rect x="35" y="72" width="15" height="6" rx="3" fill="#2DB54E"/>
+        <rect x="35" y="83" width="60" height="6" rx="3" fill="var(--border)"/>
+        <rect x="35" y="94" width="60" height="6" rx="3" fill="var(--border)"/>
+        <circle cx="100" cy="36" r="10" fill="#FF9500"/>
+        <line x1="100" y1="32" x2="100" y2="36" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+        <circle cx="100" cy="39" r="1.3" fill="#fff"/>
+      </svg>
+      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>Sin productos registrados</div>
+      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>
+        No tienes ningún producto en tu lista en este momento.
+      </div>
+      {catsUsadas.length > 0 && (
+        <div style={{width:'100%',background:'var(--card)',borderRadius:14,padding:'14px 16px',border:'0.5px solid var(--border2)'}}>
+          <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:10,letterSpacing:0.3}}>ÚLTIMAS CATEGORÍAS USADAS</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            {catsUsadas.slice(0,4).map(cat=>(
+              <div key={cat} style={{height:38,borderRadius:10,background:'var(--input)',border:'0.5px solid var(--border2)',display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:12,color:'var(--text2)'}}>
+                {CATS[cat]||'📦'} {cat}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>
+        ✨ Agregar producto
+      </button>
     </div>
   );
 }
@@ -481,6 +524,12 @@ export default function App() {
   const perdida = descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro = consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
 
+  // Detectar si es usuario nuevo (nunca ha tenido productos) o existente
+  const esUsuarioNuevo = products.length === 0;
+
+  // Categorías usadas en el historial para mostrar en EmptyStateExistente
+  const catsUsadas = [...new Set(historial.map(p => p.cat))];
+
   const todosLosProductos = [...activos,...historial];
   const frecuentesCont = {};
   todosLosProductos.forEach(p=>{ const key=`${p.name}|||${p.cat}`; frecuentesCont[key]=(frecuentesCont[key]||0)+1; });
@@ -656,16 +705,23 @@ export default function App() {
 
       {tab==='home'&&<>
         {activos.length===0?(
-          <EmptyState
-            onAgregar={()=>abrirNuevo()}
-            onCategoria={(cat)=>abrirNuevo(cat)}
-            onAgregarEjemplo={async(ej)=>{
-              setGuardando(true);
-              try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
-              catch(e){console.error(e);}
-              setGuardando(false);
-            }}
-          />
+          esUsuarioNuevo?(
+            <EmptyStateNuevo
+              onAgregar={()=>abrirNuevo()}
+              onCategoria={(cat)=>abrirNuevo(cat)}
+              onAgregarEjemplo={async(ej)=>{
+                setGuardando(true);
+                try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
+                catch(e){console.error(e);}
+                setGuardando(false);
+              }}
+            />
+          ):(
+            <EmptyStateExistente
+              onAgregar={()=>abrirNuevo()}
+              catsUsadas={catsUsadas}
+            />
+          )
         ):(
           <>
             <div style={{padding:'10px 14px 4px',fontSize:15,fontWeight:600,color:'var(--text)'}}>{saludo}, {nombreCorto} 👋</div>
