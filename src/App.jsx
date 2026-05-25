@@ -21,7 +21,14 @@ function Splash({ onDone }) {
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, []);
   return (
-    <div style={{minHeight:'100vh',minHeight:'-webkit-fill-available',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--green)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',gap:24,paddingTop:'env(safe-area-inset-top,0px)',paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
+    <div style={{
+      position:'fixed', inset:0,
+      display:'flex', flexDirection:'column',
+      alignItems:'center', justifyContent:'center',
+      background:'var(--green)',
+      fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+      gap:24
+    }}>
       <div style={{transform:fase>=1?'scale(1)':'scale(0.2)',opacity:fase>=1?1:0,transition:'transform 0.6s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease'}}>
         <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(0,0,0,0.2))'}}>
           <circle cx="40" cy="40" r="36" fill="#fff" stroke="#fff" strokeWidth="1.5"/>
@@ -172,51 +179,27 @@ function EmptyStateExistente({ onAgregar, catsUsadas }) {
 
 function CompartirModal({ activos, onClose }) {
   const [copiado, setCopiado] = useState(false);
-
   const generarTexto = () => {
     const lineas = activos.map(p => {
       const d = daysUntil(p.exp);
-      const label = d < 0 ? '🔴 Vencido' : d === 0 ? '🟠 Vence hoy' : d <= 3 ? `🟠 Vence en ${d} día${d>1?'s':''}` : `🟢 Vence en ${d} días`;
+      const label = d<0?'🔴 Vencido':d===0?'🟠 Vence hoy':d<=3?`🟠 Vence en ${d} día${d>1?'s':''}`:`🟢 Vence en ${d} días`;
       return `• ${p.name} (${p.cat}) — ${label}`;
     }).join('\n');
     return `📋 Mi lista de vencimientos - Al Día\n\n${lineas}\n\nCompartido desde Al Día 🛡️`;
   };
-
-  const compartirWhatsApp = () => {
-    const texto = encodeURIComponent(generarTexto());
-    window.open(`https://wa.me/?text=${texto}`, '_blank');
-  };
-
+  const compartirWhatsApp = () => { const t=encodeURIComponent(generarTexto()); window.open(`https://wa.me/?text=${t}`,'_blank'); };
   const copiarPortapapeles = async () => {
-    try {
-      await navigator.clipboard.writeText(generarTexto());
-      setCopiado(true);
-      setTimeout(() => setCopiado(false), 2000);
-    } catch(e) {
-      alert('No se pudo copiar. Intenta de nuevo.');
-    }
+    try { await navigator.clipboard.writeText(generarTexto()); setCopiado(true); setTimeout(()=>setCopiado(false),2000); }
+    catch(e) { alert('No se pudo copiar.'); }
   };
-
-  const compartirCorreo = () => {
-    const texto = generarTexto();
-    const subject = encodeURIComponent('Mi lista de vencimientos - Al Día');
-    const body = encodeURIComponent(texto);
-    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
-  };
-
+  const compartirCorreo = () => { window.open(`mailto:?subject=${encodeURIComponent('Mi lista - Al Día')}&body=${encodeURIComponent(generarTexto())}`,'_blank'); };
   const compartirNativo = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: 'Al Día - Lista de vencimientos', text: generarTexto() });
-      } catch(e) {}
-    } else {
-      copiarPortapapeles();
-    }
+    if(navigator.share){ try{ await navigator.share({title:'Al Día',text:generarTexto()}); }catch(e){} }
+    else copiarPortapapeles();
   };
-
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
-      <div style={{width:'100%',maxWidth:480,background:'var(--bg2)',borderRadius:'20px 20px 0 0',padding:'20px 20px calc(20px + env(safe-area-inset-bottom,0px))'}}>
+    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end',justifyContent:'center'}}>
+      <div style={{width:'100%',maxWidth:480,background:'var(--bg2)',borderRadius:'20px 20px 0 0',padding:'20px 20px',paddingBottom:'calc(20px + env(safe-area-inset-bottom,0px))'}}>
         <div style={{width:40,height:4,borderRadius:2,background:'var(--border)',margin:'0 auto 20px'}}/>
         <div style={{fontSize:17,fontWeight:600,color:'var(--text)',marginBottom:4}}>Compartir lista</div>
         <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{activos.length} producto{activos.length!==1?'s':''} en tu inventario</div>
@@ -233,9 +216,7 @@ function CompartirModal({ activos, onClose }) {
             </button>
           ))}
         </div>
-        <button onClick={onClose} style={{width:'100%',height:46,borderRadius:13,background:'var(--input)',color:'var(--text2)',border:'none',fontSize:15,cursor:'pointer',fontWeight:500}}>
-          Cancelar
-        </button>
+        <button onClick={onClose} style={{width:'100%',height:46,borderRadius:13,background:'var(--input)',color:'var(--text2)',border:'none',fontSize:15,cursor:'pointer',fontWeight:500}}>Cancelar</button>
       </div>
     </div>
   );
@@ -563,12 +544,16 @@ export default function App(){
   const consumidos=products.filter(p=>p.estado==='consumido');
   const perdida=descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro=consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
-  const esUsuarioNuevo=products.length===0;
+
+  // ✅ CORRECCIÓN: usuario nuevo = nunca ha tenido productos activos NI en historial
+  const esUsuarioNuevo=products.length===0&&historial.length===0;
   const catsUsadas=[...new Set(historial.map(p=>p.cat))];
+
   const todosLosProductos=[...activos,...historial];
   const frecuentesCont={};
   todosLosProductos.forEach(p=>{const key=`${p.name}|||${p.cat}`;frecuentesCont[key]=(frecuentesCont[key]||0)+1;});
   const productosFrecuentes=Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{const[name,cat]=key.split('|||');return{name,cat};});
+
   const catStats=Object.keys(CATS).map(cat=>{
     const dc=descartados.filter(p=>p.cat===cat);
     const cc=consumidos.filter(p=>p.cat===cat);
@@ -660,7 +645,7 @@ export default function App(){
           </div>
         </div>
       )}
-      {scanMsg&&<div style={{margin:'0 14px',marginTop:10,borderRadius:10,padding:'9px 12px',fontSize:13,fontWeight:500,background:scanMsg.startsWith('✓')?'#f0fff4':'#fff8ee',color:scanMsg.startsWith('✓')?'var(--green)':'#FF9500'}}>{scanMsg}</div>}
+      {scanMsg&&<div style={{margin:'10px 14px 0',borderRadius:10,padding:'9px 12px',fontSize:13,fontWeight:500,background:scanMsg.startsWith('✓')?'#f0fff4':'#fff8ee',color:scanMsg.startsWith('✓')?'var(--green)':'#FF9500'}}>{scanMsg}</div>}
       <div style={S.formBody}>
         <div style={S.formSection}>
           <div style={S.formRow}>
