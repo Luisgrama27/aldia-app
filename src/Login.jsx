@@ -6,7 +6,14 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   sendPasswordResetEmail,
+  sendEmailVerification,
+  updateProfile,
 } from "firebase/auth";
+import emailjs from "@emailjs/browser";
+
+const EMAILJS_SERVICE = "service_vi35bf4";
+const EMAILJS_TEMPLATE_BIENVENIDA = "template_ndvpdby";
+const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
 
 const provider = new GoogleAuthProvider();
 
@@ -19,8 +26,8 @@ const LOGO = () => (
         <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}} />
       </linearGradient>
     </defs>
-    <path d="M36 18 C36 18 48 26 48 36 C48 46 42 52 36 54 C30 52 24 46 24 36 C24 26 36 18 36 18Z" fill="none" stroke="#fff" stroke-width="2.2"/>
-    <polyline points="29,36 34,41 43,30" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M36 18 C36 18 48 26 48 36 C48 46 42 52 36 54 C30 52 24 46 24 36 C24 26 36 18 36 18Z" fill="none" stroke="#fff" strokeWidth="2.2"/>
+    <polyline points="29,36 34,41 43,30" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -60,7 +67,6 @@ const S = {
     zIndex:1,
     transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
     transform:'translateY(0)',
-    ':hover':{transform:'translateY(-2px)',boxShadow:'0 12px 40px rgba(0,0,0,0.12)'}
   },
   brand:{textAlign:'center',marginBottom:32},
   appName:{
@@ -137,7 +143,6 @@ const S = {
     width:'100%',
     fontWeight:400,
     transition:'all 0.2s ease',
-    '::placeholder':{color:'#d1d1d6'}
   },
   inputFocus:{fontWeight:500},
   btn:{
@@ -155,11 +160,6 @@ const S = {
     position:'relative',
     overflow:'hidden',
     boxShadow:'0 4px 16px rgba(45,181,78,0.3)',
-    ':hover':{
-      transform:'translateY(-1px)',
-      boxShadow:'0 6px 20px rgba(45,181,78,0.4)'
-    },
-    ':active':{transform:'translateY(0)'}
   },
   btnLoading:{
     background:'linear-gradient(135deg, #86868b 0%, #636366 100%)',
@@ -183,12 +183,6 @@ const S = {
     marginBottom:10,
     transition:'all 0.3s ease',
     boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
-    ':hover':{
-      background:'#f8f9fa',
-      borderColor:'rgba(0,0,0,0.12)',
-      transform:'translateY(-1px)',
-      boxShadow:'0 4px 12px rgba(0,0,0,0.08)'
-    }
   },
   divider:{
     display:'flex',
@@ -241,7 +235,6 @@ const S = {
     fontWeight:600,
     transition:'all 0.2s ease',
     position:'relative',
-    ':hover':{color:'#1E8E3E',textDecoration:'underline'}
   },
   footer:{
     textAlign:'center',
@@ -256,11 +249,13 @@ const S = {
     border:'2px solid rgba(255,255,255,0.3)',
     borderTop:'2px solid #fff',
     borderRadius:'50%',
-    animation:'spin 1s linear infinite'
+    animation:'spin 1s linear infinite',
+    display:'inline-block',
+    marginRight:8,
+    verticalAlign:'middle'
   }
 };
 
-// Agregar estilos CSS para animaciones
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
@@ -301,7 +296,6 @@ export default function Login() {
 
   const reset = () => { setError(""); setMensaje(""); };
 
-  // Validación en tiempo real
   useEffect(() => {
     if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -331,91 +325,59 @@ export default function Login() {
   }, [telefono]);
 
   const handleLogin = async () => {
-    if (!emailValido) {
-      setError("Ingresa un correo electrónico válido.");
-      return;
-    }
-    if (!password) {
-      setError("Ingresa tu contraseña.");
-      return;
-    }
-
+    if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
+    if (!password) { setError("Ingresa tu contraseña."); return; }
     setCargando(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/user-not-found') {
-        setError("No existe una cuenta con este correo.");
-      } else if (e.code === 'auth/wrong-password') {
-        setError("Contraseña incorrecta.");
-      } else {
-        setError("Error al iniciar sesión. Inténtalo de nuevo.");
-      }
+      if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
+      else if (e.code === 'auth/wrong-password') setError("Contraseña incorrecta.");
+      else setError("Error al iniciar sesión. Inténtalo de nuevo.");
     }
   };
 
   const handleRegistro = async () => {
-    if (!nombre.trim()) {
-      setError("Ingresa tu nombre completo.");
-      return;
-    }
-    if (!emailValido) {
-      setError("Ingresa un correo electrónico válido.");
-      return;
-    }
-    if (passwordFuerte === 'debil' || !password) {
-      setError("La contraseña debe tener al menos 6 caracteres.");
-      return;
-    }
-    if (!telefonoValido) {
-      setError("Ingresa un número de teléfono válido.");
-      return;
-    }
-    if (!fechaNacimiento) {
-      setError("Selecciona tu fecha de nacimiento.");
-      return;
-    }
-    if (!pais.trim()) {
-      setError("Ingresa tu país.");
-      return;
-    }
-    if (!ciudad.trim()) {
-      setError("Ingresa tu ciudad.");
-      return;
-    }
+    if (!nombre.trim()) { setError("Ingresa tu nombre completo."); return; }
+    if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
+    if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
+    if (!telefonoValido) { setError("Ingresa un número de teléfono válido."); return; }
+    if (!fechaNacimiento) { setError("Selecciona tu fecha de nacimiento."); return; }
+    if (!pais.trim()) { setError("Ingresa tu país."); return; }
+    if (!ciudad.trim()) { setError("Ingresa tu ciudad."); return; }
 
     setCargando(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Guardar información adicional del usuario en Firestore
-      const userData = {
-        uid: userCredential.user.uid,
-        nombre: nombre.trim(),
-        email: email,
-        telefono: telefono.trim(),
-        fechaNacimiento: fechaNacimiento,
-        pais: pais.trim(),
-        ciudad: ciudad.trim(),
-        notificaciones: notificaciones,
-        fechaRegistro: new Date().toISOString(),
-        metaDesperdicio: null // Para futuras metas
-      };
-      
-      // Aquí podrías guardar userData en Firestore si tienes una colección de usuarios
-      // await addDoc(collection(db, "usuarios"), userData);
-      
-      console.log("Usuario registrado:", userData);
+
+      // ✅ Actualizar el nombre del usuario en Firebase Auth
+      await updateProfile(userCredential.user, { displayName: nombre.trim() });
+
+      // ✅ Enviar correo de verificación
+      await sendEmailVerification(userCredential.user);
+
+      // ✅ Enviar correo de bienvenida por EmailJS
+      try {
+        await emailjs.send(
+          EMAILJS_SERVICE,
+          EMAILJS_TEMPLATE_BIENVENIDA,
+          {
+            to_email: email,
+            nombre: nombre.trim(),
+            lista_productos: `¡Bienvenido a Al Día, ${nombre.trim()}! Tu cuenta ha sido creada exitosamente. Ya puedes empezar a registrar tus productos y nunca más se te vencerá nada en casa.`,
+          },
+          EMAILJS_KEY
+        );
+      } catch(emailError) {
+        console.error("Error enviando correo de bienvenida:", emailError);
+      }
+
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/email-already-in-use') {
-        setError("Ya existe una cuenta con este correo.");
-      } else if (e.code === 'auth/weak-password') {
-        setError("La contraseña es muy débil.");
-      } else {
-        setError("Error al crear la cuenta. Inténtalo de nuevo.");
-      }
+      if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo.");
+      else if (e.code === 'auth/weak-password') setError("La contraseña es muy débil.");
+      else setError("Error al crear la cuenta. Inténtalo de nuevo.");
     }
   };
 
@@ -430,11 +392,7 @@ export default function Login() {
   };
 
   const handleRecuperar = async () => {
-    if (!emailValido) {
-      setError("Ingresa un correo electrónico válido.");
-      return;
-    }
-
+    if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
     setCargando(true);
     try {
       await sendPasswordResetEmail(auth, email);
@@ -443,11 +401,8 @@ export default function Login() {
       setCargando(false);
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/user-not-found') {
-        setError("No existe una cuenta con este correo.");
-      } else {
-        setError("Error al enviar el enlace. Inténtalo de nuevo.");
-      }
+      if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
+      else setError("Error al enviar el enlace. Inténtalo de nuevo.");
     }
   };
 
@@ -494,7 +449,6 @@ export default function Login() {
         {error && (
           <div style={S.err}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" opacity="0"/>
               <path d="M13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
             </svg>
             {error}
@@ -513,249 +467,107 @@ export default function Login() {
         <div style={S.section}>
           {modo==='registro' && (
             <>
-              <div style={{
-                ...S.row,
-                ...(focusField === 'nombre' ? S.rowFocus : {}),
-                borderBottom: focusField === 'nombre' ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-              }}>
-                <div style={S.icon} className={focusField === 'nombre' ? 'icon-focus' : ''}>
+              <div style={{...S.row,borderBottom:focusField==='nombre'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+                <div style={S.icon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                   </svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Nombre completo</div>
-                  <input
-                    style={{...S.input, ...(focusField === 'nombre' ? S.inputFocus : {})}}
-                    value={nombre}
-                    onChange={e=>{setNombre(e.target.value);reset();}}
-                    onFocus={() => setFocusField('nombre')}
-                    onBlur={() => setFocusField(null)}
-                    placeholder="Tu nombre completo"
-                    className={focusField === 'nombre' ? 'input-focus' : ''}
-                  />
+                  <input style={S.input} value={nombre} onChange={e=>{setNombre(e.target.value);reset();}} onFocus={()=>setFocusField('nombre')} onBlur={()=>setFocusField(null)} placeholder="Tu nombre completo"/>
                 </div>
               </div>
 
-              <div style={{
-                ...S.row,
-                ...(focusField === 'telefono' ? S.rowFocus : {}),
-                borderBottom: focusField === 'telefono' ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-              }}>
-                <div style={{...S.icon, ...(focusField === 'telefono' ? S.iconFocus : {}), color: telefonoValido === false ? '#FF3B30' : telefonoValido === true ? '#2DB54E' : '#86868b'}}>
+              <div style={{...S.row,borderBottom:focusField==='telefono'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+                <div style={{...S.icon,color:telefonoValido===false?'#FF3B30':telefonoValido===true?'#2DB54E':'#86868b'}}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
                   </svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Teléfono</div>
-                  <input
-                    style={{...S.input, ...(focusField === 'telefono' ? S.inputFocus : {})}}
-                    type="tel"
-                    value={telefono}
-                    onChange={e=>{setTelefono(e.target.value);reset();}}
-                    onFocus={() => setFocusField('telefono')}
-                    onBlur={() => setFocusField(null)}
-                    placeholder="+57 300 123 4567"
-                    className={focusField === 'telefono' ? 'input-focus' : ''}
-                  />
-                  {telefono && telefonoValido === false && (
-                    <div style={{fontSize:12, color:'#FF3B30', marginTop:4}}>Número de teléfono inválido</div>
-                  )}
-                  {telefono && telefonoValido === true && (
-                    <div style={{fontSize:12, color:'#2DB54E', marginTop:4}}>✓ Teléfono válido</div>
-                  )}
+                  <input style={S.input} type="tel" value={telefono} onChange={e=>{setTelefono(e.target.value);reset();}} onFocus={()=>setFocusField('telefono')} onBlur={()=>setFocusField(null)} placeholder="+57 300 123 4567"/>
+                  {telefono&&telefonoValido===false&&<div style={{fontSize:12,color:'#FF3B30',marginTop:4}}>Número de teléfono inválido</div>}
+                  {telefono&&telefonoValido===true&&<div style={{fontSize:12,color:'#2DB54E',marginTop:4}}>✓ Teléfono válido</div>}
                 </div>
               </div>
 
-              <div style={{
-                ...S.row,
-                ...(focusField === 'fechaNacimiento' ? S.rowFocus : {}),
-                borderBottom: focusField === 'fechaNacimiento' ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-              }}>
-                <div style={S.icon} className={focusField === 'fechaNacimiento' ? 'icon-focus' : ''}>
+              <div style={{...S.row,borderBottom:focusField==='fechaNacimiento'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+                <div style={S.icon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
                   </svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Fecha de nacimiento</div>
-                  <input
-                    style={{...S.input, ...(focusField === 'fechaNacimiento' ? S.inputFocus : {})}}
-                    type="date"
-                    value={fechaNacimiento}
-                    onChange={e=>{setFechaNacimiento(e.target.value);reset();}}
-                    onFocus={() => setFocusField('fechaNacimiento')}
-                    onBlur={() => setFocusField(null)}
-                    className={focusField === 'fechaNacimiento' ? 'input-focus' : ''}
-                  />
+                  <input style={S.input} type="date" value={fechaNacimiento} onChange={e=>{setFechaNacimiento(e.target.value);reset();}} onFocus={()=>setFocusField('fechaNacimiento')} onBlur={()=>setFocusField(null)}/>
                 </div>
               </div>
 
-              <div style={{
-                ...S.row,
-                ...(focusField === 'pais' ? S.rowFocus : {}),
-                borderBottom: focusField === 'pais' ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-              }}>
-                <div style={S.icon} className={focusField === 'pais' ? 'icon-focus' : ''}>
+              <div style={{...S.row,borderBottom:focusField==='pais'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+                <div style={S.icon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>País</div>
-                  <input
-                    style={{...S.input, ...(focusField === 'pais' ? S.inputFocus : {})}}
-                    value={pais}
-                    onChange={e=>{setPais(e.target.value);reset();}}
-                    onFocus={() => setFocusField('pais')}
-                    onBlur={() => setFocusField(null)}
-                    placeholder="Colombia"
-                    className={focusField === 'pais' ? 'input-focus' : ''}
-                  />
+                  <input style={S.input} value={pais} onChange={e=>{setPais(e.target.value);reset();}} onFocus={()=>setFocusField('pais')} onBlur={()=>setFocusField(null)} placeholder="Colombia"/>
                 </div>
               </div>
 
-              <div style={{
-                ...S.row,
-                ...(focusField === 'ciudad' ? S.rowFocus : {}),
-                borderBottom: focusField === 'ciudad' ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-              }}>
-                <div style={S.icon} className={focusField === 'ciudad' ? 'icon-focus' : ''}>
+              <div style={{...S.row,borderBottom:focusField==='ciudad'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+                <div style={S.icon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
                   </svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Ciudad</div>
-                  <input
-                    style={{...S.input, ...(focusField === 'ciudad' ? S.inputFocus : {})}}
-                    value={ciudad}
-                    onChange={e=>{setCiudad(e.target.value);reset();}}
-                    onFocus={() => setFocusField('ciudad')}
-                    onBlur={() => setFocusField(null)}
-                    placeholder="Bogotá"
-                    className={focusField === 'ciudad' ? 'input-focus' : ''}
-                  />
+                  <input style={S.input} value={ciudad} onChange={e=>{setCiudad(e.target.value);reset();}} onFocus={()=>setFocusField('ciudad')} onBlur={()=>setFocusField(null)} placeholder="Bogotá"/>
                 </div>
               </div>
 
-              <div style={{
-                ...S.row,
-                borderBottom: 'none',
-                padding: '16px 0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12
-              }}>
-                <input
-                  type="checkbox"
-                  id="notificaciones"
-                  checked={notificaciones}
-                  onChange={e => setNotificaciones(e.target.checked)}
-                  style={{
-                    width: 18,
-                    height: 18,
-                    borderRadius: 4,
-                    border: '2px solid #2DB54E',
-                    background: notificaciones ? '#2DB54E' : 'transparent',
-                    cursor: 'pointer',
-                    accentColor: '#2DB54E'
-                  }}
-                />
-                <label htmlFor="notificaciones" style={{
-                  fontSize: 14,
-                  color: '#1d1d1f',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                  opacity: 1
-                }}>
+              <div style={{...S.row,borderBottom:'none',padding:'16px 18px',display:'flex',alignItems:'center',gap:12}}>
+                <input type="checkbox" id="notificaciones" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)} style={{width:18,height:18,borderRadius:4,cursor:'pointer',accentColor:'#2DB54E'}}/>
+                <label htmlFor="notificaciones" style={{fontSize:14,color:'#1d1d1f',cursor:'pointer',userSelect:'none'}}>
                   Recibir notificaciones sobre consejos para reducir desperdicio
                 </label>
               </div>
             </>
           )}
 
-          <div style={{
-            ...(modo==='recuperar' ? S.rowLast : S.row),
-            ...(focusField === 'email' ? S.rowFocus : {}),
-            borderBottom: (modo==='recuperar' || focusField === 'email') ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
-          }}>
-            <div style={{...S.icon, ...(focusField === 'email' ? S.iconFocus : {}), color: emailValido === false ? '#FF3B30' : emailValido === true ? '#2DB54E' : '#86868b'}}>
+          <div style={{...(modo==='recuperar'?S.rowLast:S.row),borderBottom:focusField==='email'?'2px solid #2DB54E':modo==='recuperar'?'none':'1px solid rgba(0,0,0,0.06)'}}>
+            <div style={{...S.icon,color:emailValido===false?'#FF3B30':emailValido===true?'#2DB54E':'#86868b'}}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
               </svg>
             </div>
             <div style={{flex:1}}>
               <div style={S.label}>Correo electrónico</div>
-              <input
-                style={{...S.input, ...(focusField === 'email' ? S.inputFocus : {})}}
-                type="email"
-                value={email}
-                onChange={e=>{setEmail(e.target.value);reset();}}
-                onFocus={() => setFocusField('email')}
-                onBlur={() => setFocusField(null)}
-                placeholder="tucorreo@email.com"
-                className={focusField === 'email' ? 'input-focus' : ''}
-              />
-              {email && emailValido === false && (
-                <div style={{fontSize:12, color:'#FF3B30', marginTop:4}}>Correo electrónico inválido</div>
-              )}
-              {email && emailValido === true && (
-                <div style={{fontSize:12, color:'#2DB54E', marginTop:4}}>✓ Correo válido</div>
-              )}
+              <input style={S.input} type="email" value={email} onChange={e=>{setEmail(e.target.value);reset();}} onFocus={()=>setFocusField('email')} onBlur={()=>setFocusField(null)} placeholder="tucorreo@email.com"/>
+              {email&&emailValido===false&&<div style={{fontSize:12,color:'#FF3B30',marginTop:4}}>Correo electrónico inválido</div>}
+              {email&&emailValido===true&&<div style={{fontSize:12,color:'#2DB54E',marginTop:4}}>✓ Correo válido</div>}
             </div>
           </div>
 
-          {modo!=='recuperar' && (
-            <div style={{
-              ...S.rowLast,
-              ...(focusField === 'password' ? S.rowFocus : {}),
-              borderBottom: focusField === 'password' ? '2px solid #2DB54E' : 'none'
-            }}>
-              <div style={{...S.icon, ...(focusField === 'password' ? S.iconFocus : {}), color: passwordFuerte ? getPasswordStrengthColor() : '#86868b'}}>
+          {modo!=='recuperar'&&(
+            <div style={{...S.rowLast,borderBottom:focusField==='password'?'2px solid #2DB54E':'none'}}>
+              <div style={{...S.icon,color:passwordFuerte?getPasswordStrengthColor():'#86868b'}}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
                 </svg>
               </div>
               <div style={{flex:1}}>
                 <div style={S.label}>Contraseña</div>
-                <input
-                  style={{...S.input, ...(focusField === 'password' ? S.inputFocus : {})}}
-                  type="password"
-                  value={password}
-                  onChange={e=>{setPassword(e.target.value);reset();}}
-                  onFocus={() => setFocusField('password')}
-                  onBlur={() => setFocusField(null)}
-                  placeholder="••••••••"
-                  className={focusField === 'password' ? 'input-focus' : ''}
-                />
-                {password && modo === 'registro' && (
-                  <div style={{display:'flex', alignItems:'center', gap:6, marginTop:6}}>
-                    <div style={{
-                      width:60,
-                      height:3,
-                      borderRadius:2,
-                      background: getPasswordStrengthColor(),
-                      opacity: passwordFuerte === 'fuerte' ? 1 : passwordFuerte === 'medio' ? 0.7 : 0.4
-                    }}></div>
-                    <div style={{
-                      width:60,
-                      height:3,
-                      borderRadius:2,
-                      background: getPasswordStrengthColor(),
-                      opacity: passwordFuerte === 'medio' ? 0.7 : passwordFuerte === 'fuerte' ? 1 : 0.4
-                    }}></div>
-                    <div style={{
-                      width:60,
-                      height:3,
-                      borderRadius:2,
-                      background: getPasswordStrengthColor(),
-                      opacity: passwordFuerte === 'debil' ? 0.4 : 1
-                    }}></div>
-                    <span style={{fontSize:12, color: getPasswordStrengthColor(), fontWeight:500}}>
-                      {getPasswordStrengthText()}
-                    </span>
+                <input style={S.input} type="password" value={password} onChange={e=>{setPassword(e.target.value);reset();}} onFocus={()=>setFocusField('password')} onBlur={()=>setFocusField(null)} placeholder="••••••••"/>
+                {password&&modo==='registro'&&(
+                  <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
+                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='fuerte'?1:passwordFuerte==='medio'?0.7:0.4}}></div>
+                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='medio'?0.7:passwordFuerte==='fuerte'?1:0.4}}></div>
+                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='debil'?0.4:1}}></div>
+                    <span style={{fontSize:12,color:getPasswordStrengthColor(),fontWeight:500}}>{getPasswordStrengthText()}</span>
                   </div>
                 )}
               </div>
@@ -763,28 +575,15 @@ export default function Login() {
           )}
         </div>
 
-        <button
-          style={{...S.btn, ...(cargando ? S.btnLoading : {})}}
-          onClick={modo==='login'?handleLogin:modo==='registro'?handleRegistro:handleRecuperar}
-          disabled={cargando}
-        >
-          {cargando ? (
-            <>
-              <div style={S.loadingSpinner}></div>
-              {modo==='login' && 'Iniciando sesión...'}
-              {modo==='registro' && 'Creando cuenta...'}
-              {modo==='recuperar' && 'Enviando enlace...'}
-            </>
-          ) : (
-            <>
-              {modo==='login' && 'Iniciar sesión'}
-              {modo==='registro' && 'Crear cuenta'}
-              {modo==='recuperar' && 'Enviar enlace'}
-            </>
+        <button style={{...S.btn,...(cargando?S.btnLoading:{})}} onClick={modo==='login'?handleLogin:modo==='registro'?handleRegistro:handleRecuperar} disabled={cargando}>
+          {cargando?(
+            <><div style={S.loadingSpinner}></div>{modo==='login'&&'Iniciando sesión...'}{modo==='registro'&&'Creando cuenta...'}{modo==='recuperar'&&'Enviando enlace...'}</>
+          ):(
+            <>{modo==='login'&&'Iniciar sesión'}{modo==='registro'&&'Crear cuenta'}{modo==='recuperar'&&'Enviar enlace de recuperación'}</>
           )}
         </button>
 
-        {modo!=='recuperar' && (
+        {modo!=='recuperar'&&(
           <>
             <div style={S.divider}>
               <div style={S.divLine}/>
@@ -804,19 +603,17 @@ export default function Login() {
         )}
 
         <div style={S.footer}>
-          {modo==='login' && (
+          {modo==='login'&&(
             <>
-              <div style={S.link} onClick={()=>{cambiarModo('recuperar');}}>¿Olvidaste tu contraseña?</div>
-              <div style={{margin:'8px 0'}}>
-                ¿No tienes cuenta? <span style={S.link} onClick={()=>{cambiarModo('registro');}}>Regístrate</span>
-              </div>
+              <div style={S.link} onClick={()=>cambiarModo('recuperar')}>¿Olvidaste tu contraseña?</div>
+              <div style={{margin:'8px 0'}}>¿No tienes cuenta? <span style={S.link} onClick={()=>cambiarModo('registro')}>Regístrate</span></div>
             </>
           )}
-          {modo==='registro' && (
-            <div>¿Ya tienes cuenta? <span style={S.link} onClick={()=>{cambiarModo('login');}}>Inicia sesión</span></div>
+          {modo==='registro'&&(
+            <div>¿Ya tienes cuenta? <span style={S.link} onClick={()=>cambiarModo('login')}>Inicia sesión</span></div>
           )}
-          {modo==='recuperar' && (
-            <div style={S.link} onClick={()=>{cambiarModo('login');}}>← Volver al inicio</div>
+          {modo==='recuperar'&&(
+            <div style={S.link} onClick={()=>cambiarModo('login')}>← Volver al inicio</div>
           )}
         </div>
       </div>
