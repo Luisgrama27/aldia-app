@@ -12,7 +12,7 @@ import {
 import emailjs from "@emailjs/browser";
 
 const EMAILJS_SERVICE = "service_vi35bf4";
-const EMAILJS_TEMPLATE_BIENVENIDA = "template_ndvpdby";
+const EMAILJS_TEMPLATE_BIENVENIDA = "template_79jcsbv";
 const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
 
 const provider = new GoogleAuthProvider();
@@ -32,247 +32,35 @@ const LOGO = () => (
 );
 
 const S = {
-  wrap:{
-    minHeight:'100vh',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    background:'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-    fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif',
-    padding:16,
-    position:'relative',
-    overflow:'hidden'
-  },
-  bgPattern:{
-    position:'absolute',
-    top:0,
-    left:0,
-    right:0,
-    bottom:0,
-    opacity:0.03,
-    backgroundImage:`radial-gradient(circle at 25% 25%, #2DB54E 2px, transparent 2px),
-                     radial-gradient(circle at 75% 75%, #2DB54E 1px, transparent 1px)`,
-    backgroundSize:'60px 60px, 40px 40px'
-  },
-  card:{
-    background:'#fff',
-    borderRadius:28,
-    padding:'40px 28px',
-    width:'100%',
-    maxWidth:380,
-    boxShadow:'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',
-    border:'1px solid rgba(255,255,255,0.8)',
-    backdropFilter:'blur(20px)',
-    position:'relative',
-    zIndex:1,
-    transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    transform:'translateY(0)',
-  },
+  wrap:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif',padding:16,position:'relative',overflow:'hidden'},
+  bgPattern:{position:'absolute',top:0,left:0,right:0,bottom:0,opacity:0.03,backgroundImage:`radial-gradient(circle at 25% 25%, #2DB54E 2px, transparent 2px), radial-gradient(circle at 75% 75%, #2DB54E 1px, transparent 1px)`,backgroundSize:'60px 60px, 40px 40px'},
+  card:{background:'#fff',borderRadius:28,padding:'40px 28px',width:'100%',maxWidth:380,boxShadow:'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',border:'1px solid rgba(255,255,255,0.8)',backdropFilter:'blur(20px)',position:'relative',zIndex:1,transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'},
   brand:{textAlign:'center',marginBottom:32},
-  appName:{
-    fontSize:32,
-    fontWeight:800,
-    color:'#1d1d1f',
-    letterSpacing:-0.8,
-    marginTop:16,
-    background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',
-    WebkitBackgroundClip:'text',
-    WebkitTextFillColor:'transparent',
-    backgroundClip:'text'
-  },
-  appSub:{
-    fontSize:16,
-    color:'#86868b',
-    marginTop:6,
-    fontWeight:400,
-    letterSpacing:-0.2,
-    transition:'all 0.3s ease'
-  },
-  section:{
-    background:'#f8f9fa',
-    borderRadius:16,
-    overflow:'hidden',
-    marginBottom:16,
-    border:'1px solid rgba(0,0,0,0.04)',
-    transition:'all 0.3s ease'
-  },
-  row:{
-    padding:'16px 18px',
-    borderBottom:'1px solid rgba(0,0,0,0.06)',
-    display:'flex',
-    alignItems:'center',
-    gap:12,
-    transition:'all 0.2s ease',
-    position:'relative'
-  },
-  rowFocus:{
-    background:'#fff',
-    borderBottom:'2px solid #2DB54E',
-    transform:'scale(1.002)'
-  },
-  rowLast:{
-    padding:'16px 18px',
-    display:'flex',
-    alignItems:'center',
-    gap:12,
-    position:'relative'
-  },
-  icon:{
-    width:20,
-    height:20,
-    color:'#86868b',
-    flexShrink:0,
-    transition:'all 0.2s ease'
-  },
-  iconFocus:{color:'#2DB54E',transform:'scale(1.1)'},
-  label:{
-    fontSize:11,
-    color:'#86868b',
-    fontWeight:500,
-    textTransform:'uppercase',
-    letterSpacing:0.5,
-    marginBottom:2,
-    opacity:0.8
-  },
-  input:{
-    fontSize:16,
-    color:'#1d1d1f',
-    border:'none',
-    outline:'none',
-    background:'transparent',
-    width:'100%',
-    fontWeight:400,
-    transition:'all 0.2s ease',
-  },
-  inputFocus:{fontWeight:500},
-  btn:{
-    width:'100%',
-    height:50,
-    borderRadius:14,
-    background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',
-    color:'#fff',
-    border:'none',
-    fontSize:16,
-    fontWeight:600,
-    cursor:'pointer',
-    marginBottom:12,
-    transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    position:'relative',
-    overflow:'hidden',
-    boxShadow:'0 4px 16px rgba(45,181,78,0.3)',
-  },
-  btnLoading:{
-    background:'linear-gradient(135deg, #86868b 0%, #636366 100%)',
-    cursor:'not-allowed',
-    transform:'none'
-  },
-  btnGoogle:{
-    width:'100%',
-    height:50,
-    borderRadius:14,
-    background:'#fff',
-    border:'1px solid rgba(0,0,0,0.08)',
-    fontSize:15,
-    cursor:'pointer',
-    display:'flex',
-    alignItems:'center',
-    justifyContent:'center',
-    gap:12,
-    color:'#1d1d1f',
-    fontWeight:500,
-    marginBottom:10,
-    transition:'all 0.3s ease',
-    boxShadow:'0 2px 8px rgba(0,0,0,0.04)',
-  },
-  divider:{
-    display:'flex',
-    alignItems:'center',
-    gap:16,
-    margin:'8px 0 16px',
-    position:'relative'
-  },
-  divLine:{
-    flex:1,
-    height:'1px',
-    background:'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'
-  },
-  divText:{
-    fontSize:13,
-    color:'#86868b',
-    fontWeight:500,
-    background:'#fff',
-    padding:'0 12px'
-  },
-  err:{
-    background:'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)',
-    border:'1px solid rgba(255,59,48,0.2)',
-    borderRadius:12,
-    padding:'12px 16px',
-    fontSize:14,
-    color:'#c53030',
-    marginBottom:12,
-    display:'flex',
-    alignItems:'center',
-    gap:8,
-    animation:'slideIn 0.3s ease-out'
-  },
-  ok:{
-    background:'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)',
-    border:'1px solid rgba(45,181,78,0.2)',
-    borderRadius:12,
-    padding:'12px 16px',
-    fontSize:14,
-    color:'#22543d',
-    marginBottom:12,
-    display:'flex',
-    alignItems:'center',
-    gap:8,
-    animation:'slideIn 0.3s ease-out'
-  },
-  link:{
-    color:'#2DB54E',
-    cursor:'pointer',
-    fontWeight:600,
-    transition:'all 0.2s ease',
-    position:'relative',
-  },
-  footer:{
-    textAlign:'center',
-    fontSize:14,
-    color:'#86868b',
-    marginTop:8,
-    lineHeight:1.5
-  },
-  loadingSpinner:{
-    width:16,
-    height:16,
-    border:'2px solid rgba(255,255,255,0.3)',
-    borderTop:'2px solid #fff',
-    borderRadius:'50%',
-    animation:'spin 1s linear infinite',
-    display:'inline-block',
-    marginRight:8,
-    verticalAlign:'middle'
-  }
+  appName:{fontSize:32,fontWeight:800,color:'#1d1d1f',letterSpacing:-0.8,marginTop:16,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'},
+  appSub:{fontSize:16,color:'#86868b',marginTop:6,fontWeight:400,letterSpacing:-0.2,transition:'all 0.3s ease'},
+  section:{background:'#f8f9fa',borderRadius:16,overflow:'hidden',marginBottom:16,border:'1px solid rgba(0,0,0,0.04)',transition:'all 0.3s ease'},
+  row:{padding:'16px 18px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:12,transition:'all 0.2s ease',position:'relative'},
+  rowLast:{padding:'16px 18px',display:'flex',alignItems:'center',gap:12,position:'relative'},
+  icon:{width:20,height:20,color:'#86868b',flexShrink:0,transition:'all 0.2s ease'},
+  label:{fontSize:11,color:'#86868b',fontWeight:500,textTransform:'uppercase',letterSpacing:0.5,marginBottom:2,opacity:0.8},
+  input:{fontSize:16,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',width:'100%',fontWeight:400,transition:'all 0.2s ease'},
+  btn:{width:'100%',height:50,borderRadius:14,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:12,transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',position:'relative',overflow:'hidden',boxShadow:'0 4px 16px rgba(45,181,78,0.3)'},
+  btnLoading:{background:'linear-gradient(135deg, #86868b 0%, #636366 100%)',cursor:'not-allowed'},
+  btnGoogle:{width:'100%',height:50,borderRadius:14,background:'#fff',border:'1px solid rgba(0,0,0,0.08)',fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,color:'#1d1d1f',fontWeight:500,marginBottom:10,transition:'all 0.3s ease',boxShadow:'0 2px 8px rgba(0,0,0,0.04)'},
+  divider:{display:'flex',alignItems:'center',gap:16,margin:'8px 0 16px',position:'relative'},
+  divLine:{flex:1,height:'1px',background:'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'},
+  divText:{fontSize:13,color:'#86868b',fontWeight:500,background:'#fff',padding:'0 12px'},
+  err:{background:'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)',border:'1px solid rgba(255,59,48,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#c53030',marginBottom:12,display:'flex',alignItems:'center',gap:8,animation:'slideIn 0.3s ease-out'},
+  ok:{background:'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)',border:'1px solid rgba(45,181,78,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#22543d',marginBottom:12,display:'flex',alignItems:'center',gap:8,animation:'slideIn 0.3s ease-out'},
+  link:{color:'#2DB54E',cursor:'pointer',fontWeight:600,transition:'all 0.2s ease'},
+  footer:{textAlign:'center',fontSize:14,color:'#86868b',marginTop:8,lineHeight:1.5},
+  loadingSpinner:{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 1s linear infinite',display:'inline-block',marginRight:8,verticalAlign:'middle'}
 };
 
 const style = document.createElement('style');
 style.textContent = `
-  @keyframes slideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-  .input-focus { font-weight: 500 !important; }
-  .row-focus { background: #fff !important; border-bottom: 2px solid #2DB54E !important; transform: scale(1.002) !important; }
-  .icon-focus { color: #2DB54E !important; transform: scale(1.1) !important; }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 `;
 document.head.appendChild(style);
 
@@ -300,9 +88,7 @@ export default function Login() {
     if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       setEmailValido(emailRegex.test(email));
-    } else {
-      setEmailValido(null);
-    }
+    } else { setEmailValido(null); }
   }, [email]);
 
   useEffect(() => {
@@ -310,18 +96,14 @@ export default function Login() {
       const fuerte = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
       const medio = password.length >= 6;
       setPasswordFuerte(fuerte ? 'fuerte' : medio ? 'medio' : 'debil');
-    } else {
-      setPasswordFuerte(null);
-    }
+    } else { setPasswordFuerte(null); }
   }, [password, modo]);
 
   useEffect(() => {
     if (telefono) {
       const telefonoRegex = /^[\+]?[0-9\s\-\(\)]{10,15}$/;
       setTelefonoValido(telefonoRegex.test(telefono.replace(/\s/g, '')));
-    } else {
-      setTelefonoValido(null);
-    }
+    } else { setTelefonoValido(null); }
   }, [telefono]);
 
   const handleLogin = async () => {
@@ -351,22 +133,14 @@ export default function Login() {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      // ✅ Actualizar el nombre del usuario en Firebase Auth
       await updateProfile(userCredential.user, { displayName: nombre.trim() });
-
-      // ✅ Enviar correo de verificación
       await sendEmailVerification(userCredential.user);
 
-      // ✅ Enviar correo de bienvenida por EmailJS
       try {
         await emailjs.send(
           EMAILJS_SERVICE,
           EMAILJS_TEMPLATE_BIENVENIDA,
-          {
-            to_email: email,
-            nombre: nombre.trim(),
-            lista_productos: `¡Bienvenido a Al Día, ${nombre.trim()}! Tu cuenta ha sido creada exitosamente. Ya puedes empezar a registrar tus productos y nunca más se te vencerá nada en casa.`,
-          },
+          { to_email: email, nombre: nombre.trim() },
           EMAILJS_KEY
         );
       } catch(emailError) {
@@ -407,17 +181,9 @@ export default function Login() {
   };
 
   const cambiarModo = (nuevoModo) => {
-    setModo(nuevoModo);
-    reset();
-    setFocusField(null);
-    setEmailValido(null);
-    setPasswordFuerte(null);
-    setTelefonoValido(null);
-    setTelefono("");
-    setFechaNacimiento("");
-    setPais("");
-    setCiudad("");
-    setNotificaciones(true);
+    setModo(nuevoModo); reset(); setFocusField(null);
+    setEmailValido(null); setPasswordFuerte(null); setTelefonoValido(null);
+    setTelefono(""); setFechaNacimiento(""); setPais(""); setCiudad(""); setNotificaciones(true);
   };
 
   const getPasswordStrengthColor = () => {
@@ -431,6 +197,11 @@ export default function Login() {
     if (passwordFuerte === 'medio') return 'Contraseña aceptable';
     return 'Contraseña débil';
   };
+
+  const rowStyle = (field) => ({
+    ...S.row,
+    borderBottom: focusField === field ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
+  });
 
   return (
     <div style={S.wrap}>
@@ -448,18 +219,14 @@ export default function Login() {
 
         {error && (
           <div style={S.err}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/>
-            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
             {error}
           </div>
         )}
 
         {mensaje && (
           <div style={S.ok}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
             {mensaje}
           </div>
         )}
@@ -467,11 +234,9 @@ export default function Login() {
         <div style={S.section}>
           {modo==='registro' && (
             <>
-              <div style={{...S.row,borderBottom:focusField==='nombre'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+              <div style={rowStyle('nombre')}>
                 <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Nombre completo</div>
@@ -479,11 +244,9 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={{...S.row,borderBottom:focusField==='telefono'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+              <div style={rowStyle('telefono')}>
                 <div style={{...S.icon,color:telefonoValido===false?'#FF3B30':telefonoValido===true?'#2DB54E':'#86868b'}}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                  </svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Teléfono</div>
@@ -493,11 +256,9 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={{...S.row,borderBottom:focusField==='fechaNacimiento'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+              <div style={rowStyle('fechaNacimiento')}>
                 <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
-                  </svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Fecha de nacimiento</div>
@@ -505,11 +266,9 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={{...S.row,borderBottom:focusField==='pais'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+              <div style={rowStyle('pais')}>
                 <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>País</div>
@@ -517,11 +276,9 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={{...S.row,borderBottom:focusField==='ciudad'?'2px solid #2DB54E':'1px solid rgba(0,0,0,0.06)'}}>
+              <div style={rowStyle('ciudad')}>
                 <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-                  </svg>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Ciudad</div>
@@ -530,7 +287,7 @@ export default function Login() {
               </div>
 
               <div style={{...S.row,borderBottom:'none',padding:'16px 18px',display:'flex',alignItems:'center',gap:12}}>
-                <input type="checkbox" id="notificaciones" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)} style={{width:18,height:18,borderRadius:4,cursor:'pointer',accentColor:'#2DB54E'}}/>
+                <input type="checkbox" id="notificaciones" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)} style={{width:18,height:18,cursor:'pointer',accentColor:'#2DB54E'}}/>
                 <label htmlFor="notificaciones" style={{fontSize:14,color:'#1d1d1f',cursor:'pointer',userSelect:'none'}}>
                   Recibir notificaciones sobre consejos para reducir desperdicio
                 </label>
@@ -540,9 +297,7 @@ export default function Login() {
 
           <div style={{...(modo==='recuperar'?S.rowLast:S.row),borderBottom:focusField==='email'?'2px solid #2DB54E':modo==='recuperar'?'none':'1px solid rgba(0,0,0,0.06)'}}>
             <div style={{...S.icon,color:emailValido===false?'#FF3B30':emailValido===true?'#2DB54E':'#86868b'}}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
             </div>
             <div style={{flex:1}}>
               <div style={S.label}>Correo electrónico</div>
@@ -555,9 +310,7 @@ export default function Login() {
           {modo!=='recuperar'&&(
             <div style={{...S.rowLast,borderBottom:focusField==='password'?'2px solid #2DB54E':'none'}}>
               <div style={{...S.icon,color:passwordFuerte?getPasswordStrengthColor():'#86868b'}}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-                </svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
               </div>
               <div style={{flex:1}}>
                 <div style={S.label}>Contraseña</div>
