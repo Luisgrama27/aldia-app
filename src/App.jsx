@@ -23,8 +23,8 @@ function Splash({ onDone }) {
     <div style={{
       position:'fixed',
       top:0, left:0, right:0, bottom:0,
-      width:'100vw',
-      height:'100vh',
+      width:'100%',
+      height:'100%',
       display:'flex',
       flexDirection:'column',
       alignItems:'center',
@@ -32,10 +32,9 @@ function Splash({ onDone }) {
       background:'#2DB54E',
       fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
       gap:24,
-      zIndex:9999,
-      overflow:'hidden'
+      zIndex:9999
     }}>
-      <div style={{transform:fase>=1?'scale(1)':'scale(0.2)',opacity:fase>=1?1:0,transition:'transform 0.6s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s ease'}}>
+      <div style={{transform:fase>=1?'scale(1)':'scale(0.2)',opacity:fase>=1?1:0,transition:'transform 0.6s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease'}}>
         <svg width="100" height="100" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 4px 16px rgba(0,0,0,0.2))'}}>
           <circle cx="40" cy="40" r="36" fill="#fff" stroke="#fff" strokeWidth="1.5"/>
           <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#2DB54E" strokeWidth="2.5" strokeLinecap="round"/>
@@ -43,14 +42,9 @@ function Splash({ onDone }) {
           <path d="M25 50 Q40 45 55 50" stroke="#2DB54E" strokeWidth="1.5" fill="none" opacity="0.6"/>
         </svg>
       </div>
-      <div style={{opacity:fase>=2?1:0,transform:fase>=2?'translateY(0)':'translateY(16px)',transition:'opacity 0.5s ease,transform 0.5s ease',textAlign:'center'}}>
+      <div style={{opacity:fase>=2?1:0,transform:fase>=2?'translateY(0)':'translateY(16px)',transition:'opacity 0.5s ease, transform 0.5s ease',textAlign:'center'}}>
         <div style={{fontSize:38,fontWeight:700,color:'#fff',letterSpacing:-1}}>Al Día</div>
         <div style={{fontSize:15,color:'rgba(255,255,255,0.8)',marginTop:8}}>Controla lo que tienes en casa</div>
-      </div>
-      <div style={{position:'absolute',bottom:50,opacity:fase>=3?1:0,transition:'opacity 0.4s ease',display:'flex',gap:8}}>
-        {[0,1,2].map(i=>(
-          <div key={i} style={{width:i===1?24:8,height:8,borderRadius:999,background:i===1?'#fff':'rgba(255,255,255,0.4)',transition:'all 0.3s'}}/>
-        ))}
       </div>
     </div>
   );
