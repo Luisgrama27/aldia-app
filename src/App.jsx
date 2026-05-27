@@ -256,13 +256,6 @@ const CATS = {
 const today = new Date();
 today.setHours(0,0,0,0);
 
-function getSaludo(){
-  const h=new Date().getHours();
-  if(h<12) return '☀️ Buenos días';
-  if(h<18) return '🌤️ Buenas tardes';
-  return '🌙 Buenas noches';
-}
-
 function getBarWidth(days,alert){
   if(days<0) return 100;
   if(days===0) return 95;
@@ -303,30 +296,31 @@ function daysLabel(d){
 }
 
 const S={
-  // ✅ Pantalla principal con header fijo
   screen:{
-    maxWidth:480, margin:'0 auto',
-    height:'100vh', height:'-webkit-fill-available',
+    maxWidth:480,
+    margin:'0 auto',
+    height:'100vh',
     background:'var(--bg)',
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-    display:'flex', flexDirection:'column',
+    display:'flex',
+    flexDirection:'column',
     overflow:'hidden',
   },
-  // ✅ Header siempre fijo arriba
   header:{
     background:'var(--bg2)',
     paddingTop:'calc(12px + env(safe-area-inset-top,0px))',
-    paddingBottom:14, paddingLeft:20, paddingRight:20,
+    paddingBottom:14,
+    paddingLeft:20,
+    paddingRight:20,
     borderBottom:'0.5px solid var(--border)',
     flexShrink:0,
   },
-  // ✅ Área de contenido que hace scroll
   content:{
     flex:1,
     overflowY:'auto',
     overflowX:'hidden',
     WebkitOverflowScrolling:'touch',
-    paddingBottom:'calc(60px + env(safe-area-inset-bottom,0px))',
+    paddingBottom:8,
   },
   avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
   titleRow:{display:'flex',alignItems:'center',gap:10},
@@ -344,10 +338,34 @@ const S={
   iconWrap:{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0},
   fabWrap:{padding:'12px 14px 24px'},
   fab:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
-  // Form
-  formWrap:{maxWidth:480,margin:'0 auto',height:'100vh',height:'-webkit-fill-available',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',display:'flex',flexDirection:'column',overflow:'hidden'},
-  formHeader:{background:'var(--bg2)',paddingTop:'calc(14px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12,flexShrink:0},
-  formContent:{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',paddingBottom:'calc(60px + env(safe-area-inset-bottom,0px))'},
+  formWrap:{
+    maxWidth:480,
+    margin:'0 auto',
+    height:'100vh',
+    background:'var(--bg)',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    display:'flex',
+    flexDirection:'column',
+    overflow:'hidden',
+  },
+  formHeader:{
+    background:'var(--bg2)',
+    paddingTop:'calc(14px + env(safe-area-inset-top,0px))',
+    paddingBottom:14,
+    paddingLeft:20,
+    paddingRight:20,
+    borderBottom:'0.5px solid var(--border)',
+    display:'flex',
+    alignItems:'center',
+    gap:12,
+    flexShrink:0,
+  },
+  formContent:{
+    flex:1,
+    overflowY:'auto',
+    WebkitOverflowScrolling:'touch',
+    paddingBottom:8,
+  },
   backBtn:{background:'none',border:'none',fontSize:16,color:'var(--green)',cursor:'pointer',fontWeight:500},
   formTitle:{fontSize:17,fontWeight:600,color:'var(--text)'},
   formBody:{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12},
@@ -359,7 +377,17 @@ const S={
   formSelect:{fontSize:15,color:'var(--text)',border:'none',outline:'none',background:'transparent',width:'100%'},
   saveBtn:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
   delBtn:{width:'100%',height:46,borderRadius:13,background:'var(--card)',color:'#FF3B30',border:'0.5px solid rgba(255,59,48,0.3)',fontSize:15,cursor:'pointer'},
-  navbar:{flexShrink:0,background:'var(--bg2)',borderTop:'0.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-around',paddingBottom:'env(safe-area-inset-bottom,0px)',height:'calc(60px + env(safe-area-inset-bottom,0px))'},
+  navbar:{
+    flexShrink:0,
+    background:'var(--bg2)',
+    borderTop:'0.5px solid var(--border)',
+    display:'flex',
+    alignItems:'center',
+    justifyContent:'space-around',
+    paddingBottom:'env(safe-area-inset-bottom,0px)',
+    minHeight:60,
+    paddingTop:6,
+  },
   navBtn:{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 16px',paddingBottom:0},
   navIco:{display:'flex',alignItems:'center',justifyContent:'center',width:24,height:24},
   navLbl:{fontSize:10,fontWeight:500},
@@ -464,10 +492,7 @@ export default function App(){
     const unsub=onAuthStateChanged(auth,(user)=>{
       setUsuario(user);
       setCargando(false);
-      // ✅ Ocultar splash nativo cuando React esté listo
-      setTimeout(()=>{
-        if(window.__hideSplash) window.__hideSplash();
-      }, 300);
+      setTimeout(()=>{if(window.__hideSplash)window.__hideSplash();},300);
     });
     return()=>unsub();
   },[]);
@@ -530,7 +555,6 @@ export default function App(){
   const nombre=usuario.displayName||usuario.email.split('@')[0];
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
-  const saludo=getSaludo();
 
   const activos=products.filter(p=>!p.estado);
   const historial=products.filter(p=>p.estado==='consumido'||p.estado==='descartado');
@@ -668,8 +692,6 @@ export default function App(){
   return (
     <div style={S.screen}>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
-
-      {/* ✅ Header siempre fijo */}
       <div style={S.header}>
         <div style={S.titleRow}>
           <LOGO/>
@@ -711,7 +733,6 @@ export default function App(){
         </div>
       </div>
 
-      {/* ✅ Contenido con scroll */}
       <div style={S.content}>
         {correoEnviado&&<div style={{margin:'8px 14px 0',borderRadius:12,padding:'9px 12px',background:'#f0fff4',border:'0.5px solid rgba(45,181,78,0.3)',fontSize:12,fontWeight:500,color:'var(--green)'}}>📧 Te enviamos un correo con los productos por vencer</div>}
 
@@ -733,7 +754,6 @@ export default function App(){
             )
           ):(
             <>
-              <div style={{padding:'10px 14px 4px',fontSize:15,fontWeight:600,color:'var(--text)'}}>{saludo}, {nombreCorto} 👋</div>
               <Widget activos={activos}/>
               <div style={S.statsGrid}>
                 {[{n:expired+danger,l:'Urgentes',c:'#FF3B30'},{n:warn,l:'Próximos',c:'#FF9500'},{n:ok,l:'En buen estado',c:'#34C759'},{n:activos.length,l:'Total',c:'var(--green)'}].map(s=>(
@@ -911,7 +931,6 @@ export default function App(){
         )}
       </div>
 
-      {/* ✅ Navbar siempre fija abajo */}
       <Navbar tab={tab} setTab={setTab} setPantalla={setPantalla}/>
     </div>
   );
