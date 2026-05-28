@@ -299,7 +299,7 @@ const S={
   screen:{
     maxWidth:480,
     margin:'0 auto',
-    height:'100vh',
+    height:'100dvh',
     background:'var(--bg)',
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     display:'flex',
@@ -341,7 +341,7 @@ const S={
   formWrap:{
     maxWidth:480,
     margin:'0 auto',
-    height:'100vh',
+    height:'100dvh',
     background:'var(--bg)',
     fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
     display:'flex',
@@ -547,7 +547,7 @@ export default function App(){
   };
 
   if(cargando) return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
+    <div style={{width:'100%',height:'100dvh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
     </div>
   );
   if(!usuario) return <Login/>;
