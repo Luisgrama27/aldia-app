@@ -32,37 +32,90 @@ const LOGO = () => (
 );
 
 const S = {
-  wrap:{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif',padding:16,position:'relative',overflow:'hidden'},
+  wrap:{minHeight:'100dvh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif',padding:16,position:'relative',overflow:'auto'},
   bgPattern:{position:'absolute',top:0,left:0,right:0,bottom:0,opacity:0.03,backgroundImage:`radial-gradient(circle at 25% 25%, #2DB54E 2px, transparent 2px), radial-gradient(circle at 75% 75%, #2DB54E 1px, transparent 1px)`,backgroundSize:'60px 60px, 40px 40px'},
-  card:{background:'#fff',borderRadius:28,padding:'40px 28px',width:'100%',maxWidth:380,boxShadow:'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',border:'1px solid rgba(255,255,255,0.8)',backdropFilter:'blur(20px)',position:'relative',zIndex:1,transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'},
+  card:{background:'#fff',borderRadius:28,padding:'40px 28px',width:'100%',maxWidth:380,boxShadow:'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',border:'1px solid rgba(255,255,255,0.8)',position:'relative',zIndex:1},
   brand:{textAlign:'center',marginBottom:32},
   appName:{fontSize:32,fontWeight:800,color:'#1d1d1f',letterSpacing:-0.8,marginTop:16,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'},
-  appSub:{fontSize:16,color:'#86868b',marginTop:6,fontWeight:400,letterSpacing:-0.2,transition:'all 0.3s ease'},
-  section:{background:'#f8f9fa',borderRadius:16,overflow:'hidden',marginBottom:16,border:'1px solid rgba(0,0,0,0.04)',transition:'all 0.3s ease'},
-  row:{padding:'16px 18px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:12,transition:'all 0.2s ease',position:'relative'},
+  appSub:{fontSize:16,color:'#86868b',marginTop:6,fontWeight:400,letterSpacing:-0.2},
+  section:{background:'#f8f9fa',borderRadius:16,overflow:'visible',marginBottom:16,border:'1px solid rgba(0,0,0,0.04)'},
+  row:{padding:'16px 18px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:12,position:'relative'},
   rowLast:{padding:'16px 18px',display:'flex',alignItems:'center',gap:12,position:'relative'},
-  icon:{width:20,height:20,color:'#86868b',flexShrink:0,transition:'all 0.2s ease'},
+  icon:{width:20,height:20,color:'#86868b',flexShrink:0},
   label:{fontSize:11,color:'#86868b',fontWeight:500,textTransform:'uppercase',letterSpacing:0.5,marginBottom:2,opacity:0.8},
-  input:{fontSize:16,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',width:'100%',fontWeight:400,transition:'all 0.2s ease'},
-  btn:{width:'100%',height:50,borderRadius:14,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:12,transition:'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',position:'relative',overflow:'hidden',boxShadow:'0 4px 16px rgba(45,181,78,0.3)'},
+  input:{fontSize:16,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',width:'100%',fontWeight:400},
+  select:{fontSize:15,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',flex:1,fontWeight:400,WebkitAppearance:'none',appearance:'none'},
+  btn:{width:'100%',height:50,borderRadius:14,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:12,boxShadow:'0 4px 16px rgba(45,181,78,0.3)'},
   btnLoading:{background:'linear-gradient(135deg, #86868b 0%, #636366 100%)',cursor:'not-allowed'},
-  btnGoogle:{width:'100%',height:50,borderRadius:14,background:'#fff',border:'1px solid rgba(0,0,0,0.08)',fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,color:'#1d1d1f',fontWeight:500,marginBottom:10,transition:'all 0.3s ease',boxShadow:'0 2px 8px rgba(0,0,0,0.04)'},
-  divider:{display:'flex',alignItems:'center',gap:16,margin:'8px 0 16px',position:'relative'},
+  btnGoogle:{width:'100%',height:50,borderRadius:14,background:'#fff',border:'1px solid rgba(0,0,0,0.08)',fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,color:'#1d1d1f',fontWeight:500,marginBottom:10,boxShadow:'0 2px 8px rgba(0,0,0,0.04)'},
+  divider:{display:'flex',alignItems:'center',gap:16,margin:'8px 0 16px'},
   divLine:{flex:1,height:'1px',background:'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'},
   divText:{fontSize:13,color:'#86868b',fontWeight:500,background:'#fff',padding:'0 12px'},
-  err:{background:'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)',border:'1px solid rgba(255,59,48,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#c53030',marginBottom:12,display:'flex',alignItems:'center',gap:8,animation:'slideIn 0.3s ease-out'},
-  ok:{background:'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)',border:'1px solid rgba(45,181,78,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#22543d',marginBottom:12,display:'flex',alignItems:'center',gap:8,animation:'slideIn 0.3s ease-out'},
-  link:{color:'#2DB54E',cursor:'pointer',fontWeight:600,transition:'all 0.2s ease'},
+  err:{background:'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)',border:'1px solid rgba(255,59,48,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#c53030',marginBottom:12,display:'flex',alignItems:'center',gap:8},
+  ok:{background:'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)',border:'1px solid rgba(45,181,78,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#22543d',marginBottom:12,display:'flex',alignItems:'center',gap:8},
+  link:{color:'#2DB54E',cursor:'pointer',fontWeight:600},
   footer:{textAlign:'center',fontSize:14,color:'#86868b',marginTop:8,lineHeight:1.5},
   loadingSpinner:{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 1s linear infinite',display:'inline-block',marginRight:8,verticalAlign:'middle'}
 };
 
-const style = document.createElement('style');
-style.textContent = `
+const styleEl = document.createElement('style');
+styleEl.textContent = `
   @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 `;
-document.head.appendChild(style);
+document.head.appendChild(styleEl);
+
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function FechaNacimientoSelector({ value, onChange }) {
+  const partes = value ? value.split('-') : ['', '', ''];
+  const anio = partes[0] || '';
+  const mes = partes[1] || '';
+  const dia = partes[2] || '';
+
+  const anioActual = new Date().getFullYear();
+  const anios = Array.from({length: 100}, (_, i) => anioActual - 18 - i);
+  const dias = Array.from({length: 31}, (_, i) => String(i + 1).padStart(2, '0'));
+
+  const actualizar = (nuevoAnio, nuevoMes, nuevoDia) => {
+    if (nuevoAnio && nuevoMes && nuevoDia) {
+      onChange(`${nuevoAnio}-${nuevoMes}-${nuevoDia}`);
+    } else {
+      onChange('');
+    }
+  };
+
+  return (
+    <div style={{display:'flex',gap:8,flex:1}}>
+      <select
+        value={dia}
+        onChange={e => actualizar(anio, mes, e.target.value)}
+        style={{...S.select,fontSize:14,color: dia ? '#1d1d1f' : '#86868b'}}
+      >
+        <option value="">Día</option>
+        {dias.map(d => <option key={d} value={d}>{d}</option>)}
+      </select>
+      <select
+        value={mes}
+        onChange={e => actualizar(anio, e.target.value, dia)}
+        style={{...S.select,fontSize:14,color: mes ? '#1d1d1f' : '#86868b'}}
+      >
+        <option value="">Mes</option>
+        {MESES.map((m, i) => (
+          <option key={i} value={String(i + 1).padStart(2, '0')}>{m}</option>
+        ))}
+      </select>
+      <select
+        value={anio}
+        onChange={e => actualizar(e.target.value, mes, dia)}
+        style={{...S.select,fontSize:14,color: anio ? '#1d1d1f' : '#86868b'}}
+      >
+        <option value="">Año</option>
+        {anios.map(a => <option key={a} value={a}>{a}</option>)}
+      </select>
+    </div>
+  );
+}
 
 export default function Login() {
   const [modo, setModo] = useState("login");
@@ -125,17 +178,15 @@ export default function Login() {
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
     if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
     if (!telefonoValido) { setError("Ingresa un número de teléfono válido."); return; }
-    if (!fechaNacimiento) { setError("Selecciona tu fecha de nacimiento."); return; }
+    if (!fechaNacimiento) { setError("Selecciona tu fecha de nacimiento completa."); return; }
     if (!pais.trim()) { setError("Ingresa tu país."); return; }
     if (!ciudad.trim()) { setError("Ingresa tu ciudad."); return; }
 
     setCargando(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-
       await updateProfile(userCredential.user, { displayName: nombre.trim() });
       await sendEmailVerification(userCredential.user);
-
       try {
         await emailjs.send(
           EMAILJS_SERVICE,
@@ -146,7 +197,6 @@ export default function Login() {
       } catch(emailError) {
         console.error("Error enviando correo de bienvenida:", emailError);
       }
-
     } catch(e) {
       setCargando(false);
       if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo.");
@@ -256,13 +306,14 @@ export default function Login() {
                 </div>
               </div>
 
-              <div style={rowStyle('fechaNacimiento')}>
+              {/* ✅ FIX: Fecha de nacimiento con selectores en lugar de input date */}
+              <div style={{...S.row,borderBottom:'1px solid rgba(0,0,0,0.06)'}}>
                 <div style={S.icon}>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
                 </div>
                 <div style={{flex:1}}>
                   <div style={S.label}>Fecha de nacimiento</div>
-                  <input style={S.input} type="date" value={fechaNacimiento} onChange={e=>{setFechaNacimiento(e.target.value);reset();}} onFocus={()=>setFocusField('fechaNacimiento')} onBlur={()=>setFocusField(null)}/>
+                  <FechaNacimientoSelector value={fechaNacimiento} onChange={setFechaNacimiento}/>
                 </div>
               </div>
 
