@@ -110,7 +110,7 @@ const LOGO = () => (
 );
 
 const S = {
-  screen:{maxWidth:480,margin:'0 auto',width:'100%',height:'100%',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',display:'flex',flexDirection:'column',overflow:'hidden'},
+  screen:{maxWidth:480,margin:'0 auto',width:'100%',minHeight:'100dvh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',display:'flex',flexDirection:'column',overflow:'hidden'},
   header:{background:'var(--bg2)',paddingTop:'calc(12px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',flexShrink:0},
   content:{flex:1,overflowY:'auto',overflowX:'hidden',WebkitOverflowScrolling:'touch'},
   navbar:{flexShrink:0,background:'var(--bg2)',borderTop:'0.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-around',height:'calc(60px + env(safe-area-inset-bottom,0px))',paddingBottom:'env(safe-area-inset-bottom,0px)'},
