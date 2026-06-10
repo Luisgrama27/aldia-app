@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
 import Scanner from "./Scanner";
@@ -388,6 +388,9 @@ export default function App(){
   const [usuario,setUsuario]=useState(null);
   const [cargando,setCargando]=useState(true);
   const [products,setProducts]=useState([]);
+  // ✅ Estado separado para saber si es usuario nuevo (viene de Firestore)
+  const [esUsuarioNuevo,setEsUsuarioNuevo]=useState(false);
+  const [checkingNuevo,setCheckingNuevo]=useState(true);
   const [tab,setTab]=useState('home');
   const [pantalla,setPantalla]=useState('');
   const [filtro,setFiltro]=useState('Todos');
@@ -415,12 +418,30 @@ export default function App(){
     return()=>unsub();
   },[]);
 
+  // ✅ Verificar si el usuario es nuevo consultando Firestore directamente
+  useEffect(()=>{
+    if(!usuario)return;
+    setCheckingNuevo(true);
+    const q=query(collection(db,"productos"),where("uid","==",usuario.uid),limit(1));
+    getDocs(q).then(snap=>{
+      // Si no tiene NINGÚN producto (ni activo ni en historial) es nuevo
+      setEsUsuarioNuevo(snap.empty);
+      setCheckingNuevo(false);
+    }).catch(()=>{
+      setEsUsuarioNuevo(false);
+      setCheckingNuevo(false);
+    });
+  },[usuario]);
+
   useEffect(()=>{
     if(!usuario)return;
     const q=query(collection(db,"productos"),where("uid","==",usuario.uid));
     const unsub=onSnapshot(q,(snap)=>{
       const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
-      setProducts(prods);setListKey(k=>k+1);
+      setProducts(prods);
+      setListKey(k=>k+1);
+      // ✅ Si ya tiene productos nunca más es nuevo
+      if(prods.length>0) setEsUsuarioNuevo(false);
       if(!correoEnviadoHoy.current){
         const urgentes=prods.filter(p=>!p.estado&&(status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if(urgentes.length>0){
@@ -461,8 +482,8 @@ export default function App(){
     setTimeout(()=>setScanMsg(''),4000);
   };
 
-  if(cargando)return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
-  if(!usuario)return <Login/>;
+  if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
+  if(!usuario) return <Login/>;
 
   const nombre=usuario.displayName||usuario.email.split('@')[0];
   const nombreCorto=nombre.split(' ')[0];
@@ -475,7 +496,6 @@ export default function App(){
   const consumidos=products.filter(p=>p.estado==='consumido');
   const perdida=descartados.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
   const ahorro=consumidos.reduce((s,p)=>s+(parseFloat(p.precio)||0),0);
-  const esUsuarioNuevo=products.length===0&&historial.length===0;
   const catsUsadas=[...new Set(historial.map(p=>p.cat))];
   const todosLosProductos=[...activos,...historial];
   const frecuentesCont={};
@@ -514,8 +534,7 @@ export default function App(){
       if(editId)await updateDoc(doc(db,"productos",editId),form);
       else await addDoc(collection(db,"productos"),{...form,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
       setPantalla('');
-    }catch(e){console.error(e);}
-    setGuardando(false);
+    }catch(e){console.error(e);}setGuardando(false);
   };
 
   const marcarEstado=async(estado)=>{
@@ -594,7 +613,6 @@ export default function App(){
   return (
     <div style={S.screen}>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
-
       <div style={S.header}>
         <div style={S.titleRow}>
           <LOGO/>
