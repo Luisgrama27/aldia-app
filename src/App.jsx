@@ -61,65 +61,59 @@ function getCardBg(st){ return st==='expired'?'rgba(255,59,48,0.07)':st==='dange
 function getCardBorder(st){ return st==='expired'?'0.5px solid rgba(255,59,48,0.25)':st==='danger'?'0.5px solid rgba(255,59,48,0.15)':st==='warn'?'0.5px solid rgba(255,149,0,0.2)':'0.5px solid rgba(45,181,78,0.15)'; }
 function getBadgeBg(st){ return (st==='expired'||st==='danger')?'#FF3B30':st==='warn'?'#FF9500':'var(--green)'; }
 
-const HomeIcon = (active) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <polyline points="9,22 9,12 15,12 15,22" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
-  </svg>
-);
+const HomeIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="9,22 9,12 15,12 15,22" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
+const StatsIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2"/><line x1="7" y1="9" x2="12" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="9" x2="16" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="7" y1="13" x2="10" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="14" y1="13" x2="17" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="7" y1="17" x2="15" y2="17" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><defs><linearGradient id="ng2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
+const HistoryIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2"/><polyline points="12,6 12,12 16,14" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><defs><linearGradient id="ng3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
 
-const StatsIcon = (active) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <rect x="3" y="3" width="18" height="18" rx="2" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2"/>
-    <line x1="7" y1="9" x2="12" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="16" y1="9" x2="16" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="7" y1="13" x2="10" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="14" y1="13" x2="17" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <line x1="7" y1="17" x2="15" y2="17" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/>
-    <defs><linearGradient id="ng2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
-  </svg>
-);
+const LOGO=()=>(<svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/><stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="40" cy="40" r="36" fill="url(#lg)" stroke="#fff" strokeWidth="1.5" filter="url(#glow)"/><path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/><circle cx="35" cy="35" r="2" fill="#fff" opacity="0.9"/><circle cx="40" cy="40" r="1.5" fill="#fff" opacity="0.8"/><circle cx="45" cy="38" r="1" fill="#fff" opacity="0.7"/><polyline points="33,38 38,43 47,32" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 50 Q40 45 55 50" stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.6"/></svg>);
 
-const HistoryIcon = (active) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-    <circle cx="12" cy="12" r="10" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2"/>
-    <polyline points="12,6 12,12 16,14" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <defs><linearGradient id="ng3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs>
-  </svg>
-);
+// ✅ NAVBAR con position fixed para que llegue hasta el borde físico del iPhone
+function Navbar({tab,setTab,setPantalla}){
+  const items=[{id:'home',ico:HomeIcon,lbl:'Inicio'},{id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},{id:'historial',ico:HistoryIcon,lbl:'Historial'}];
+  return (
+    <div style={{
+      position:'fixed', bottom:0, left:0, right:0,
+      background:'var(--bg2)',
+      borderTop:'0.5px solid var(--border)',
+      display:'flex', alignItems:'center', justifyContent:'space-around',
+      zIndex:100,
+      // ✅ Altura fija de botones + padding del home indicator
+      paddingBottom:'env(safe-area-inset-bottom, 0px)',
+      paddingTop:0,
+      height:'calc(60px + env(safe-area-inset-bottom, 0px))',
+    }}>
+      {items.map(it=>(
+        <button key={it.id} onClick={()=>{setTab(it.id);setPantalla&&setPantalla('');}}
+          style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 20px',paddingBottom:0}}>
+          <div style={{width:24,height:24,display:'flex',alignItems:'center',justifyContent:'center'}}>{it.ico(tab===it.id)}</div>
+          <span style={{fontSize:10,fontWeight:500,color:tab===it.id?'var(--green)':'var(--text2)'}}>{it.lbl}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
 
-const LOGO = () => (
-  <svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}>
-    <defs>
-      <linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/>
-        <stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/>
-        <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/>
-      </linearGradient>
-      <filter id="glow"><feGaussianBlur stdDeviation="2" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-    </defs>
-    <circle cx="40" cy="40" r="36" fill="url(#lg)" stroke="#fff" strokeWidth="1.5" filter="url(#glow)"/>
-    <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/>
-    <circle cx="35" cy="35" r="2" fill="#fff" opacity="0.9"/>
-    <circle cx="40" cy="40" r="1.5" fill="#fff" opacity="0.8"/>
-    <circle cx="45" cy="38" r="1" fill="#fff" opacity="0.7"/>
-    <polyline points="33,38 38,43 47,32" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M25 50 Q40 45 55 50" stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.6"/>
-  </svg>
-);
-
-const S = {
-  screen:{maxWidth:480,margin:'0 auto',width:'100%',minHeight:'100dvh',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',display:'flex',flexDirection:'column',overflow:'hidden'},
-  header:{background:'var(--bg2)',paddingTop:'calc(12px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',flexShrink:0},
-  content:{flex:1,overflowY:'auto',overflowX:'hidden',WebkitOverflowScrolling:'touch'},
-  navbar:{flexShrink:0,background:'var(--bg2)',borderTop:'0.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'space-around',height:'calc(60px + env(safe-area-inset-bottom,0px))',paddingBottom:'env(safe-area-inset-bottom,0px)'},
-  navBtn:{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 16px',paddingBottom:0,flexShrink:0},
-  navIco:{display:'flex',alignItems:'center',justifyContent:'center',width:24,height:24},
-  navLbl:{fontSize:10,fontWeight:500},
+const S={
+  // ✅ Screen normal sin flexbox especial - scroll normal
+  screen:{
+    maxWidth:480, margin:'0 auto', width:'100%',
+    minHeight:'100%',
+    background:'var(--bg)',
+    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+    // Padding para que el contenido no quede detrás de la navbar fija
+    paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))',
+  },
+  // ✅ Header también fijo
+  header:{
+    position:'sticky', top:0, zIndex:90,
+    background:'var(--bg2)',
+    paddingTop:'calc(12px + env(safe-area-inset-top,0px))',
+    paddingBottom:14, paddingLeft:20, paddingRight:20,
+    borderBottom:'0.5px solid var(--border)',
+  },
+  avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
   titleRow:{display:'flex',alignItems:'center',gap:10},
   title:{fontSize:26,fontWeight:700,color:'var(--text)',letterSpacing:-0.5},
-  avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
   statsGrid:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,padding:'10px 14px 4px'},
   statCard:{background:'var(--card)',borderRadius:13,padding:'10px 12px',border:'0.5px solid var(--border2)'},
   statLabel:{fontSize:11,color:'var(--text2)',marginBottom:4},
@@ -133,9 +127,9 @@ const S = {
   iconWrap:{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0},
   fabWrap:{padding:'12px 14px 24px'},
   fab:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
-  formWrap:{maxWidth:480,margin:'0 auto',width:'100%',height:'100%',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',display:'flex',flexDirection:'column',overflow:'hidden'},
-  formHeader:{background:'var(--bg2)',paddingTop:'calc(14px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12,flexShrink:0},
-  formContent:{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch'},
+  // Form
+  formScreen:{maxWidth:480,margin:'0 auto',width:'100%',minHeight:'100%',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))'},
+  formHeader:{position:'sticky',top:0,zIndex:90,background:'var(--bg2)',paddingTop:'calc(14px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12},
   backBtn:{background:'none',border:'none',fontSize:16,color:'var(--green)',cursor:'pointer',fontWeight:500},
   formTitle:{fontSize:17,fontWeight:600,color:'var(--text)'},
   formBody:{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12},
@@ -148,20 +142,6 @@ const S = {
   saveBtn:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
   delBtn:{width:'100%',height:46,borderRadius:13,background:'var(--card)',color:'#FF3B30',border:'0.5px solid rgba(255,59,48,0.3)',fontSize:15,cursor:'pointer'},
 };
-
-function Navbar({tab,setTab,setPantalla}){
-  const items=[{id:'home',ico:HomeIcon,lbl:'Inicio'},{id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},{id:'historial',ico:HistoryIcon,lbl:'Historial'}];
-  return (
-    <div style={S.navbar}>
-      {items.map(it=>(
-        <button key={it.id} style={S.navBtn} onClick={()=>{setTab(it.id);setPantalla&&setPantalla('');}}>
-          <div style={S.navIco}>{it.ico(tab===it.id)}</div>
-          <span style={{...S.navLbl,color:tab===it.id?'var(--green)':'var(--text2)'}}>{it.lbl}</span>
-        </button>
-      ))}
-    </div>
-  );
-}
 
 function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
   const ejemplos=[
@@ -314,18 +294,15 @@ function SimpleCharts({descartados,consumidos,catStats}){
         <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
           <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías</div>
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {catStats.slice(0,5).map(c=>{
-              const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;
-              return (
-                <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
-                  <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
-                  <div style={{flex:1}}>
-                    <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span><span style={{fontSize:11,color:'var(--text2)'}}>{c.descartados}</span></div>
-                    <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}><div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)'}}/></div>
-                  </div>
+            {catStats.slice(0,5).map(c=>{const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;return(
+              <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
+                <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span><span style={{fontSize:11,color:'var(--text2)'}}>{c.descartados}</span></div>
+                  <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}><div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)'}}/></div>
                 </div>
-              );
-            })}
+              </div>
+            );})}
           </div>
         </div>
       )}
@@ -388,7 +365,6 @@ export default function App(){
   const [usuario,setUsuario]=useState(null);
   const [cargando,setCargando]=useState(true);
   const [products,setProducts]=useState([]);
-  // ✅ Estado separado para saber si es usuario nuevo (viene de Firestore)
   const [esUsuarioNuevo,setEsUsuarioNuevo]=useState(false);
   const [checkingNuevo,setCheckingNuevo]=useState(true);
   const [tab,setTab]=useState('home');
@@ -418,19 +394,14 @@ export default function App(){
     return()=>unsub();
   },[]);
 
-  // ✅ Verificar si el usuario es nuevo consultando Firestore directamente
+  // ✅ Verificar si es usuario nuevo directamente desde Firestore
   useEffect(()=>{
-    if(!usuario)return;
-    setCheckingNuevo(true);
+    if(!usuario){setCheckingNuevo(false);return;}
     const q=query(collection(db,"productos"),where("uid","==",usuario.uid),limit(1));
     getDocs(q).then(snap=>{
-      // Si no tiene NINGÚN producto (ni activo ni en historial) es nuevo
       setEsUsuarioNuevo(snap.empty);
       setCheckingNuevo(false);
-    }).catch(()=>{
-      setEsUsuarioNuevo(false);
-      setCheckingNuevo(false);
-    });
+    }).catch(()=>{setEsUsuarioNuevo(false);setCheckingNuevo(false);});
   },[usuario]);
 
   useEffect(()=>{
@@ -438,9 +409,7 @@ export default function App(){
     const q=query(collection(db,"productos"),where("uid","==",usuario.uid));
     const unsub=onSnapshot(q,(snap)=>{
       const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
-      setProducts(prods);
-      setListKey(k=>k+1);
-      // ✅ Si ya tiene productos nunca más es nuevo
+      setProducts(prods);setListKey(k=>k+1);
       if(prods.length>0) setEsUsuarioNuevo(false);
       if(!correoEnviadoHoy.current){
         const urgentes=prods.filter(p=>!p.estado&&(status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
@@ -563,15 +532,22 @@ export default function App(){
     try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){console.error(e);}
   };
 
+  // ✅ Wrapper con scroll — la navbar está fixed afuera
+  const PageWrapper = ({children}) => (
+    <div style={{width:'100%',height:'100%',overflowY:'auto',WebkitOverflowScrolling:'touch'}}>
+      {children}
+    </div>
+  );
+
   if(pantalla==='form') return (
-    <div style={S.formWrap}>
-      {scanner&&<Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
-      <div style={S.formHeader}>
-        <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
-        <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
-        {!editId&&<button onClick={()=>setScanner(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:22,cursor:'pointer'}}>📷</button>}
-      </div>
-      <div style={S.formContent}>
+    <PageWrapper>
+      <div style={S.formScreen}>
+        {scanner&&<Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
+        <div style={S.formHeader}>
+          <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
+          <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
+          {!editId&&<button onClick={()=>setScanner(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:22,cursor:'pointer'}}>📷</button>}
+        </div>
         {!editId&&productosFrecuentes.length>0&&(
           <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)'}}>
             <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:8}}>⚡ Productos frecuentes</div>
@@ -585,11 +561,7 @@ export default function App(){
         {scanMsg&&<div style={{margin:'10px 14px 0',borderRadius:10,padding:'9px 12px',fontSize:13,fontWeight:500,background:scanMsg.startsWith('✓')?'#f0fff4':'#fff8ee',color:scanMsg.startsWith('✓')?'var(--green)':'#FF9500'}}>{scanMsg}</div>}
         <div style={S.formBody}>
           <div style={S.formSection}>
-            <div style={S.formRow}>
-              <span style={S.formLabel}>📝 Nombre</span>
-              <input list="nombresSugeridos" style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
-              <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
-            </div>
+            <div style={S.formRow}><span style={S.formLabel}>📝 Nombre</span><input list="nombresSugeridos" style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/><datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist></div>
             <div style={S.formRow}><span style={S.formLabel}>🏷️ Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
             <div style={S.formRow}><span style={S.formLabel}>📅 Fecha de vencimiento</span><input type="date" style={S.formInput} value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/></div>
             <div style={S.formRow}><span style={S.formLabel}>📊 Cantidad / notas</span><input style={S.formInput} value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/></div>
@@ -607,54 +579,51 @@ export default function App(){
         </div>
       </div>
       <Navbar tab={tab} setTab={setTab} setPantalla={setPantalla}/>
-    </div>
+    </PageWrapper>
   );
 
   return (
-    <div style={S.screen}>
+    <PageWrapper>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
-      <div style={S.header}>
-        <div style={S.titleRow}>
-          <LOGO/>
-          <div style={S.title}>Al Día</div>
-          <div style={{position:'relative',marginLeft:'auto'}} ref={menuRef}>
-            <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
-              {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/>:iniciales}
-              <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
-            </div>
-            {alertas>0&&<div style={{position:'absolute',top:-6,right:-6,minWidth:20,height:20,borderRadius:999,background:'#FF3B30',color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',boxShadow:'0 0 0 3px rgba(255,255,255,0.8)'}}>{alertas}</div>}
-            {menuAbierto&&(
-              <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:51}}>
-                <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
-                    {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/>:iniciales}
-                  </div>
-                  <div style={{minWidth:0}}>
-                    <div style={{fontSize:13,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nombre}</div>
-                    <div style={{fontSize:11,color:'#34C759',marginTop:2}}>Activo ahora</div>
-                  </div>
-                </div>
-                <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
-                <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>✏️</span> Editar perfil</div>
-                  <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>⚙️</span> Preferencias</div>
-                </div>
-                <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
-                  <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>❓</span> Ayuda y FAQ</div>
-                  <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📧</span> Contacto y soporte</div>
-                </div>
-                <div style={{padding:'6px 0'}}>
-                  <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📋</span> Términos y privacidad</div>
-                  <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>ℹ️</span> Versión 1.0.0</div>
-                </div>
-                <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>🚪</span> Cerrar sesión</div>
+      <div style={S.screen}>
+        <div style={S.header} ref={menuRef}>
+          <div style={S.titleRow}>
+            <LOGO/>
+            <div style={S.title}>Al Día</div>
+            <div style={{position:'relative',marginLeft:'auto'}}>
+              <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
+                {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/>:iniciales}
+                <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
               </div>
-            )}
+              {alertas>0&&<div style={{position:'absolute',top:-6,right:-6,minWidth:20,height:20,borderRadius:999,background:'#FF3B30',color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',boxShadow:'0 0 0 3px rgba(255,255,255,0.8)'}}>{alertas}</div>}
+              {menuAbierto&&(
+                <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:200}}>
+                  <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
+                    <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
+                      {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/>:iniciales}
+                    </div>
+                    <div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nombre}</div><div style={{fontSize:11,color:'#34C759',marginTop:2}}>Activo ahora</div></div>
+                  </div>
+                  <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
+                  <div style={{padding:'6px 0'}}>
+                    <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>✏️</span> Editar perfil</div>
+                    <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>⚙️</span> Preferencias</div>
+                  </div>
+                  <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
+                    <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>❓</span> Ayuda y FAQ</div>
+                    <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📧</span> Contacto y soporte</div>
+                  </div>
+                  <div style={{padding:'6px 0'}}>
+                    <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📋</span> Términos y privacidad</div>
+                    <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>ℹ️</span> Versión 1.0.0</div>
+                  </div>
+                  <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>🚪</span> Cerrar sesión</div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div style={S.content}>
         {correoEnviado&&<div style={{margin:'8px 14px 0',borderRadius:12,padding:'9px 12px',background:'#f0fff4',border:'0.5px solid rgba(45,181,78,0.3)',fontSize:12,fontWeight:500,color:'var(--green)'}}>📧 Te enviamos un correo con los productos por vencer</div>}
 
         {tab==='home'&&<>
@@ -817,8 +786,7 @@ export default function App(){
           </div>
         )}
       </div>
-
       <Navbar tab={tab} setTab={setTab} setPantalla={setPantalla}/>
-    </div>
+    </PageWrapper>
   );
 }
