@@ -355,7 +355,7 @@ body {
   color: var(--green-ink);
 }
 
-/* ---------- Barra inferior ---------- */
+/* ---------- Barra inferior flotante con botón central ---------- */
 
 .ad-nav {
   position: fixed;
@@ -364,25 +364,29 @@ body {
   bottom: calc(12px + env(safe-area-inset-bottom, 0px));
   z-index: 10;
   display: flex;
-  justify-content: space-around;
+  align-items: flex-end;
+  justify-content: space-between;
   max-width: 456px;
   margin: 0 auto;
-  padding: 8px 4px;
+  padding: 8px 6px;
+  border-radius: 28px 28px 28px 10px;
 }
 
 .ad-nav__item {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
-  min-width: 64px;
-  min-height: 44px;
-  padding: 4px 6px;
+  min-height: 48px;
+  padding: 6px 2px;
   border: 0;
+  border-radius: 16px;
   background: none;
   color: var(--text2);
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   text-decoration: none;
   cursor: pointer;
 }
@@ -395,9 +399,44 @@ body {
 }
 
 .ad-nav__item.is-active {
+  background: var(--green-soft);
   color: var(--green);
   font-weight: 700;
 }
+
+.ad-nav__fab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin-top: -30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green);
+  font: inherit;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.ad-nav__fab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border: 5px solid var(--bg);
+  border-radius: 50% 50% 50% 18px;
+  background: var(--green);
+  color: var(--green-ink);
+  box-shadow: var(--btn-shadow);
+  font-size: 1.6rem;
+  transition: transform 0.12s ease;
+}
+
+.ad-nav__fab:active .ad-nav__fab-btn { transform: scale(0.94); }
 
 /* ---------- Ajustes ---------- */
 
