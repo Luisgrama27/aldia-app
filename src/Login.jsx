@@ -17,55 +17,50 @@ const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
 
 const provider = new GoogleAuthProvider();
 
-const LOGO = () => (
-  <svg width="64" height="64" viewBox="0 0 72 72">
-    <rect width="72" height="72" rx="20" fill="url(#logoGradient)"/>
-    <defs>
-      <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}} />
-        <stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}} />
-      </linearGradient>
-    </defs>
-    <path d="M36 18 C36 18 48 26 48 36 C48 46 42 52 36 54 C30 52 24 46 24 36 C24 26 36 18 36 18Z" fill="none" stroke="#fff" strokeWidth="2.2"/>
-    <polyline points="29,36 34,41 43,30" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
-);
-
-const S = {
-  wrap:{minHeight:'100dvh',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',fontFamily:'-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif',padding:16,position:'relative',overflow:'auto'},
-  bgPattern:{position:'absolute',top:0,left:0,right:0,bottom:0,opacity:0.03,backgroundImage:`radial-gradient(circle at 25% 25%, #2DB54E 2px, transparent 2px), radial-gradient(circle at 75% 75%, #2DB54E 1px, transparent 1px)`,backgroundSize:'60px 60px, 40px 40px'},
-  card:{background:'#fff',borderRadius:28,padding:'40px 28px',width:'100%',maxWidth:380,boxShadow:'0 8px 32px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04)',border:'1px solid rgba(255,255,255,0.8)',position:'relative',zIndex:1},
-  brand:{textAlign:'center',marginBottom:32},
-  appName:{fontSize:32,fontWeight:800,color:'#1d1d1f',letterSpacing:-0.8,marginTop:16,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'},
-  appSub:{fontSize:16,color:'#86868b',marginTop:6,fontWeight:400,letterSpacing:-0.2},
-  section:{background:'#f8f9fa',borderRadius:16,overflow:'visible',marginBottom:16,border:'1px solid rgba(0,0,0,0.04)'},
-  row:{padding:'16px 18px',borderBottom:'1px solid rgba(0,0,0,0.06)',display:'flex',alignItems:'center',gap:12,position:'relative'},
-  rowLast:{padding:'16px 18px',display:'flex',alignItems:'center',gap:12,position:'relative'},
-  icon:{width:20,height:20,color:'#86868b',flexShrink:0},
-  label:{fontSize:11,color:'#86868b',fontWeight:500,textTransform:'uppercase',letterSpacing:0.5,marginBottom:2,opacity:0.8},
-  input:{fontSize:16,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',width:'100%',fontWeight:400},
-  select:{fontSize:15,color:'#1d1d1f',border:'none',outline:'none',background:'transparent',flex:1,fontWeight:400,WebkitAppearance:'none',appearance:'none'},
-  btn:{width:'100%',height:50,borderRadius:14,background:'linear-gradient(135deg, #2DB54E 0%, #1E8E3E 100%)',color:'#fff',border:'none',fontSize:16,fontWeight:600,cursor:'pointer',marginBottom:12,boxShadow:'0 4px 16px rgba(45,181,78,0.3)'},
-  btnLoading:{background:'linear-gradient(135deg, #86868b 0%, #636366 100%)',cursor:'not-allowed'},
-  btnGoogle:{width:'100%',height:50,borderRadius:14,background:'#fff',border:'1px solid rgba(0,0,0,0.08)',fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:12,color:'#1d1d1f',fontWeight:500,marginBottom:10,boxShadow:'0 2px 8px rgba(0,0,0,0.04)'},
-  divider:{display:'flex',alignItems:'center',gap:16,margin:'8px 0 16px'},
-  divLine:{flex:1,height:'1px',background:'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.1) 50%, transparent 100%)'},
-  divText:{fontSize:13,color:'#86868b',fontWeight:500,background:'#fff',padding:'0 12px'},
-  err:{background:'linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%)',border:'1px solid rgba(255,59,48,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#c53030',marginBottom:12,display:'flex',alignItems:'center',gap:8},
-  ok:{background:'linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%)',border:'1px solid rgba(45,181,78,0.2)',borderRadius:12,padding:'12px 16px',fontSize:14,color:'#22543d',marginBottom:12,display:'flex',alignItems:'center',gap:8},
-  link:{color:'#2DB54E',cursor:'pointer',fontWeight:600},
-  footer:{textAlign:'center',fontSize:14,color:'#86868b',marginTop:8,lineHeight:1.5},
-  loadingSpinner:{width:16,height:16,border:'2px solid rgba(255,255,255,0.3)',borderTop:'2px solid #fff',borderRadius:'50%',animation:'spin 1s linear infinite',display:'inline-block',marginRight:8,verticalAlign:'middle'}
-};
-
-const styleEl = document.createElement('style');
-styleEl.textContent = `
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-`;
-document.head.appendChild(styleEl);
+// Estilos propios de esta pantalla (se inyectan una sola vez)
+if (!document.getElementById('ad-login-style')) {
+  const styleEl = document.createElement('style');
+  styleEl.id = 'ad-login-style';
+  styleEl.textContent = `
+    @keyframes ad-spin { to { transform: rotate(360deg); } }
+    .ad-spin { display:inline-block; width:16px; height:16px; margin-right:8px; border:2px solid rgba(255,255,255,0.4); border-top-color:#fff; border-radius:50%; animation:ad-spin 1s linear infinite; }
+    .ad-login-group { margin-bottom:16px; overflow:hidden; border-radius:20px 20px 20px 8px; background:var(--input); }
+    .ad-login-row { display:flex; align-items:center; gap:12px; padding:12px 16px; transition:box-shadow 0.15s ease; }
+    .ad-login-row + .ad-login-row { border-top:1px solid var(--border); }
+    .ad-login-input { width:100%; min-height:32px; padding:4px 0; border:0; outline:0; background:transparent; color:var(--text); font:inherit; font-size:1rem; }
+    .ad-login-select { flex:1; min-width:0; height:44px; padding:0 8px; border:1px solid var(--border); border-radius:12px; background:var(--card); font-family:inherit; font-size:0.9375rem; }
+    .ad-login-check { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; color:var(--text); font-size:0.9375rem; line-height:1.4; cursor:pointer; }
+    .ad-login-check input { flex:none; width:22px; height:22px; margin-top:1px; cursor:pointer; accent-color:var(--green); }
+    .ad-login-hint { margin-top:4px; font-size:0.8125rem; font-weight:700; }
+  `;
+  document.head.appendChild(styleEl);
+}
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+const icon = (path) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={path}/></svg>
+);
+const ICONS = {
+  user: "M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z",
+  phone: "M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z",
+  cal: "M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z",
+  pin: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z",
+  mail: "M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z",
+  lock: "M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z",
+};
+
+function Row({ focused, iconPath, iconColor, label, children }) {
+  return (
+    <div className="ad-login-row" style={{ boxShadow: focused ? 'inset 0 -2px 0 var(--green)' : 'none' }}>
+      <span style={{ display: 'flex', flexShrink: 0, color: iconColor || 'var(--text2)' }}>{icon(iconPath)}</span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div className="ad-field__label">{label}</div>
+        {children}
+      </div>
+    </div>
+  );
+}
 
 function FechaNacimientoSelector({ value, onChange }) {
   const partes = value ? value.split('-') : ['', '', ''];
@@ -86,30 +81,18 @@ function FechaNacimientoSelector({ value, onChange }) {
   };
 
   return (
-    <div style={{display:'flex',gap:8,flex:1}}>
-      <select
-        value={dia}
-        onChange={e => actualizar(anio, mes, e.target.value)}
-        style={{...S.select,fontSize:14,color: dia ? '#1d1d1f' : '#86868b'}}
-      >
+    <div style={{display:'flex',gap:8,marginTop:4}}>
+      <select className="ad-login-select" aria-label="Día" value={dia} onChange={e => actualizar(anio, mes, e.target.value)} style={{color: dia ? 'var(--text)' : 'var(--text2)'}}>
         <option value="">Día</option>
         {dias.map(d => <option key={d} value={d}>{d}</option>)}
       </select>
-      <select
-        value={mes}
-        onChange={e => actualizar(anio, e.target.value, dia)}
-        style={{...S.select,fontSize:14,color: mes ? '#1d1d1f' : '#86868b'}}
-      >
+      <select className="ad-login-select" aria-label="Mes" value={mes} onChange={e => actualizar(anio, e.target.value, dia)} style={{color: mes ? 'var(--text)' : 'var(--text2)', flex:1.6}}>
         <option value="">Mes</option>
         {MESES.map((m, i) => (
           <option key={i} value={String(i + 1).padStart(2, '0')}>{m}</option>
         ))}
       </select>
-      <select
-        value={anio}
-        onChange={e => actualizar(e.target.value, mes, dia)}
-        style={{...S.select,fontSize:14,color: anio ? '#1d1d1f' : '#86868b'}}
-      >
+      <select className="ad-login-select" aria-label="Año" value={anio} onChange={e => actualizar(e.target.value, mes, dia)} style={{color: anio ? 'var(--text)' : 'var(--text2)', flex:1.2}}>
         <option value="">Año</option>
         {anios.map(a => <option key={a} value={a}>{a}</option>)}
       </select>
@@ -169,6 +152,8 @@ export default function Login() {
       setCargando(false);
       if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
       else if (e.code === 'auth/wrong-password') setError("Contraseña incorrecta.");
+      else if (e.code === 'auth/invalid-credential') setError("Correo o contraseña incorrectos.");
+      else if (e.code === 'auth/too-many-requests') setError("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.");
       else setError("Error al iniciar sesión. Inténtalo de nuevo.");
     }
   };
@@ -211,7 +196,9 @@ export default function Login() {
       await signInWithPopup(auth, provider);
     } catch(e) {
       setCargando(false);
-      setError("Error al iniciar sesión con Google.");
+      if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+        setError("Error al iniciar sesión con Google.");
+      }
     }
   };
 
@@ -236,188 +223,139 @@ export default function Login() {
     setTelefono(""); setFechaNacimiento(""); setPais(""); setCiudad(""); setNotificaciones(true);
   };
 
-  const getPasswordStrengthColor = () => {
-    if (passwordFuerte === 'fuerte') return '#2DB54E';
-    if (passwordFuerte === 'medio') return '#FF9500';
-    return '#FF3B30';
-  };
+  const strengthColor = passwordFuerte === 'fuerte' ? 'var(--green)' : passwordFuerte === 'medio' ? '#e0a92b' : '#e4775a';
+  const strengthText = passwordFuerte === 'fuerte' ? 'Contraseña fuerte' : passwordFuerte === 'medio' ? 'Contraseña aceptable' : 'Contraseña débil';
+  const strengthLevel = passwordFuerte === 'fuerte' ? 3 : passwordFuerte === 'medio' ? 2 : 1;
 
-  const getPasswordStrengthText = () => {
-    if (passwordFuerte === 'fuerte') return 'Contraseña fuerte';
-    if (passwordFuerte === 'medio') return 'Contraseña aceptable';
-    return 'Contraseña débil';
-  };
+  const onSubmit = modo === 'login' ? handleLogin : modo === 'registro' ? handleRegistro : handleRecuperar;
 
-  const rowStyle = (field) => ({
-    ...S.row,
-    borderBottom: focusField === field ? '2px solid #2DB54E' : '1px solid rgba(0,0,0,0.06)'
+  const field = (name) => ({
+    onFocus: () => setFocusField(name),
+    onBlur: () => setFocusField(null),
   });
 
   return (
-    <div style={S.wrap}>
-      <div style={S.bgPattern}></div>
-      <div style={S.card}>
-        <div style={S.brand}>
-          <LOGO />
-          <div style={S.appName}>Al Día</div>
-          <div style={S.appSub}>
-            {modo==='login' && 'Bienvenido de nuevo'}
-            {modo==='registro' && 'Crea tu cuenta gratis'}
-            {modo==='recuperar' && 'Recupera tu contraseña'}
-          </div>
+    <div className="ad-screen" style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom, 0px))' }}>
+      <header className="ad-hero" style={{ textAlign: 'center', paddingBottom: 88 }}>
+        <div className="ad-logo" style={{ width: 76, height: 76, margin: '0 auto' }}>
+          <svg width="50" height="50" viewBox="0 0 80 80" aria-hidden="true">
+            <path d="M40 14 C40 14 56 25 56 38 C56 50 48 58 40 61 C32 58 24 50 24 38 C24 25 40 14 40 14Z" fill="none" stroke="var(--green)" strokeWidth="4" strokeLinecap="round"/>
+            <polyline points="32,38 38,44 49,31" fill="none" stroke="var(--green)" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
         </div>
+        <h1 className="ad-title" style={{ fontSize: '2rem', marginTop: 12 }}>Al Día</h1>
+        <p className="ad-hello" style={{ fontSize: '1rem' }}>
+          {modo==='login' && 'Bienvenido de nuevo'}
+          {modo==='registro' && 'Crea tu cuenta gratis'}
+          {modo==='recuperar' && 'Recupera tu contraseña'}
+        </p>
+      </header>
 
-        {error && (
-          <div style={S.err}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 17h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            {error}
-          </div>
-        )}
+      <div className="ad-overlap" style={{ marginTop: -60 }}>
+        <div className="ad-card" style={{ maxWidth: 420, margin: '0 auto', padding: '20px 16px' }}>
 
-        {mensaje && (
-          <div style={S.ok}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
-            {mensaje}
-          </div>
-        )}
+          {error && <div className="ad-note ad-note--danger" style={{ marginBottom: 14 }}>⚠️ {error}</div>}
+          {mensaje && <div className="ad-note" style={{ marginBottom: 14 }}>✓ {mensaje}</div>}
 
-        <div style={S.section}>
-          {modo==='registro' && (
-            <>
-              <div style={rowStyle('nombre')}>
-                <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={S.label}>Nombre completo</div>
-                  <input style={S.input} value={nombre} onChange={e=>{setNombre(e.target.value);reset();}} onFocus={()=>setFocusField('nombre')} onBlur={()=>setFocusField(null)} placeholder="Tu nombre completo"/>
-                </div>
-              </div>
+          <div className="ad-login-group">
+            {modo==='registro' && (
+              <>
+                <Row focused={focusField==='nombre'} iconPath={ICONS.user} label="Nombre completo">
+                  <input className="ad-login-input" value={nombre} onChange={e=>{setNombre(e.target.value);reset();}} {...field('nombre')} placeholder="Tu nombre completo" autoComplete="name"/>
+                </Row>
 
-              <div style={rowStyle('telefono')}>
-                <div style={{...S.icon,color:telefonoValido===false?'#FF3B30':telefonoValido===true?'#2DB54E':'#86868b'}}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={S.label}>Teléfono</div>
-                  <input style={S.input} type="tel" value={telefono} onChange={e=>{setTelefono(e.target.value);reset();}} onFocus={()=>setFocusField('telefono')} onBlur={()=>setFocusField(null)} placeholder="+57 300 123 4567"/>
-                  {telefono&&telefonoValido===false&&<div style={{fontSize:12,color:'#FF3B30',marginTop:4}}>Número de teléfono inválido</div>}
-                  {telefono&&telefonoValido===true&&<div style={{fontSize:12,color:'#2DB54E',marginTop:4}}>✓ Teléfono válido</div>}
-                </div>
-              </div>
+                <Row focused={focusField==='telefono'} iconPath={ICONS.phone} label="Teléfono" iconColor={telefonoValido===false?'var(--danger)':telefonoValido===true?'var(--green)':undefined}>
+                  <input className="ad-login-input" type="tel" value={telefono} onChange={e=>{setTelefono(e.target.value);reset();}} {...field('telefono')} placeholder="+57 300 123 4567" autoComplete="tel"/>
+                  {telefono&&telefonoValido===false&&<div className="ad-login-hint" style={{color:'var(--danger)'}}>Número de teléfono inválido</div>}
+                  {telefono&&telefonoValido===true&&<div className="ad-login-hint" style={{color:'var(--green)'}}>✓ Teléfono válido</div>}
+                </Row>
 
-              {/* ✅ FIX: Fecha de nacimiento con selectores en lugar de input date */}
-              <div style={{...S.row,borderBottom:'1px solid rgba(0,0,0,0.06)'}}>
-                <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-1.99.9-1.99 2L3 19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></svg>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={S.label}>Fecha de nacimiento</div>
+                <Row focused={false} iconPath={ICONS.cal} label="Fecha de nacimiento">
                   <FechaNacimientoSelector value={fechaNacimiento} onChange={setFechaNacimiento}/>
-                </div>
-              </div>
+                </Row>
 
-              <div style={rowStyle('pais')}>
-                <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={S.label}>País</div>
-                  <input style={S.input} value={pais} onChange={e=>{setPais(e.target.value);reset();}} onFocus={()=>setFocusField('pais')} onBlur={()=>setFocusField(null)} placeholder="Colombia"/>
-                </div>
-              </div>
+                <Row focused={focusField==='pais'} iconPath={ICONS.pin} label="País">
+                  <input className="ad-login-input" value={pais} onChange={e=>{setPais(e.target.value);reset();}} {...field('pais')} placeholder="Colombia" autoComplete="country-name"/>
+                </Row>
 
-              <div style={rowStyle('ciudad')}>
-                <div style={S.icon}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-                </div>
-                <div style={{flex:1}}>
-                  <div style={S.label}>Ciudad</div>
-                  <input style={S.input} value={ciudad} onChange={e=>{setCiudad(e.target.value);reset();}} onFocus={()=>setFocusField('ciudad')} onBlur={()=>setFocusField(null)} placeholder="Bogotá"/>
-                </div>
-              </div>
+                <Row focused={focusField==='ciudad'} iconPath={ICONS.pin} label="Ciudad">
+                  <input className="ad-login-input" value={ciudad} onChange={e=>{setCiudad(e.target.value);reset();}} {...field('ciudad')} placeholder="Bogotá" autoComplete="address-level2"/>
+                </Row>
+              </>
+            )}
 
-              <div style={{...S.row,borderBottom:'none',padding:'16px 18px',display:'flex',alignItems:'center',gap:12}}>
-                <input type="checkbox" id="notificaciones" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)} style={{width:18,height:18,cursor:'pointer',accentColor:'#2DB54E'}}/>
-                <label htmlFor="notificaciones" style={{fontSize:14,color:'#1d1d1f',cursor:'pointer',userSelect:'none'}}>
-                  Recibir notificaciones sobre consejos para reducir desperdicio
-                </label>
-              </div>
-            </>
-          )}
+            <Row focused={focusField==='email'} iconPath={ICONS.mail} label="Correo electrónico" iconColor={emailValido===false?'var(--danger)':emailValido===true?'var(--green)':undefined}>
+              <input className="ad-login-input" type="email" value={email} onChange={e=>{setEmail(e.target.value);reset();}} {...field('email')} placeholder="tucorreo@email.com" autoComplete="email"/>
+              {email&&emailValido===false&&<div className="ad-login-hint" style={{color:'var(--danger)'}}>Correo electrónico inválido</div>}
+              {email&&emailValido===true&&<div className="ad-login-hint" style={{color:'var(--green)'}}>✓ Correo válido</div>}
+            </Row>
 
-          <div style={{...(modo==='recuperar'?S.rowLast:S.row),borderBottom:focusField==='email'?'2px solid #2DB54E':modo==='recuperar'?'none':'1px solid rgba(0,0,0,0.06)'}}>
-            <div style={{...S.icon,color:emailValido===false?'#FF3B30':emailValido===true?'#2DB54E':'#86868b'}}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-            </div>
-            <div style={{flex:1}}>
-              <div style={S.label}>Correo electrónico</div>
-              <input style={S.input} type="email" value={email} onChange={e=>{setEmail(e.target.value);reset();}} onFocus={()=>setFocusField('email')} onBlur={()=>setFocusField(null)} placeholder="tucorreo@email.com"/>
-              {email&&emailValido===false&&<div style={{fontSize:12,color:'#FF3B30',marginTop:4}}>Correo electrónico inválido</div>}
-              {email&&emailValido===true&&<div style={{fontSize:12,color:'#2DB54E',marginTop:4}}>✓ Correo válido</div>}
-            </div>
-          </div>
-
-          {modo!=='recuperar'&&(
-            <div style={{...S.rowLast,borderBottom:focusField==='password'?'2px solid #2DB54E':'none'}}>
-              <div style={{...S.icon,color:passwordFuerte?getPasswordStrengthColor():'#86868b'}}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-              </div>
-              <div style={{flex:1}}>
-                <div style={S.label}>Contraseña</div>
-                <input style={S.input} type="password" value={password} onChange={e=>{setPassword(e.target.value);reset();}} onFocus={()=>setFocusField('password')} onBlur={()=>setFocusField(null)} placeholder="••••••••"/>
+            {modo!=='recuperar'&&(
+              <Row focused={focusField==='password'} iconPath={ICONS.lock} label="Contraseña" iconColor={passwordFuerte?strengthColor:undefined}>
+                <input className="ad-login-input" type="password" value={password} onChange={e=>{setPassword(e.target.value);reset();}} {...field('password')} placeholder="••••••••" autoComplete={modo==='login'?'current-password':'new-password'}/>
                 {password&&modo==='registro'&&(
                   <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
-                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='fuerte'?1:passwordFuerte==='medio'?0.7:0.4}}></div>
-                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='medio'?0.7:passwordFuerte==='fuerte'?1:0.4}}></div>
-                    <div style={{width:60,height:3,borderRadius:2,background:getPasswordStrengthColor(),opacity:passwordFuerte==='debil'?0.4:1}}></div>
-                    <span style={{fontSize:12,color:getPasswordStrengthColor(),fontWeight:500}}>{getPasswordStrengthText()}</span>
+                    {[1,2,3].map(i=>(
+                      <div key={i} style={{width:44,height:4,borderRadius:2,background:strengthColor,opacity:i<=strengthLevel?1:0.25}}/>
+                    ))}
+                    <span style={{fontSize:'0.8125rem',color:strengthColor,fontWeight:700}}>{strengthText}</span>
                   </div>
                 )}
+              </Row>
+            )}
+          </div>
+
+          {modo==='registro' && (
+            <label className="ad-login-check">
+              <input type="checkbox" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)}/>
+              <span>Recibir notificaciones sobre consejos para reducir desperdicio</span>
+            </label>
+          )}
+
+          <button className="ad-btn" style={{ opacity: cargando ? 0.7 : 1, cursor: cargando ? 'not-allowed' : 'pointer' }} onClick={onSubmit} disabled={cargando}>
+            {cargando?(
+              <><span className="ad-spin"/>{modo==='login'&&'Iniciando sesión...'}{modo==='registro'&&'Creando cuenta...'}{modo==='recuperar'&&'Enviando enlace...'}</>
+            ):(
+              <>{modo==='login'&&'Iniciar sesión'}{modo==='registro'&&'Crear cuenta'}{modo==='recuperar'&&'Enviar enlace de recuperación'}</>
+            )}
+          </button>
+
+          {modo!=='recuperar'&&(
+            <>
+              <div style={{display:'flex',alignItems:'center',gap:12,margin:'18px 0 14px'}}>
+                <div style={{flex:1,height:1,background:'var(--border)'}}/>
+                <span className="ad-muted" style={{fontWeight:700}}>o continúa con</span>
+                <div style={{flex:1,height:1,background:'var(--border)'}}/>
               </div>
-            </div>
+              <button className="ad-btn ad-btn--ghost" style={{color:'var(--text)',boxShadow:'inset 0 0 0 1.5px var(--border)',opacity:cargando?0.7:1}} onClick={handleGoogle} disabled={cargando}>
+                <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true">
+                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+                  <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+                </svg>
+                Continuar con Google
+              </button>
+            </>
           )}
         </div>
 
-        <button style={{...S.btn,...(cargando?S.btnLoading:{})}} onClick={modo==='login'?handleLogin:modo==='registro'?handleRegistro:handleRecuperar} disabled={cargando}>
-          {cargando?(
-            <><div style={S.loadingSpinner}></div>{modo==='login'&&'Iniciando sesión...'}{modo==='registro'&&'Creando cuenta...'}{modo==='recuperar'&&'Enviando enlace...'}</>
-          ):(
-            <>{modo==='login'&&'Iniciar sesión'}{modo==='registro'&&'Crear cuenta'}{modo==='recuperar'&&'Enviar enlace de recuperación'}</>
-          )}
-        </button>
-
-        {modo!=='recuperar'&&(
-          <>
-            <div style={S.divider}>
-              <div style={S.divLine}/>
-              <span style={S.divText}>o continúa con</span>
-              <div style={S.divLine}/>
-            </div>
-            <button style={S.btnGoogle} onClick={handleGoogle} disabled={cargando}>
-              <svg width="20" height="20" viewBox="0 0 18 18">
-                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-                <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-              </svg>
-              Continuar con Google
-            </button>
-          </>
-        )}
-
-        <div style={S.footer}>
+        <div style={{ textAlign: 'center', marginTop: 10 }}>
           {modo==='login'&&(
             <>
-              <div style={S.link} onClick={()=>cambiarModo('recuperar')}>¿Olvidaste tu contraseña?</div>
-              <div style={{margin:'8px 0'}}>¿No tienes cuenta? <span style={S.link} onClick={()=>cambiarModo('registro')}>Regístrate</span></div>
+              <button className="ad-link" onClick={()=>cambiarModo('recuperar')}>¿Olvidaste tu contraseña?</button>
+              <div className="ad-muted" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,flexWrap:'wrap'}}>
+                ¿No tienes cuenta? <button className="ad-link" onClick={()=>cambiarModo('registro')}>Regístrate</button>
+              </div>
             </>
           )}
           {modo==='registro'&&(
-            <div>¿Ya tienes cuenta? <span style={S.link} onClick={()=>cambiarModo('login')}>Inicia sesión</span></div>
+            <div className="ad-muted" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,flexWrap:'wrap'}}>
+              ¿Ya tienes cuenta? <button className="ad-link" onClick={()=>cambiarModo('login')}>Inicia sesión</button>
+            </div>
           )}
           {modo==='recuperar'&&(
-            <div style={S.link} onClick={()=>cambiarModo('login')}>← Volver al inicio</div>
+            <button className="ad-link" onClick={()=>cambiarModo('login')}>← Volver al inicio</button>
           )}
         </div>
       </div>
