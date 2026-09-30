@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Al Día</title>
     <meta name="description" content="Controla los vencimientos de tus productos del hogar" />
-    <meta name="theme-color" content="#2DB54E" />
+    <meta name="theme-color" content="#2f6b4f" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1d4a36" media="(prefers-color-scheme: dark)" />
     <link rel="manifest" href="/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -19,44 +20,65 @@
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-      /* Modo claro: navbar = #fff */
-      html { background: #fff; }
-      body { background: #fff; margin: 0; overscroll-behavior: none; }
-      #root { background: #f2f2f7; }
-
-      /* Modo oscuro: navbar = #1c1c1e */
-      @media (prefers-color-scheme: dark) {
-        html { background: #1c1c1e; }
-        body { background: #1c1c1e; }
-        #root { background: #000; }
-      }
-
-      html, body, #root { width: 100%; height: 100%; }
+      /* Fondo de toda la pantalla (incluida la zona segura del iPhone) = fondo de la app */
+      html, body { width: 100%; height: 100%; background: #f1f6ea; overscroll-behavior: none; }
       body { overflow: hidden; -webkit-font-smoothing: antialiased; }
-      #root { overflow: hidden; }
+      #root { position: fixed; inset: 0; overflow: hidden; background: #f1f6ea; }
+
+      @media (prefers-color-scheme: dark) {
+        html, body { background: #0e1812; }
+        #root { background: #0e1812; }
+      }
 
       #native-splash {
-        position: fixed; inset: 0; background: #2DB54E;
+        position: fixed; inset: 0; background: #2f6b4f; overflow: hidden;
         display: flex; flex-direction: column;
         align-items: center; justify-content: center;
-        z-index: 99999; gap: 20px; transition: opacity 0.4s ease;
+        z-index: 99999; gap: 18px; transition: opacity 0.4s ease;
+        font-family: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, 'Nunito', sans-serif;
+      }
+      @media (prefers-color-scheme: dark) {
+        #native-splash { background: #1d4a36; }
       }
       #native-splash.hidden { opacity: 0; pointer-events: none; }
-      #native-splash svg {
-        filter: drop-shadow(0 4px 16px rgba(0,0,0,0.2));
+
+      #native-splash .blob {
+        position: absolute; border-radius: 50%; background: rgba(255,255,255,0.08);
+        opacity: 0; animation: splashFade 0.8s ease 0.1s forwards;
+      }
+      #native-splash .blob.b1 { width: 340px; height: 340px; top: -110px; right: -120px; }
+      #native-splash .blob.b2 { width: 260px; height: 260px; bottom: -90px; left: -90px; }
+
+      #native-splash .logo {
+        width: 124px; height: 124px;
+        background: #fff; border-radius: 50% 50% 50% 28px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.28);
         animation: splashPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
       }
       #native-splash .title {
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
         font-size: 38px; font-weight: 700; color: #fff; letter-spacing: -1px;
         opacity: 0; transform: translateY(16px);
         animation: splashFade 0.5s ease 0.5s forwards;
       }
       #native-splash .sub {
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        font-size: 15px; color: rgba(255,255,255,0.8); margin-top: -12px;
+        font-size: 15px; color: rgba(255,255,255,0.8); margin-top: -10px;
         opacity: 0; animation: splashFade 0.5s ease 0.7s forwards;
       }
+
+      #native-splash .chip {
+        position: absolute; display: flex; align-items: center; gap: 8px;
+        padding: 9px 14px; background: #fff; color: #1e3a2b;
+        border-radius: 18px 18px 18px 6px; font-size: 13px; font-weight: 600;
+        box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+        opacity: 0; animation: chipIn 0.6s ease forwards;
+      }
+      #native-splash .chip i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+      #native-splash .chip.c1 { --r: -6deg; top: 16%; left: 7%; animation-delay: 0.9s; }
+      #native-splash .chip.c2 { --r: 5deg; bottom: 24%; right: 6%; animation-delay: 1.1s; }
+      #native-splash .chip.c1 i { background: #e0a92b; }
+      #native-splash .chip.c2 i { background: #3f9a68; }
+
       #native-splash .dots {
         position: absolute;
         bottom: calc(50px + env(safe-area-inset-bottom, 0px));
@@ -66,18 +88,28 @@
       #native-splash .dot { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.4); }
       #native-splash .dot.active { width: 24px; background: #fff; }
       #native-splash .dot:not(.active) { width: 8px; }
+
       @keyframes splashPop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       @keyframes splashFade { to { opacity: 1; transform: translateY(0); } }
+      @keyframes chipIn {
+        from { opacity: 0; transform: translateY(14px) rotate(var(--r)); }
+        to { opacity: 1; transform: translateY(0) rotate(var(--r)); }
+      }
     </style>
   </head>
   <body>
     <div id="native-splash">
-      <svg width="100" height="100" viewBox="0 0 80 80">
-        <circle cx="40" cy="40" r="36" fill="#fff" stroke="#fff" stroke-width="1.5"/>
-        <path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#2DB54E" stroke-width="2.5" stroke-linecap="round"/>
-        <polyline points="33,38 38,43 47,32" fill="none" stroke="#2DB54E" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M25 50 Q40 45 55 50" stroke="#2DB54E" stroke-width="1.5" fill="none" opacity="0.6"/>
-      </svg>
+      <div class="blob b1"></div>
+      <div class="blob b2"></div>
+      <div class="chip c1"><i></i>Leche · 3 días</div>
+      <div class="chip c2"><i></i>Mermelada · 45 días</div>
+      <div class="logo">
+        <svg width="78" height="78" viewBox="0 0 80 80" aria-hidden="true">
+          <path d="M40 14 C40 14 56 25 56 38 C56 50 48 58 40 61 C32 58 24 50 24 38 C24 25 40 14 40 14Z" fill="none" stroke="#2f6b4f" stroke-width="3" stroke-linecap="round"/>
+          <polyline points="32,38 38,44 49,31" fill="none" stroke="#2f6b4f" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 55 Q40 49 58 55" stroke="#2f6b4f" stroke-width="1.8" fill="none" opacity="0.6"/>
+        </svg>
+      </div>
       <div class="title">Al Día</div>
       <div class="sub">Controla lo que tienes en casa</div>
       <div class="dots">
