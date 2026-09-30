@@ -21,15 +21,21 @@ today.setHours(0,0,0,0);
 
 function getSaludo(){
   const h = new Date().getHours();
-  if(h<12) return '☀️ Buenos días';
-  if(h<18) return '🌤️ Buenas tardes';
-  return '🌙 Buenas noches';
+  if(h<12) return 'Buenos días';
+  if(h<18) return 'Buenas tardes';
+  return 'Buenas noches';
 }
 
 function daysUntil(dateStr){
   const d = new Date(dateStr+'T12:00:00');
   d.setHours(0,0,0,0);
   return Math.round((d-today)/86400000);
+}
+
+function fechaEn(n){
+  const d = new Date();
+  d.setDate(d.getDate()+n);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function status(p){
@@ -56,151 +62,126 @@ function getBarWidth(days,alert){
   return 8;
 }
 
-function getBarColor(st){ return st==='ok'?'#2DB54E':st==='warn'?'#FF9500':'#FF3B30'; }
-function getCardBg(st){ return st==='expired'?'rgba(255,59,48,0.07)':st==='danger'?'rgba(255,59,48,0.05)':st==='warn'?'rgba(255,149,0,0.05)':'rgba(45,181,78,0.04)'; }
-function getCardBorder(st){ return st==='expired'?'0.5px solid rgba(255,59,48,0.25)':st==='danger'?'0.5px solid rgba(255,59,48,0.15)':st==='warn'?'0.5px solid rgba(255,149,0,0.2)':'0.5px solid rgba(45,181,78,0.15)'; }
-function getBadgeBg(st){ return (st==='expired'||st==='danger')?'#FF3B30':st==='warn'?'#FF9500':'var(--green)'; }
+const pillClass = st => st==='ok' ? 'ad-pill--ok' : st==='warn' ? 'ad-pill--warn' : 'ad-pill--danger';
+const pillIcon = st => st==='expired' ? '⚠️' : st==='danger' ? '⏰' : st==='warn' ? '⏳' : '✓';
+const barClass = st => st==='ok' ? '' : st==='warn' ? 'ad-bar--warn' : 'ad-bar--danger';
 
-const HomeIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="9,22 9,12 15,12 15,22" stroke={active?"url(#ng)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
-const StatsIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2"/><line x1="7" y1="9" x2="12" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="16" y1="9" x2="16" y2="9" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="7" y1="13" x2="10" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="14" y1="13" x2="17" y2="13" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><line x1="7" y1="17" x2="15" y2="17" stroke={active?"url(#ng2)":"var(--text2)"} strokeWidth="2" strokeLinecap="round"/><defs><linearGradient id="ng2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
-const HistoryIcon=(active)=>(<svg width="24" height="24" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2"/><polyline points="12,6 12,12 16,14" stroke={active?"url(#ng3)":"var(--text2)"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><defs><linearGradient id="ng3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#2DB54E"/><stop offset="100%" stopColor="#30D158"/></linearGradient></defs></svg>);
+const svgProps = {width:24,height:24,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true};
+const Ico = {
+  home:(<svg {...svgProps}><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>),
+  stats:(<svg {...svgProps}><path d="M5 21V12M12 21V4M19 21v-6"/></svg>),
+  history:(<svg {...svgProps}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>),
+  user:(<svg {...svgProps}><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>),
+  plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
+};
 
-const LOGO=()=>(<svg width="40" height="40" viewBox="0 0 80 80" style={{filter:'drop-shadow(0 2px 8px rgba(45,181,78,0.3))'}}><defs><linearGradient id="lg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style={{stopColor:'#2DB54E',stopOpacity:1}}/><stop offset="50%" style={{stopColor:'#30D158',stopOpacity:1}}/><stop offset="100%" style={{stopColor:'#1E8E3E',stopOpacity:1}}/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="2" result="cb"/><feMerge><feMergeNode in="cb"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><circle cx="40" cy="40" r="36" fill="url(#lg)" stroke="#fff" strokeWidth="1.5" filter="url(#glow)"/><path d="M40 20 C40 20 52 28 52 38 C52 48 46 54 40 56 C34 54 28 48 28 38 C28 28 40 20 40 20Z" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"/><circle cx="35" cy="35" r="2" fill="#fff" opacity="0.9"/><circle cx="40" cy="40" r="1.5" fill="#fff" opacity="0.8"/><circle cx="45" cy="38" r="1" fill="#fff" opacity="0.7"/><polyline points="33,38 38,43 47,32" fill="none" stroke="#fff" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"/><path d="M25 50 Q40 45 55 50" stroke="#fff" strokeWidth="1.5" fill="none" opacity="0.6"/></svg>);
+const LOGO=()=>(
+  <div className="ad-logo">
+    <svg width="30" height="30" viewBox="0 0 80 80" aria-hidden="true">
+      <path d="M40 14 C40 14 56 25 56 38 C56 50 48 58 40 61 C32 58 24 50 24 38 C24 25 40 14 40 14Z" fill="none" stroke="var(--green)" strokeWidth="4" strokeLinecap="round"/>
+      <polyline points="32,38 38,44 49,31" fill="none" stroke="var(--green)" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  </div>
+);
 
-// ✅ NAVBAR con position fixed para que llegue hasta el borde físico del iPhone
-function Navbar({tab,setTab,setPantalla}){
-  const items=[{id:'home',ico:HomeIcon,lbl:'Inicio'},{id:'estadisticas',ico:StatsIcon,lbl:'Estadísticas'},{id:'historial',ico:HistoryIcon,lbl:'Historial'}];
+function Navbar({tab,cuenta,onTab,onAdd,onCuenta}){
+  const item=(id,lbl,ico,active,onClick)=>(
+    <button key={id} className={`ad-nav__item${active?' is-active':''}`} onClick={onClick} aria-current={active?'page':undefined}>
+      {ico}<span>{lbl}</span>
+    </button>
+  );
   return (
-    <div style={{
-      position:'fixed', bottom:0, left:0, right:0,
-      background:'var(--bg2)',
-      borderTop:'0.5px solid var(--border)',
-      display:'flex', alignItems:'center', justifyContent:'space-around',
-      zIndex:100,
-      // ✅ Altura fija de botones + padding del home indicator
-      paddingBottom:'env(safe-area-inset-bottom, 0px)',
-      paddingTop:0,
-      height:'calc(60px + env(safe-area-inset-bottom, 0px))',
-    }}>
-      {items.map(it=>(
-        <button key={it.id} onClick={()=>{setTab(it.id);setPantalla&&setPantalla('');}}
-          style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,background:'none',border:'none',cursor:'pointer',padding:'6px 20px',paddingBottom:0}}>
-          <div style={{width:24,height:24,display:'flex',alignItems:'center',justifyContent:'center'}}>{it.ico(tab===it.id)}</div>
-          <span style={{fontSize:10,fontWeight:500,color:tab===it.id?'var(--green)':'var(--text2)'}}>{it.lbl}</span>
-        </button>
-      ))}
+    <nav className="ad-card ad-nav" aria-label="Navegación principal">
+      {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'))}
+      {item('estadisticas','Estadísticas',Ico.stats,tab==='estadisticas'&&!cuenta,()=>onTab('estadisticas'))}
+      <button className="ad-nav__fab" onClick={onAdd} aria-label="Agregar producto">
+        <span className="ad-nav__fab-btn">{Ico.plus}</span>Agregar
+      </button>
+      {item('historial','Historial',Ico.history,tab==='historial'&&!cuenta,()=>onTab('historial'))}
+      {item('cuenta','Cuenta',Ico.user,cuenta,onCuenta)}
+    </nav>
+  );
+}
+
+function CuentaSheet({usuario,nombre,iniciales,onClose,onLogout}){
+  const filas=[
+    {ico:'✏️',t:'Editar perfil',fn:()=>alert('Editar perfil - En desarrollo')},
+    {ico:'⚙️',t:'Preferencias',fn:()=>alert('Preferencias - En desarrollo')},
+    {ico:'❓',t:'Ayuda y FAQ',fn:()=>alert('Ayuda y FAQ - En desarrollo')},
+    {ico:'📧',t:'Contacto y soporte',fn:()=>alert('Contacto: soporte@aldia.com')},
+    {ico:'📋',t:'Términos y privacidad',fn:()=>alert('Términos y privacidad - En desarrollo')},
+    {ico:'ℹ️',t:'Versión 1.0.0',fn:()=>alert('Versión 1.0.0')},
+  ];
+  return (
+    <div className="ad-overlay" onClick={onClose}>
+      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Cuenta">
+        <div className="ad-sheet__handle"/>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+          <div className="ad-avatar ad-avatar--solid">
+            {usuario.photoURL?<img src={usuario.photoURL} alt="perfil"/>:iniciales}
+          </div>
+          <div style={{minWidth:0}}>
+            <div className="ad-item__name">{nombre}</div>
+            <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
+          </div>
+        </div>
+        {filas.map(f=>(
+          <button key={f.t} className="ad-sheet__row" onClick={f.fn}><span>{f.ico}</span>{f.t}</button>
+        ))}
+        <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
+      </div>
     </div>
   );
 }
 
-const S={
-  // ✅ Screen normal sin flexbox especial - scroll normal
-  screen:{
-    maxWidth:480, margin:'0 auto', width:'100%',
-    minHeight:'100%',
-    background:'var(--bg)',
-    fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
-    // Padding para que el contenido no quede detrás de la navbar fija
-    paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))',
-  },
-  // ✅ Header también fijo
-  header:{
-    position:'sticky', top:0, zIndex:90,
-    background:'var(--bg2)',
-    paddingTop:'calc(12px + env(safe-area-inset-top,0px))',
-    paddingBottom:14, paddingLeft:20, paddingRight:20,
-    borderBottom:'0.5px solid var(--border)',
-  },
-  avatar:{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',cursor:'pointer',flexShrink:0,overflow:'hidden',padding:0},
-  titleRow:{display:'flex',alignItems:'center',gap:10},
-  title:{fontSize:26,fontWeight:700,color:'var(--text)',letterSpacing:-0.5},
-  statsGrid:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,padding:'10px 14px 4px'},
-  statCard:{background:'var(--card)',borderRadius:13,padding:'10px 12px',border:'0.5px solid var(--border2)'},
-  statLabel:{fontSize:11,color:'var(--text2)',marginBottom:4},
-  alertBox:{margin:'6px 14px',borderRadius:12,padding:'9px 12px',display:'flex',alignItems:'flex-start',gap:8,background:'#fff2f2',border:'0.5px solid rgba(255,59,48,0.2)'},
-  sectionHeader:{padding:'12px 18px 6px',display:'flex',justifyContent:'space-between',alignItems:'center'},
-  sectionTitle:{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3},
-  filters:{display:'flex',gap:6,padding:'2px 14px 10px',overflowX:'auto'},
-  searchWrap:{padding:'0 14px 10px'},
-  search:{width:'100%',height:34,borderRadius:10,border:'0.5px solid var(--border)',padding:'0 12px',fontSize:13,background:'var(--card)',boxSizing:'border-box',color:'var(--text)'},
-  plist:{display:'flex',flexDirection:'column',gap:7,padding:'0 14px'},
-  iconWrap:{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,flexShrink:0},
-  fabWrap:{padding:'12px 14px 24px'},
-  fab:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
-  // Form
-  formScreen:{maxWidth:480,margin:'0 auto',width:'100%',minHeight:'100%',background:'var(--bg)',fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',paddingBottom:'calc(60px + env(safe-area-inset-bottom, 0px))'},
-  formHeader:{position:'sticky',top:0,zIndex:90,background:'var(--bg2)',paddingTop:'calc(14px + env(safe-area-inset-top,0px))',paddingBottom:14,paddingLeft:20,paddingRight:20,borderBottom:'0.5px solid var(--border)',display:'flex',alignItems:'center',gap:12},
-  backBtn:{background:'none',border:'none',fontSize:16,color:'var(--green)',cursor:'pointer',fontWeight:500},
-  formTitle:{fontSize:17,fontWeight:600,color:'var(--text)'},
-  formBody:{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12},
-  formSection:{background:'var(--card)',borderRadius:13,overflow:'hidden',border:'0.5px solid var(--border2)'},
-  formRow:{padding:'11px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',flexDirection:'column',gap:4},
-  formRowLast:{padding:'11px 14px',display:'flex',flexDirection:'column',gap:4},
-  formLabel:{fontSize:12,color:'var(--text2)'},
-  formInput:{fontSize:15,color:'var(--text)',border:'none',outline:'none',background:'transparent',width:'100%'},
-  formSelect:{fontSize:15,color:'var(--text)',border:'none',outline:'none',background:'transparent',width:'100%'},
-  saveBtn:{width:'100%',height:46,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'},
-  delBtn:{width:'100%',height:46,borderRadius:13,background:'var(--card)',color:'#FF3B30',border:'0.5px solid rgba(255,59,48,0.3)',fontSize:15,cursor:'pointer'},
-};
-
 function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
   const ejemplos=[
-    {name:'Leche entera',cat:'Lácteos',exp:'2025-06-15'},
-    {name:'Pollo fresco',cat:'Carnes',exp:'2025-06-10'},
-    {name:'Zanahorias',cat:'Frutas y verduras',exp:'2025-06-20'},
-    {name:'Ibuprofeno',cat:'Medicamentos',exp:'2026-12-30'},
-    {name:'Jugo natural',cat:'Bebidas',exp:'2025-06-12'},
+    {name:'Leche entera',cat:'Lácteos',exp:fechaEn(5)},
+    {name:'Pollo fresco',cat:'Carnes',exp:fechaEn(2)},
+    {name:'Zanahorias',cat:'Frutas y verduras',exp:fechaEn(12)},
+    {name:'Ibuprofeno',cat:'Medicamentos',exp:fechaEn(400)},
+    {name:'Jugo natural',cat:'Bebidas',exp:fechaEn(8)},
   ];
   return (
-    <div style={{padding:'24px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:16}}>
-      <svg width="140" height="140" viewBox="0 0 140 140">
-        <defs><radialGradient id="pg" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#30D158" stopOpacity="0.16"/><stop offset="100%" stopColor="#30D158" stopOpacity="0"/></radialGradient></defs>
-        <circle cx="70" cy="70" r="42" fill="url(#pg)"><animate attributeName="r" values="42;52;42" dur="2.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.16;0.06;0.16" dur="2.6s" repeatCount="indefinite"/></circle>
-        <circle cx="70" cy="70" r="55" fill="var(--card)"/><circle cx="70" cy="70" r="42" fill="var(--input)"/>
-        <rect x="44" y="48" width="52" height="44" rx="6" fill="none" stroke="#2DB54E" strokeWidth="2"/>
-        <line x1="44" y1="58" x2="96" y2="58" stroke="#2DB54E" strokeWidth="1.5"/>
-        <line x1="52" y1="44" x2="52" y2="52" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
-        <line x1="88" y1="44" x2="88" y2="52" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
-        <rect x="52" y="65" width="12" height="10" rx="2" fill="#2DB54E" opacity="0.3"/>
-        <rect x="68" y="65" width="12" height="10" rx="2" fill="#2DB54E" opacity="0.6"/>
-        <rect x="84" y="65" width="8" height="10" rx="2" fill="#2DB54E"/>
-        <circle cx="105" cy="38" r="12" fill="#30D158"/>
-        <line x1="105" y1="33" x2="105" y2="38" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
-        <line x1="105" y1="38" x2="108" y2="40" stroke="#fff" strokeWidth="2" strokeLinecap="round"/>
-        <circle cx="35" cy="100" r="8" fill="#FF9500" opacity="0.8"/>
-        <line x1="35" y1="96" x2="35" y2="100" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="35" cy="100" r="1.5" fill="#fff"/>
+    <div className="ad-empty">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M60 8c22 0 44 14 44 40s-14 54-46 56S12 84 14 54 34 8 60 8z" fill="var(--green-soft)"/>
+        <path d="M60 30c0 0 22 14 22 32 0 16-10 26-22 30-12-4-22-14-22-30 0-18 22-32 22-32z" fill="none" stroke="var(--green)" strokeWidth="4" strokeLinecap="round"/>
+        <polyline points="49,60 57,68 72,50" fill="none" stroke="var(--green)" strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round"/>
       </svg>
-      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>¡Bienvenido a Al Día!</div>
-      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>Empieza registrando tus productos y nunca más se te vencerá nada en casa.</div>
+      <h2>¡Bienvenido a Al Día!</h2>
+      <p className="ad-muted" style={{maxWidth:280,lineHeight:1.6}}>Empieza registrando tus productos y nunca más se te vencerá nada en casa.</p>
       <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8}}>
-        {[{n:'1',title:'Agrega un producto',sub:'con su fecha de vencimiento'},{n:'2',title:'Recibe alertas',sub:'antes de que venza'},{n:'3',title:'Marca como consumido',sub:'y lleva el control'}].map(s=>(
-          <div key={s.n} style={{display:'flex',alignItems:'center',gap:10,background:'var(--card)',borderRadius:12,padding:'10px 14px',border:'0.5px solid var(--border2)'}}>
-            <div style={{width:26,height:26,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:'#fff',flexShrink:0}}>{s.n}</div>
-            <div><div style={{fontSize:13,fontWeight:500,color:'var(--text)'}}>{s.title}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{s.sub}</div></div>
+        {[{n:'1',title:'Agrega un producto',sub:'con su fecha de vencimiento'},{n:'2',title:'Recibe alertas',sub:'antes de que venza'},{n:'3',title:'Márcalo como usado',sub:'y lleva el control'}].map(s=>(
+          <div key={s.n} className="ad-card ad-step">
+            <div className="ad-step__n">{s.n}</div>
+            <div><div style={{fontWeight:700}}>{s.title}</div><div className="ad-muted">{s.sub}</div></div>
           </div>
         ))}
       </div>
-      <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>✨ Agregar mi primer producto</button>
-      <div style={{width:'100%',borderTop:'0.5px solid var(--border2)',paddingTop:16}}>
-        <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,textAlign:'center',fontWeight:500}}>💡 O prueba con estos ejemplos</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+      <button className="ad-btn" onClick={onAgregar}>✨ Agregar mi primer producto</button>
+      <div style={{width:'100%'}}>
+        <p className="ad-muted" style={{textAlign:'center',fontWeight:700,marginBottom:10}}>O prueba con estos ejemplos</p>
+        <div className="ad-grid2">
           {ejemplos.map((ej,i)=>(
-            <div key={i} style={{background:'var(--card)',borderRadius:12,padding:12,border:'0.5px solid var(--border2)'}}>
-              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-                <div style={{width:36,height:36,borderRadius:9,background:'var(--bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{CATS[ej.cat]}</div>
-                <div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:600,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{ej.name}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{ej.cat}</div></div>
+            <div key={i} className="ad-card ad-pad" style={{padding:12}}>
+              <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
+                <span className="ad-icon">{CATS[ej.cat]}</span>
+                <div style={{minWidth:0}}>
+                  <div className="ad-item__name" style={{fontSize:'.9375rem'}}>{ej.name}</div>
+                  <div className="ad-muted" style={{fontSize:'.75rem'}}>{ej.cat}</div>
+                </div>
               </div>
-              <button onClick={()=>onAgregarEjemplo(ej)} style={{width:'100%',height:32,borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:12,fontWeight:600,cursor:'pointer'}}>+ Agregar</button>
+              <button className="ad-btn ad-btn--sm" onClick={()=>onAgregarEjemplo(ej)}>+ Agregar</button>
             </div>
           ))}
         </div>
       </div>
       <div style={{width:'100%'}}>
-        <div style={{fontSize:12,color:'var(--text2)',marginBottom:8,textAlign:'center'}}>O empieza por categoría</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+        <p className="ad-muted" style={{textAlign:'center',marginBottom:10}}>O empieza por categoría</p>
+        <div className="ad-grid2">
           {[{cat:'Lácteos',emoji:'🥛'},{cat:'Carnes',emoji:'🥩'},{cat:'Medicamentos',emoji:'💊'},{cat:'Bebidas',emoji:'🧃'}].map(c=>(
-            <button key={c.cat} onClick={()=>onCategoria(c.cat)} style={{height:40,borderRadius:10,background:'var(--card)',border:'0.5px solid var(--border2)',fontSize:13,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}>{c.emoji} {c.cat}</button>
+            <button key={c.cat} className="ad-chip" style={{justifyContent:'center',gap:6}} onClick={()=>onCategoria(c.cat)}>{c.emoji} {c.cat}</button>
           ))}
         </div>
       </div>
@@ -210,34 +191,25 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
 
 function EmptyStateExistente({onAgregar,catsUsadas}){
   return (
-    <div style={{padding:'40px 20px',display:'flex',flexDirection:'column',alignItems:'center',gap:20}}>
-      <svg width="130" height="130" viewBox="0 0 130 130">
-        <circle cx="65" cy="65" r="52" fill="var(--card)"/><circle cx="65" cy="65" r="38" fill="var(--input)"/>
-        <circle cx="65" cy="48" r="16" fill="none" stroke="var(--border)" strokeWidth="2.5"/>
-        <path d="M49 48 a16 16 0 0 1 32 0" fill="none" stroke="#2DB54E" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="65" y1="32" x2="65" y2="40" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
-        <line x1="65" y1="40" x2="70" y2="45" stroke="#2DB54E" strokeWidth="2" strokeLinecap="round"/>
-        <rect x="35" y="72" width="60" height="6" rx="3" fill="var(--border)"/>
-        <rect x="35" y="72" width="15" height="6" rx="3" fill="#2DB54E"/>
-        <rect x="35" y="83" width="60" height="6" rx="3" fill="var(--border)"/>
-        <rect x="35" y="94" width="60" height="6" rx="3" fill="var(--border)"/>
-        <circle cx="100" cy="36" r="10" fill="#FF9500"/>
-        <line x1="100" y1="32" x2="100" y2="36" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
-        <circle cx="100" cy="39" r="1.3" fill="#fff"/>
+    <div className="ad-empty">
+      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+        <path d="M60 8c22 0 44 14 44 40s-14 54-46 56S12 84 14 54 34 8 60 8z" fill="var(--green-soft)"/>
+        <rect x="34" y="44" width="52" height="36" rx="10" fill="none" stroke="var(--green)" strokeWidth="4"/>
+        <path d="M34 58h52" stroke="var(--green)" strokeWidth="4"/>
       </svg>
-      <div style={{fontSize:19,fontWeight:700,color:'var(--text)',textAlign:'center',letterSpacing:-0.3}}>Sin productos registrados</div>
-      <div style={{fontSize:13,color:'var(--text2)',textAlign:'center',lineHeight:1.6,maxWidth:280}}>No tienes ningún producto en tu lista en este momento.</div>
+      <h2>Sin productos registrados</h2>
+      <p className="ad-muted" style={{maxWidth:280,lineHeight:1.6}}>No tienes ningún producto en tu lista en este momento.</p>
       {catsUsadas.length>0&&(
-        <div style={{width:'100%',background:'var(--card)',borderRadius:14,padding:'14px 16px',border:'0.5px solid var(--border2)'}}>
-          <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:10,letterSpacing:0.3}}>ÚLTIMAS CATEGORÍAS USADAS</div>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+        <div className="ad-card ad-pad" style={{width:'100%'}}>
+          <p className="ad-muted" style={{fontWeight:700,marginBottom:10}}>Últimas categorías usadas</p>
+          <div className="ad-grid2">
             {catsUsadas.slice(0,4).map(cat=>(
-              <div key={cat} style={{height:38,borderRadius:10,background:'var(--input)',border:'0.5px solid var(--border2)',display:'flex',alignItems:'center',justifyContent:'center',gap:6,fontSize:12,color:'var(--text2)'}}>{CATS[cat]||'📦'} {cat}</div>
+              <div key={cat} className="ad-chip" style={{justifyContent:'center',gap:6}}>{CATS[cat]||'📦'} {cat}</div>
             ))}
           </div>
         </div>
       )}
-      <button onClick={onAgregar} style={{width:'100%',height:48,borderRadius:13,background:'var(--green)',color:'#fff',border:'none',fontSize:15,fontWeight:600,cursor:'pointer'}}>✨ Agregar producto</button>
+      <button className="ad-btn" onClick={onAgregar}>✨ Agregar producto</button>
     </div>
   );
 }
@@ -252,20 +224,27 @@ function CompartirModal({activos,onClose}){
   const copiarPortapapeles=async()=>{try{await navigator.clipboard.writeText(generarTexto());setCopiado(true);setTimeout(()=>setCopiado(false),2000);}catch(e){alert('No se pudo copiar.');}};
   const compartirCorreo=()=>window.open(`mailto:?subject=${encodeURIComponent('Mi lista - Al Día')}&body=${encodeURIComponent(generarTexto())}`,'_blank');
   const compartirNativo=async()=>{if(navigator.share){try{await navigator.share({title:'Al Día',text:generarTexto()});}catch(e){}}else copiarPortapapeles();};
+  const opciones=[
+    {ico:'💬',label:'WhatsApp',fn:compartirWhatsApp},
+    {ico:'📋',label:copiado?'¡Copiado!':'Copiar texto',fn:copiarPortapapeles},
+    {ico:'📧',label:'Correo',fn:compartirCorreo},
+    {ico:'📤',label:'Compartir',fn:compartirNativo},
+  ];
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end',justifyContent:'center'}}>
-      <div style={{width:'100%',maxWidth:480,background:'var(--bg2)',borderRadius:'20px 20px 0 0',padding:'20px',paddingBottom:'calc(20px + env(safe-area-inset-bottom,0px))'}}>
-        <div style={{width:40,height:4,borderRadius:2,background:'var(--border)',margin:'0 auto 20px'}}/>
-        <div style={{fontSize:17,fontWeight:600,color:'var(--text)',marginBottom:4}}>Compartir lista</div>
-        <div style={{fontSize:13,color:'var(--text2)',marginBottom:20}}>{activos.length} producto{activos.length!==1?'s':''} en tu inventario</div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
-          {[{ico:'💬',label:'WhatsApp',fn:compartirWhatsApp,color:'#25D366'},{ico:'📋',label:copiado?'¡Copiado!':'Copiar texto',fn:copiarPortapapeles,color:'var(--green)'},{ico:'📧',label:'Correo',fn:compartirCorreo,color:'#007AFF'},{ico:'📤',label:'Compartir',fn:compartirNativo,color:'#FF9500'}].map(b=>(
-            <button key={b.label} onClick={b.fn} style={{height:60,borderRadius:14,background:'var(--card)',border:'0.5px solid var(--border2)',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:4,cursor:'pointer'}}>
-              <span style={{fontSize:22}}>{b.ico}</span><span style={{fontSize:11,fontWeight:500,color:b.color}}>{b.label}</span>
+    <div className="ad-overlay" onClick={onClose}>
+      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Compartir lista">
+        <div className="ad-sheet__handle"/>
+        <h2 className="ad-section" style={{margin:'0 0 4px'}}>Compartir lista</h2>
+        <p className="ad-muted" style={{marginBottom:16}}>{activos.length} producto{activos.length!==1?'s':''} en tu inventario</p>
+        <div className="ad-grid2" style={{marginBottom:14}}>
+          {opciones.map(b=>(
+            <button key={b.label} className="ad-card ad-share" onClick={b.fn}>
+              <span style={{fontSize:24}}>{b.ico}</span>
+              <span style={{fontSize:'.8125rem',fontWeight:700}}>{b.label}</span>
             </button>
           ))}
         </div>
-        <button onClick={onClose} style={{width:'100%',height:46,borderRadius:13,background:'var(--input)',color:'var(--text2)',border:'none',fontSize:15,cursor:'pointer',fontWeight:500}}>Cancelar</button>
+        <button className="ad-btn ad-btn--ghost" onClick={onClose}>Cancelar</button>
       </div>
     </div>
   );
@@ -275,63 +254,41 @@ function SimpleCharts({descartados,consumidos,catStats}){
   const total=Math.max(1,descartados.length+consumidos.length);
   const maxCat=catStats.length?Math.max(...catStats.map(c=>c.descartados||0)):1;
   return (
-    <div style={{display:'flex',gap:12,flexDirection:'column'}}>
-      <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
-        <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>🎯 Consumidos vs Descartados</div>
-        <div style={{display:'flex',alignItems:'center',gap:8}}>
-          <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden'}}>
-            <div style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'linear-gradient(90deg,var(--green),#30D158)'}}/>
-            <div style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#FF3B30'}}/>
+    <>
+      <div className="ad-card ad-pad">
+        <p className="ad-muted" style={{marginBottom:10}}>🎯 Consumidos vs Descartados</p>
+        <div style={{display:'flex',alignItems:'center',gap:10}}>
+          <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden',background:'var(--input)'}}>
+            <div style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'var(--green)'}}/>
+            <div style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#e4775a'}}/>
           </div>
-          <div style={{fontSize:12,color:'var(--text2)',minWidth:100,textAlign:'right'}}>{consumidos.length} ✓ / {descartados.length} ✗</div>
+          <span className="ad-muted" style={{minWidth:90,textAlign:'right'}}>{consumidos.length} ✓ / {descartados.length} ✗</span>
         </div>
-        <div style={{display:'flex',gap:12,marginTop:8}}>
-          <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:12,height:12,background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:3}}/><div style={{fontSize:12,color:'var(--text2)'}}>Consumidos</div></div>
-          <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:12,height:12,background:'#FF3B30',borderRadius:3}}/><div style={{fontSize:12,color:'var(--text2)'}}>Descartados</div></div>
+        <div style={{display:'flex',gap:16,marginTop:10}}>
+          <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos</span>
+          <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados</span>
         </div>
       </div>
       {catStats.length>0&&(
-        <div style={{background:'var(--card)',padding:12,borderRadius:12,border:'0.5px solid var(--border2)'}}>
-          <div style={{fontSize:12,color:'var(--text2)',marginBottom:8}}>📊 Top categorías</div>
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {catStats.slice(0,5).map(c=>{const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;return(
-              <div key={c.cat} style={{display:'flex',alignItems:'center',gap:8}}>
-                <div style={{width:28,fontSize:14}}>{CATS[c.cat]||'📦'}</div>
-                <div style={{flex:1}}>
-                  <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}><span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{c.cat}</span><span style={{fontSize:11,color:'var(--text2)'}}>{c.descartados}</span></div>
-                  <div style={{width:'100%',height:6,background:'var(--input)',borderRadius:4,overflow:'hidden'}}><div style={{width:`${pct}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)'}}/></div>
+        <div className="ad-card ad-pad">
+          <p className="ad-muted" style={{marginBottom:10}}>📊 Top categorías</p>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {catStats.slice(0,5).map(c=>{
+              const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;
+              return (
+                <div key={c.cat} style={{display:'flex',alignItems:'center',gap:10}}>
+                  <span style={{fontSize:18,width:26}}>{CATS[c.cat]||'📦'}</span>
+                  <div style={{flex:1}}>
+                    <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:'.875rem',fontWeight:700}}>{c.cat}</span><span className="ad-muted">{c.descartados}</span></div>
+                    <div className="ad-bar" style={{marginTop:6}}><span style={{width:`${pct}%`}}/></div>
+                  </div>
                 </div>
-              </div>
-            );})}
+              );
+            })}
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-function Widget({activos}){
-  const hoy=activos.filter(p=>daysUntil(p.exp)===0).length;
-  const semana=activos.filter(p=>{const d=daysUntil(p.exp);return d>0&&d<=7;}).length;
-  const vencidos=activos.filter(p=>daysUntil(p.exp)<0).length;
-  const bien=activos.filter(p=>daysUntil(p.exp)>7).length;
-  const pctBien=activos.length>0?Math.round((bien/activos.length)*100):100;
-  return (
-    <div style={{margin:'10px 14px 4px',background:'var(--card)',borderRadius:16,padding:'14px 16px',border:'0.5px solid var(--border2)'}}>
-      <div style={{fontSize:12,color:'var(--text2)',marginBottom:10,fontWeight:500}}>RESUMEN DE HOY</div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6,marginBottom:12}}>
-        {[{n:vencidos,l:'Vencidos',c:'#FF3B30',bg:'#fff2f2'},{n:hoy,l:'Hoy',c:'#FF9500',bg:'#fff8ee'},{n:semana,l:'Esta semana',c:'#007AFF',bg:'#f0f5ff'},{n:bien,l:'Al día',c:'var(--green)',bg:'#f0fff4'}].map(s=>(
-          <div key={s.l} style={{background:s.bg,borderRadius:10,padding:'8px 4px',textAlign:'center'}}>
-            <div style={{fontSize:20,fontWeight:700,color:s.c}}>{s.n}</div>
-            <div style={{fontSize:10,color:s.c,marginTop:2,opacity:0.8}}>{s.l}</div>
-          </div>
-        ))}
-      </div>
-      <div style={{fontSize:11,color:'var(--text2)',marginBottom:4}}>{pctBien}% de tus productos están al día</div>
-      <div style={{height:6,borderRadius:3,background:'var(--input)',overflow:'hidden'}}>
-        <div style={{height:6,borderRadius:3,background:'var(--green)',width:`${pctBien}%`,transition:'width 0.5s'}}/>
-      </div>
-    </div>
+    </>
   );
 }
 
@@ -345,18 +302,18 @@ function ProductCard({p,index,onClick}){
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
   return (
-    <div onClick={onClick} style={{borderRadius:13,padding:'10px 12px',background:getCardBg(st),border:getCardBorder(st),cursor:'pointer',opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)',transition:'opacity 0.4s ease,transform 0.4s ease'}}>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:7}}>
-        <div style={{...S.iconWrap,background:'var(--card)'}}><span style={{fontSize:18}}>{CATS[p.cat]||'📦'}</span></div>
-        <div style={{flex:1,minWidth:0}}>
-          <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
-          <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
+    <div className="ad-card ad-product" role="button" tabIndex={0} onClick={onClick}
+      onKeyDown={e=>{if(e.key==='Enter')onClick();}}
+      style={{opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)'}}>
+      <div className="ad-product__row">
+        <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
+        <div className="ad-item__body">
+          <div className="ad-item__name">{p.name}</div>
+          <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
         </div>
-        <div style={{padding:'4px 10px',borderRadius:999,background:getBadgeBg(st),color:'#fff',fontSize:12,fontWeight:600,flexShrink:0}}>{daysLabel(d)}</div>
+        <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
-      <div style={{width:'100%',height:4,borderRadius:2,background:'var(--input)',overflow:'hidden'}}>
-        <div style={{height:4,borderRadius:2,background:getBarColor(st),width:`${barW}%`,transition:'width 0.8s ease'}}/>
-      </div>
+      <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
     </div>
   );
 }
@@ -384,7 +341,6 @@ export default function App(){
   const [scanMsg,setScanMsg]=useState('');
   const [compartir,setCompartir]=useState(false);
   const correoEnviadoHoy=useRef(false);
-  const menuRef=useRef(null);
 
   useEffect(()=>{
     const unsub=onAuthStateChanged(auth,(user)=>{
@@ -394,7 +350,7 @@ export default function App(){
     return()=>unsub();
   },[]);
 
-  // ✅ Verificar si es usuario nuevo directamente desde Firestore
+  // Verificar si es usuario nuevo directamente desde Firestore
   useEffect(()=>{
     if(!usuario){setCheckingNuevo(false);return;}
     const q=query(collection(db,"productos"),where("uid","==",usuario.uid),limit(1));
@@ -424,12 +380,6 @@ export default function App(){
     });
     return()=>unsub();
   },[usuario]);
-
-  useEffect(()=>{
-    function handleClick(e){if(menuRef.current&&!menuRef.current.contains(e.target))setMenuAbierto(false);}
-    document.addEventListener('mousedown',handleClick);
-    return()=>document.removeEventListener('mousedown',handleClick);
-  },[]);
 
   useEffect(()=>{
     if(!usuario)return;
@@ -494,6 +444,13 @@ export default function App(){
   const cats=['Todos',...new Set(activos.map(p=>p.cat))];
   const filtered=activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
+  // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
+  const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  const dest=destacados[0];
+  const destD=dest?daysUntil(dest.exp):0;
+  const destSt=dest?status(dest):'ok';
+  const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
+
   const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});setScanMsg('');setPantalla('form');};
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setPantalla('form');};
 
@@ -509,6 +466,20 @@ export default function App(){
   const marcarEstado=async(estado)=>{
     setGuardando(true);
     try{await updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()});setPantalla('');}
+    catch(e){console.error(e);}setGuardando(false);
+  };
+
+  // Marcar un producto directamente desde la tarjeta de inicio ("Ya la usé" / "Botar")
+  const marcarProducto=async(id,estado)=>{
+    if(guardando)return;
+    setGuardando(true);
+    try{await updateDoc(doc(db,"productos",id),{estado,fechaEstado:new Date().toISOString()});}
+    catch(e){console.error(e);}setGuardando(false);
+  };
+
+  const agregarEjemplo=async(ej)=>{
+    setGuardando(true);
+    try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
     catch(e){console.error(e);}setGuardando(false);
   };
 
@@ -532,261 +503,298 @@ export default function App(){
     try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){console.error(e);}
   };
 
-  // ✅ Wrapper con scroll — la navbar está fixed afuera
-  const PageWrapper = ({children}) => (
-    <div style={{width:'100%',height:'100%',overflowY:'auto',WebkitOverflowScrolling:'touch'}}>
-      {children}
-    </div>
+  const avatarBtn=(
+    <button className="ad-avatar" style={{marginLeft:'auto'}} onClick={()=>setMenuAbierto(true)} aria-label="Abrir cuenta">
+      {usuario.photoURL?<img src={usuario.photoURL} alt=""/>:iniciales}
+      {alertas>0&&<span className="ad-badge">{alertas}</span>}
+    </button>
+  );
+
+  const navbar=(
+    <Navbar
+      tab={tab}
+      cuenta={menuAbierto}
+      onTab={(id)=>{setTab(id);setPantalla('');setMenuAbierto(false);}}
+      onAdd={()=>{setMenuAbierto(false);abrirNuevo();}}
+      onCuenta={()=>setMenuAbierto(true)}
+    />
+  );
+
+  const cuentaSheet=menuAbierto&&(
+    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
   );
 
   if(pantalla==='form') return (
-    <PageWrapper>
-      <div style={S.formScreen}>
-        {scanner&&<Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
-        <div style={S.formHeader}>
-          <button style={S.backBtn} onClick={()=>setPantalla('')}>← Volver</button>
-          <span style={S.formTitle}>{editId?'✏️ Editar producto':'✨ Nuevo producto'}</span>
-          {!editId&&<button onClick={()=>setScanner(true)} style={{marginLeft:'auto',background:'none',border:'none',fontSize:22,cursor:'pointer'}}>📷</button>}
-        </div>
-        {!editId&&productosFrecuentes.length>0&&(
-          <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)'}}>
-            <div style={{fontSize:11,color:'var(--text2)',fontWeight:500,marginBottom:8}}>⚡ Productos frecuentes</div>
-            <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-              {productosFrecuentes.map((p,i)=>(
-                <button key={i} onClick={()=>setForm({...form,name:p.name,cat:p.cat})} style={{padding:'6px 10px',borderRadius:8,background:'var(--green)',color:'#fff',border:'none',fontSize:11,fontWeight:500,cursor:'pointer'}}>{CATS[p.cat]} {p.name}</button>
-              ))}
+    <>
+      {scanner&&<Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
+      {cuentaSheet}
+      <div className="ad-screen">
+        <header className="ad-hero ad-hero--sm">
+          <div className="ad-hero-row">
+            <button className="ad-hero-btn" onClick={()=>setPantalla('')} aria-label="Volver">←</button>
+            <h1 className="ad-title" style={{fontSize:'1.375rem'}}>{editId?'Editar producto':'Nuevo producto'}</h1>
+            {!editId&&<button className="ad-hero-btn" style={{marginLeft:'auto'}} onClick={()=>setScanner(true)} aria-label="Escanear código de barras">📷</button>}
+          </div>
+        </header>
+        <div className="ad-overlap ad-stack">
+          {!editId&&productosFrecuentes.length>0&&(
+            <div className="ad-card ad-pad">
+              <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>⚡ Productos frecuentes</p>
+              <div className="ad-chips">
+                {productosFrecuentes.map((p,i)=>(
+                  <button key={i} className="ad-chip" onClick={()=>setForm({...form,name:p.name,cat:p.cat})}>{CATS[p.cat]} {p.name}</button>
+                ))}
+              </div>
             </div>
+          )}
+          {scanMsg&&<div className={`ad-note${scanMsg.startsWith('✓')?'':' ad-note--warn'}`}>{scanMsg}</div>}
+          <div className="ad-card" style={{overflow:'hidden'}}>
+            <label className="ad-field"><span className="ad-field__label">📝 Nombre</span>
+              <input list="nombresSugeridos" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
+              <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
+            </label>
+            <label className="ad-field"><span className="ad-field__label">🏷️ Categoría</span>
+              <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select>
+            </label>
+            <label className="ad-field"><span className="ad-field__label">📅 Fecha de vencimiento</span>
+              <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
+            </label>
+            <label className="ad-field"><span className="ad-field__label">📊 Cantidad / notas</span>
+              <input value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/>
+            </label>
+            <label className="ad-field"><span className="ad-field__label">💰 Precio (opcional)</span>
+              <input type="number" value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/>
+            </label>
+            <label className="ad-field"><span className="ad-field__label">🔔 Alertar con anticipación</span>
+              <select value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}>
+                <option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option>
+              </select>
+            </label>
           </div>
-        )}
-        {scanMsg&&<div style={{margin:'10px 14px 0',borderRadius:10,padding:'9px 12px',fontSize:13,fontWeight:500,background:scanMsg.startsWith('✓')?'#f0fff4':'#fff8ee',color:scanMsg.startsWith('✓')?'var(--green)':'#FF9500'}}>{scanMsg}</div>}
-        <div style={S.formBody}>
-          <div style={S.formSection}>
-            <div style={S.formRow}><span style={S.formLabel}>📝 Nombre</span><input list="nombresSugeridos" style={S.formInput} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/><datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist></div>
-            <div style={S.formRow}><span style={S.formLabel}>🏷️ Categoría</span><select style={S.formSelect} value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select></div>
-            <div style={S.formRow}><span style={S.formLabel}>📅 Fecha de vencimiento</span><input type="date" style={S.formInput} value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/></div>
-            <div style={S.formRow}><span style={S.formLabel}>📊 Cantidad / notas</span><input style={S.formInput} value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/></div>
-            <div style={S.formRow}><span style={S.formLabel}>💰 Precio (opcional)</span><input type="number" style={S.formInput} value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/></div>
-            <div style={S.formRowLast}><span style={S.formLabel}>🔔 Alertar con anticipación</span><select style={S.formSelect} value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}><option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option></select></div>
-          </div>
-          <button style={{...S.saveBtn,opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
+          <button className="ad-btn" style={{opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
           {editId&&(
-            <div style={{display:'flex',flexDirection:'column',gap:8}}>
-              <button style={{...S.saveBtn,background:'#34C759',opacity:guardando?0.6:1}} onClick={()=>marcarEstado('consumido')} disabled={guardando}>✓ Marcar como consumido</button>
-              <button style={{...S.saveBtn,background:'#FF9500',opacity:guardando?0.6:1}} onClick={()=>marcarEstado('descartado')} disabled={guardando}>🗑 Marcar como descartado</button>
-              <button style={{...S.delBtn,opacity:guardando?0.6:1}} onClick={eliminar} disabled={guardando}>Eliminar producto</button>
+            <div>
+              <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('consumido')} disabled={guardando}>✓ Marcar como consumido</button>
+              <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('descartado')} disabled={guardando}>🗑 Marcar como descartado</button>
+              <button className="ad-btn ad-btn--danger" style={{opacity:guardando?0.6:1}} onClick={eliminar} disabled={guardando}>Eliminar producto</button>
             </div>
           )}
         </div>
       </div>
-      <Navbar tab={tab} setTab={setTab} setPantalla={setPantalla}/>
-    </PageWrapper>
+      {navbar}
+    </>
   );
 
   return (
-    <PageWrapper>
+    <>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
-      <div style={S.screen}>
-        <div style={S.header} ref={menuRef}>
-          <div style={S.titleRow}>
-            <LOGO/>
-            <div style={S.title}>Al Día</div>
-            <div style={{position:'relative',marginLeft:'auto'}}>
-              <div style={{...S.avatar,position:'relative'}} onClick={()=>setMenuAbierto(!menuAbierto)}>
-                {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',borderRadius:'50%',objectFit:'cover'}} alt="perfil"/>:iniciales}
-                <div style={{position:'absolute',bottom:2,right:2,width:10,height:10,borderRadius:'50%',background:'#34C759',border:'2px solid var(--card)'}}/>
-              </div>
-              {alertas>0&&<div style={{position:'absolute',top:-6,right:-6,minWidth:20,height:20,borderRadius:999,background:'#FF3B30',color:'#fff',fontSize:11,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',padding:'0 6px',boxShadow:'0 0 0 3px rgba(255,255,255,0.8)'}}>{alertas}</div>}
-              {menuAbierto&&(
-                <div style={{position:'absolute',top:42,right:0,background:'var(--card)',borderRadius:14,border:'0.5px solid var(--border)',boxShadow:'0 4px 20px rgba(0,0,0,0.15)',overflow:'hidden',minWidth:240,zIndex:200}}>
-                  <div style={{padding:'12px 14px',borderBottom:'0.5px solid var(--border2)',display:'flex',alignItems:'center',gap:10}}>
-                    <div style={{width:36,height:36,borderRadius:'50%',background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:500,color:'#fff',overflow:'hidden',flexShrink:0}}>
-                      {usuario.photoURL?<img src={usuario.photoURL} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="perfil"/>:iniciales}
-                    </div>
-                    <div style={{minWidth:0}}><div style={{fontSize:13,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{nombre}</div><div style={{fontSize:11,color:'#34C759',marginTop:2}}>Activo ahora</div></div>
-                  </div>
-                  <div style={{padding:'10px 14px',borderBottom:'0.5px solid var(--border2)',fontSize:12,color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
-                  <div style={{padding:'6px 0'}}>
-                    <div onClick={()=>alert('Editar perfil - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>✏️</span> Editar perfil</div>
-                    <div onClick={()=>alert('Preferencias - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>⚙️</span> Preferencias</div>
-                  </div>
-                  <div style={{borderTop:'0.5px solid var(--border2)',borderBottom:'0.5px solid var(--border2)',padding:'6px 0'}}>
-                    <div onClick={()=>alert('Ayuda y FAQ - En desarrollo')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>❓</span> Ayuda y FAQ</div>
-                    <div onClick={()=>alert('Contacto: soporte@aldia.com')} style={{padding:'10px 14px',fontSize:13,color:'var(--text)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📧</span> Contacto y soporte</div>
-                  </div>
-                  <div style={{padding:'6px 0'}}>
-                    <div onClick={()=>alert('Términos y privacidad - En desarrollo')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>📋</span> Términos y privacidad</div>
-                    <div onClick={()=>alert('Versión 1.0.0')} style={{padding:'10px 14px',fontSize:12,color:'var(--text2)',cursor:'pointer',display:'flex',alignItems:'center',gap:8}} onMouseEnter={e=>e.currentTarget.style.background='var(--input)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>ℹ️</span> Versión 1.0.0</div>
-                  </div>
-                  <div onClick={()=>{signOut(auth);setMenuAbierto(false);}} style={{padding:'10px 14px',fontSize:13,color:'#FF3B30',cursor:'pointer',display:'flex',alignItems:'center',gap:8,borderTop:'0.5px solid var(--border2)'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,59,48,0.1)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}><span>🚪</span> Cerrar sesión</div>
+      {cuentaSheet}
+      <div className="ad-screen">
+
+        {tab==='home'&&(
+          <>
+            <header className="ad-hero">
+              <div className="ad-hero-row">
+                <LOGO/>
+                <div style={{minWidth:0}}>
+                  <p className="ad-hello">{saludo}, {nombreCorto}</p>
+                  <h1 className="ad-title">Al Día</h1>
                 </div>
+                {avatarBtn}
+              </div>
+            </header>
+            <div className="ad-overlap">
+              {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>📧 Te enviamos un correo con los productos por vencer</div>}
+              {activos.length===0?(
+                esUsuarioNuevo
+                  ?<div className="ad-card ad-pad"><EmptyStateNuevo onAgregar={()=>abrirNuevo()} onCategoria={cat=>abrirNuevo(cat)} onAgregarEjemplo={agregarEjemplo}/></div>
+                  :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
+              ):(
+                <>
+                  {dest?(
+                    <div className="ad-card ad-urgent">
+                      <div className="ad-urgent__top">
+                        <span className="ad-muted" style={{fontWeight:700}}>{destSt==='warn'?'Próximo a vencer':'Atención hoy'}</span>
+                        <span className={`ad-pill ${pillClass(destSt)}`}>{pillIcon(destSt)} {daysLabel(destD)}</span>
+                      </div>
+                      <button className="ad-urgent__main" onClick={()=>abrirEditar(dest)}>
+                        <span className="ad-icon">{CATS[dest.cat]||'📦'}</span>
+                        <span style={{minWidth:0}}>
+                          <span className="ad-urgent__name">{dest.name}</span>
+                          <span className="ad-muted" style={{display:'block'}}>{destTexto} · {dest.cat}</span>
+                        </span>
+                      </button>
+                      <div className="ad-btn-row">
+                        <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(dest.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
+                        <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(dest.id,'descartado')} disabled={guardando}>Botar</button>
+                      </div>
+                    </div>
+                  ):(
+                    <div className="ad-card ad-urgent" style={{textAlign:'center'}}>
+                      <div style={{fontSize:40}}>🌿</div>
+                      <h2 className="ad-section" style={{margin:'6px 0 4px'}}>Todo al día</h2>
+                      <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
+                    </div>
+                  )}
+                  <div className="ad-tags">
+                    <span className="ad-pill ad-pill--danger">{expired} vencido{expired===1?'':'s'}</span>
+                    <span className="ad-pill ad-pill--warn">{danger+warn} por vencer</span>
+                    <span className="ad-pill ad-pill--ok">{ok} al día</span>
+                  </div>
+                  <div className="ad-sechead">
+                    <h2 className="ad-section">Mis productos</h2>
+                    <button className="ad-link" onClick={()=>setCompartir(true)}>📤 Compartir</button>
+                  </div>
+                  <div className="ad-filters">
+                    {cats.map(c=><button key={c} className="ad-chip" aria-pressed={filtro===c} onClick={()=>setFiltro(c)}>{c}</button>)}
+                  </div>
+                  <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
+                  <div key={listKey}>
+                    {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
+                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>)}
+                  </div>
+                </>
               )}
             </div>
-          </div>
-        </div>
-
-        {correoEnviado&&<div style={{margin:'8px 14px 0',borderRadius:12,padding:'9px 12px',background:'#f0fff4',border:'0.5px solid rgba(45,181,78,0.3)',fontSize:12,fontWeight:500,color:'var(--green)'}}>📧 Te enviamos un correo con los productos por vencer</div>}
-
-        {tab==='home'&&<>
-          {activos.length===0?(
-            esUsuarioNuevo
-              ?<EmptyStateNuevo onAgregar={()=>abrirNuevo()} onCategoria={cat=>abrirNuevo(cat)} onAgregarEjemplo={async(ej)=>{setGuardando(true);try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}catch(e){console.error(e);}setGuardando(false);}}/>
-              :<EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/>
-          ):(
-            <>
-              <div style={{padding:'10px 14px 4px',fontSize:15,fontWeight:600,color:'var(--text)'}}>{saludo}, {nombreCorto} 👋</div>
-              <Widget activos={activos}/>
-              <div style={S.statsGrid}>
-                {[{n:expired+danger,l:'Urgentes',c:'#FF3B30'},{n:warn,l:'Próximos',c:'#FF9500'},{n:ok,l:'En buen estado',c:'#34C759'},{n:activos.length,l:'Total',c:'var(--green)'}].map(s=>(
-                  <div key={s.l} style={S.statCard}><div style={S.statLabel}>{s.l}</div><div style={{fontSize:22,fontWeight:600,letterSpacing:-0.5,color:s.c}}>{s.n}</div></div>
-                ))}
-              </div>
-              {expired>0&&<div style={S.alertBox}><span style={{fontSize:14,flexShrink:0}}>⚠</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF3B30'}}>{expired} producto{expired>1?'s':''} vencido{expired>1?'s':''}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Retíralos de tu inventario</div></div></div>}
-              {danger>0&&<div style={{...S.alertBox,background:'#fff8ee',border:'0.5px solid rgba(255,149,0,0.2)',marginTop:6}}><span style={{fontSize:14,flexShrink:0}}>⏰</span><div><div style={{fontSize:12,fontWeight:500,color:'#FF9500'}}>{danger} producto{danger>1?'s':''} vence{danger===1?'':'n'} en menos de 3 días</div><div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>Consúmelos pronto</div></div></div>}
-              <div style={S.sectionHeader}>
-                <span style={S.sectionTitle}>📦 Mis productos</span>
-                {activos.length>0&&<button onClick={()=>setCompartir(true)} style={{background:'none',border:'none',color:'var(--green)',fontSize:13,fontWeight:500,cursor:'pointer'}}>📤 Compartir</button>}
-              </div>
-              <div style={S.filters}>{cats.map(c=><button key={c} onClick={()=>setFiltro(c)} style={{padding:'5px 12px',borderRadius:999,fontSize:12,fontWeight:500,border:'none',cursor:'pointer',whiteSpace:'nowrap',background:filtro===c?'var(--green)':'var(--card)',color:filtro===c?'#fff':'var(--text2)'}}>{c}</button>)}</div>
-              <div style={S.searchWrap}><input style={S.search} value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/></div>
-              <div style={S.plist} key={listKey}>
-                {filtered.length===0&&<div style={{background:'var(--card)',padding:32,textAlign:'center',fontSize:13,color:'var(--text2)',borderRadius:13}}>Sin resultados.</div>}
-                {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>)}
-              </div>
-              <div style={S.fabWrap}><button style={S.fab} onClick={()=>abrirNuevo()}>✨ Agregar producto</button></div>
-            </>
-          )}
-        </>}
+          </>
+        )}
 
         {tab==='estadisticas'&&(
-          <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:12}}>
-            <div style={{fontSize:18,fontWeight:600,color:'var(--text)',padding:'4px 0 8px',letterSpacing:-0.3}}>📊 Estadísticas</div>
-            <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-              <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Consumidos</div><div style={{fontSize:22,fontWeight:600,color:'#34C759'}}>{consumidos.length}</div></div>
-              <div style={{...S.statCard,borderRadius:13}}><div style={S.statLabel}>Descartados</div><div style={{fontSize:22,fontWeight:600,color:'#FF9500'}}>{descartados.length}</div></div>
-            </div>
-            <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-              <div style={{fontSize:12,color:'var(--text2)',marginBottom:6}}>💰 Comparativa mes a mes</div>
-              <div style={{fontSize:28,fontWeight:700,color:cambioMesAMes<=0?'#34C759':'#FF3B30',letterSpacing:-0.5}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
-              <div style={{fontSize:12,color:'var(--text2)',marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</div>
-              <div style={{fontSize:11,color:'var(--text2)',marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</div>
-            </div>
-            <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
-                <div style={{fontSize:12,color:'var(--text2)'}}>🎯 Tu meta de desperdicio</div>
-                <button onClick={()=>{setEditandoMeta(!editandoMeta);setValorMeta(meta?meta.toString():'');}} style={{background:'none',border:'none',color:'var(--green)',fontSize:12,cursor:'pointer',fontWeight:500}}>{editandoMeta?'Cancelar':'Editar'}</button>
+          <>
+            <header className="ad-hero ad-hero--sm">
+              <div className="ad-hero-row"><h1 className="ad-title">Estadísticas</h1>{avatarBtn}</div>
+            </header>
+            <div className="ad-overlap ad-stack">
+              <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
+              <div className="ad-grid2">
+                <div className="ad-card ad-pad"><p className="ad-muted">Consumidos</p><div className="ad-big" style={{color:'var(--green)'}}>{consumidos.length}</div></div>
+                <div className="ad-card ad-pad"><p className="ad-muted">Descartados</p><div className="ad-big" style={{color:'var(--warn-ink)'}}>{descartados.length}</div></div>
               </div>
-              {!editandoMeta?(
-                meta?(<>
-                  <div style={{fontSize:28,fontWeight:700,color:pérdidaActual<=meta?'#34C759':'#FF3B30',letterSpacing:-0.5}}>${Math.round(pérdidaActual).toLocaleString('es-CO')} / ${Math.round(meta).toLocaleString('es-CO')}</div>
-                  <div style={{height:8,borderRadius:4,background:'var(--input)',marginTop:10,overflow:'hidden'}}><div style={{height:8,borderRadius:4,background:pérdidaActual<=meta?'#34C759':'#FF3B30',width:`${Math.min(100,(pérdidaActual/meta)*100)}%`,transition:'width 0.3s'}}/></div>
-                  <div style={{fontSize:11,color:'var(--text2)',marginTop:6}}>{pérdidaActual<=meta?'✓ ¡Lo lograste!':`⚠ Vas ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima`}</div>
-                </>):<div style={{fontSize:13,color:'var(--text2)',fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</div>
-              ):(
-                <div style={{display:'flex',gap:8}}>
-                  <input type="number" value={valorMeta} onChange={e=>setValorMeta(e.target.value)} placeholder="Ej: 50000" style={{flex:1,padding:'8px 12px',borderRadius:10,border:'0.5px solid var(--border)',background:'var(--bg)',color:'var(--text)',fontSize:13,outline:'none'}}/>
-                  <button onClick={guardarMeta} style={{padding:'8px 16px',borderRadius:10,background:'var(--green)',color:'#fff',border:'none',fontSize:13,fontWeight:600,cursor:'pointer'}}>Guardar</button>
+              <div className="ad-card ad-pad">
+                <p className="ad-muted" style={{marginBottom:6}}>💰 Comparativa mes a mes</p>
+                <div className="ad-big" style={{color:cambioMesAMes<=0?'var(--green)':'var(--danger)'}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
+                <p className="ad-muted" style={{marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</p>
+                <p className="ad-muted" style={{marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</p>
+              </div>
+              <div className="ad-card ad-pad">
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                  <p className="ad-muted">🎯 Tu meta de desperdicio</p>
+                  <button className="ad-link" onClick={()=>{setEditandoMeta(!editandoMeta);setValorMeta(meta?meta.toString():'');}}>{editandoMeta?'Cancelar':'Editar'}</button>
+                </div>
+                {!editandoMeta?(
+                  meta?(<>
+                    <div className="ad-big" style={{fontSize:'1.375rem',color:pérdidaActual<=meta?'var(--green)':'var(--danger)'}}>${Math.round(pérdidaActual).toLocaleString('es-CO')} / ${Math.round(meta).toLocaleString('es-CO')}</div>
+                    <div className={`ad-bar ad-bar--lg ${pérdidaActual<=meta?'':'ad-bar--danger'}`}><span style={{width:`${Math.min(100,(pérdidaActual/meta)*100)}%`,transition:'width 0.3s'}}/></div>
+                    <p className="ad-muted" style={{marginTop:8}}>{pérdidaActual<=meta?'✓ ¡Lo lograste!':`⚠ Vas $${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima`}</p>
+                  </>):<p className="ad-muted" style={{fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</p>
+                ):(
+                  <div style={{display:'flex',gap:8}}>
+                    <input className="ad-search" style={{marginBottom:0,flex:1}} type="number" value={valorMeta} onChange={e=>setValorMeta(e.target.value)} placeholder="Ej: 50000"/>
+                    <button className="ad-btn ad-btn--sm" style={{width:'auto'}} onClick={guardarMeta}>Guardar</button>
+                  </div>
+                )}
+              </div>
+              <div className="ad-card ad-pad">
+                <p className="ad-muted" style={{marginBottom:6}}>Dinero perdido en descartados</p>
+                <div className="ad-big" style={{color:'var(--danger)'}}>${Math.round(perdida).toLocaleString('es-CO')}</div>
+                <p className="ad-muted" style={{marginTop:4}}>Basado en los precios que registraste</p>
+              </div>
+              <div className="ad-card ad-pad">
+                <p className="ad-muted" style={{marginBottom:6}}>Dinero aprovechado en consumidos</p>
+                <div className="ad-big" style={{color:'var(--green)'}}>${Math.round(ahorro).toLocaleString('es-CO')}</div>
+                <p className="ad-muted" style={{marginTop:4}}>Productos que consumiste a tiempo</p>
+              </div>
+              {catStats.length>0&&(
+                <div className="ad-card ad-pad">
+                  <p className="ad-muted" style={{marginBottom:12}}>📊 Categorías con más desperdicios</p>
+                  {catStats.map(c=>(
+                    <div key={c.cat} style={{marginBottom:14}}>
+                      <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:20}}>{CATS[c.cat]}</span>
+                        <div style={{flex:1}}>
+                          <div style={{fontWeight:700}}>{c.cat}</div>
+                          <div className="ad-muted" style={{fontSize:'.8125rem'}}>{c.descartados} descartados de {c.total} ({c.pctDesperdicio}%)</div>
+                        </div>
+                        <span style={{fontSize:'.875rem',color:'var(--warn-ink)',fontWeight:700}}>-${Math.round(c.pérdidaCat).toLocaleString('es-CO')}</span>
+                      </div>
+                      <div className={`ad-bar ${c.pctDesperdicio>50?'ad-bar--danger':c.pctDesperdicio>30?'ad-bar--warn':''}`}><span style={{width:`${c.pctDesperdicio}%`,transition:'width 0.3s'}}/></div>
+                    </div>
+                  ))}
                 </div>
               )}
-            </div>
-            <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-              <div style={{fontSize:12,color:'var(--text2)',marginBottom:6}}>Dinero perdido en descartados</div>
-              <div style={{fontSize:28,fontWeight:700,color:'#FF3B30',letterSpacing:-0.5}}>${Math.round(perdida).toLocaleString('es-CO')}</div>
-              <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>Basado en los precios que registraste</div>
-            </div>
-            <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-              <div style={{fontSize:12,color:'var(--text2)',marginBottom:6}}>Dinero aprovechado en consumidos</div>
-              <div style={{fontSize:28,fontWeight:700,color:'var(--green)',letterSpacing:-0.5}}>${Math.round(ahorro).toLocaleString('es-CO')}</div>
-              <div style={{fontSize:12,color:'var(--text2)',marginTop:4}}>Productos que consumiste a tiempo</div>
-            </div>
-            {catStats.length>0&&(
-              <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-                <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>📊 Categorías con más desperdicios</div>
-                {catStats.map(c=>(
-                  <div key={c.cat} style={{marginBottom:12}}>
-                    <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
-                      <span style={{fontSize:18}}>{CATS[c.cat]}</span>
-                      <div style={{flex:1}}><div style={{fontSize:13,fontWeight:500,color:'var(--text)'}}>{c.cat}</div><div style={{fontSize:11,color:'var(--text2)',marginTop:2}}>{c.descartados} descartados de {c.total} ({c.pctDesperdicio}%)</div></div>
-                      <span style={{fontSize:13,color:'#FF9500',fontWeight:600}}>-${Math.round(c.pérdidaCat).toLocaleString('es-CO')}</span>
-                    </div>
-                    <div style={{height:6,borderRadius:3,background:'var(--input)',overflow:'hidden'}}><div style={{height:6,borderRadius:3,background:c.pctDesperdicio>50?'#FF3B30':c.pctDesperdicio>30?'#FF9500':'#34C759',width:`${c.pctDesperdicio}%`,transition:'width 0.3s'}}/></div>
+              {historial.length>0&&(
+                <div className="ad-card ad-pad">
+                  <p className="ad-muted" style={{marginBottom:10}}>💡 Recomendaciones inteligentes</p>
+                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div className="ad-note ad-note--danger">⚠ {catStats[0].cat}: {catStats[0].pctDesperdicio}% de desperdicio.</div>}
+                    {consumidos.length>descartados.length&&<div className="ad-note">✓ Mejorando: consumes más de lo que descartas. ¡Sigue así!</div>}
+                    {cambioMesAMes<0&&<div className="ad-note">🎯 Progreso: este mes reduciste el desperdicio {Math.abs(cambioMesAMes)}%.</div>}
+                    {meta&&pérdidaActual>meta&&<div className="ad-note ad-note--warn">🚀 Meta: necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
                   </div>
-                ))}
-              </div>
-            )}
-            {historial.length>0&&(
-              <div style={{background:'var(--card)',borderRadius:13,padding:'14px',border:'0.5px solid var(--border2)'}}>
-                <div style={{fontSize:12,color:'var(--text2)',marginBottom:10}}>💡 Recomendaciones inteligentes</div>
-                <div style={{display:'flex',flexDirection:'column',gap:8}}>
-                  {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,59,48,0.1)',border:'0.5px solid rgba(255,59,48,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF3B30'}}>⚠ {catStats[0].cat}:</strong> {catStats[0].pctDesperdicio}% de desperdicio.</div>}
-                  {consumidos.length>descartados.length&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>✓ Mejorando:</strong> Consumes más de lo que descartas. ¡Sigue así!</div>}
-                  {cambioMesAMes<0&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(52,199,89,0.1)',border:'0.5px solid rgba(52,199,89,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#34C759'}}>🎯 Progreso:</strong> Este mes reduciste desperdicio {Math.abs(cambioMesAMes)}%.</div>}
-                  {meta&&pérdidaActual>meta&&<div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,149,0,0.1)',border:'0.5px solid rgba(255,149,0,0.2)',fontSize:12,color:'var(--text)'}}><strong style={{color:'#FF9500'}}>🚀 Meta:</strong> Necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
                 </div>
-              </div>
-            )}
-            {historial.length===0&&<div style={{textAlign:'center',padding:24,color:'var(--text2)',fontSize:13,background:'var(--card)',borderRadius:13}}>📊 Aún no hay datos.</div>}
-          </div>
+              )}
+              {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>📊 Aún no hay datos.</div>}
+            </div>
+          </>
         )}
 
         {tab==='historial'&&(
-          <div style={{padding:'16px 14px',display:'flex',flexDirection:'column',gap:8}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'4px 0 8px'}}>
-              <div style={{fontSize:18,fontWeight:600,color:'var(--text)',letterSpacing:-0.3}}>📜 Historial</div>
-              {historial.length>0&&<button onClick={eliminarTodoHistorial} style={{background:'none',border:'none',color:'#FF3B30',fontSize:13,cursor:'pointer',fontWeight:500}}>Borrar todo</button>}
-            </div>
-            {historial.length>0&&(
-              <div style={{background:'var(--card)',borderRadius:16,padding:'16px',border:'0.5px solid var(--border2)',marginBottom:8}}>
-                <div style={{fontSize:14,fontWeight:600,color:'var(--text)',marginBottom:12}}>📊 Estadísticas del Historial</div>
-                <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:12,marginBottom:16}}>
-                  {[{n:historial.filter(p=>p.estado==='consumido').length,l:'Consumidos',c:'#34C759'},{n:historial.filter(p=>p.estado==='descartado').length,l:'Descartados',c:'#FF3B30'},{n:historial.length,l:'Total',c:'var(--green)'},{n:historial.length>0?Math.round((historial.filter(p=>p.estado==='consumido').length/historial.length)*100):0,l:'% Consumidos',c:'#007AFF'}].map(s=>(
-                    <div key={s.l} style={{textAlign:'center'}}><div style={{fontSize:20,fontWeight:600,color:s.c,marginBottom:2}}>{s.n}{s.l.includes('%')?'%':''}</div><div style={{fontSize:11,color:'var(--text2)',fontWeight:500}}>{s.l}</div></div>
-                  ))}
-                </div>
-                <div style={{marginBottom:12}}>
-                  <div style={{fontSize:13,fontWeight:500,color:'var(--text)',marginBottom:8}}>Distribución por categoría</div>
-                  <div style={{display:'flex',flexDirection:'column',gap:6}}>
+          <>
+            <header className="ad-hero ad-hero--sm">
+              <div className="ad-hero-row"><h1 className="ad-title">Historial</h1>{avatarBtn}</div>
+            </header>
+            <div className="ad-overlap ad-stack">
+              {historial.length>0&&(
+                <div className="ad-card ad-pad">
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
+                    <p style={{fontWeight:700}}>📊 Estadísticas del historial</p>
+                    <button className="ad-link ad-link--danger" onClick={eliminarTodoHistorial}>Borrar todo</button>
+                  </div>
+                  <div className="ad-grid2" style={{marginBottom:16}}>
+                    {[{n:consumidos.length,l:'Consumidos',c:'var(--green)'},{n:descartados.length,l:'Descartados',c:'var(--danger)'},{n:historial.length,l:'Total',c:'var(--text)'},{n:Math.round((consumidos.length/historial.length)*100)+'%',l:'% Consumidos',c:'var(--green)'}].map(s=>(
+                      <div key={s.l} style={{textAlign:'center'}}><div className="ad-big" style={{fontSize:'1.375rem',color:s.c}}>{s.n}</div><div className="ad-muted" style={{fontSize:'.8125rem'}}>{s.l}</div></div>
+                    ))}
+                  </div>
+                  <p style={{fontWeight:700,marginBottom:8}}>Distribución por categoría</p>
+                  <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:14}}>
                     {Object.entries(historial.reduce((acc,p)=>{acc[p.cat]=(acc[p.cat]||0)+1;return acc;},{})).sort(([,a],[,b])=>b-a).slice(0,5).map(([cat,count])=>(
-                      <div key={cat} style={{display:'flex',alignItems:'center',gap:8}}>
-                        <span style={{fontSize:14}}>{CATS[cat]||'📦'}</span>
+                      <div key={cat} style={{display:'flex',alignItems:'center',gap:10}}>
+                        <span style={{fontSize:18,width:26}}>{CATS[cat]||'📦'}</span>
                         <div style={{flex:1,minWidth:0}}>
-                          <div style={{display:'flex',justifyContent:'space-between',marginBottom:2}}><span style={{fontSize:12,color:'var(--text)',fontWeight:500}}>{cat}</span><span style={{fontSize:11,color:'var(--text2)'}}>{count}</span></div>
-                          <div style={{width:'100%',height:4,background:'var(--input)',borderRadius:2,overflow:'hidden'}}><div style={{width:`${(count/historial.length)*100}%`,height:'100%',background:'linear-gradient(90deg,var(--green),#30D158)',borderRadius:2}}/></div>
+                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:'.875rem',fontWeight:700}}>{cat}</span><span className="ad-muted">{count}</span></div>
+                          <div className="ad-bar" style={{marginTop:6}}><span style={{width:`${(count/historial.length)*100}%`}}/></div>
                         </div>
                       </div>
                     ))}
                   </div>
-                </div>
-                <div style={{padding:'12px',background:'var(--input)',borderRadius:10}}>
-                  <div style={{fontSize:12,color:'var(--text2)',marginBottom:4}}>💰 Ahorro estimado</div>
-                  <div style={{fontSize:16,fontWeight:600,color:'var(--green)'}}>${historial.filter(p=>p.estado==='consumido'&&p.precio).reduce((sum,p)=>sum+Number(p.precio),0).toLocaleString('es-CO')}</div>
-                  <div style={{fontSize:10,color:'var(--text2)',marginTop:2}}>Basado en productos consumidos con precio registrado</div>
-                </div>
-              </div>
-            )}
-            {historial.length===0&&<div style={{textAlign:'center',padding:32,color:'var(--text2)',fontSize:13}}>No hay productos en el historial aún.</div>}
-            {historial.sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado)).map(p=>(
-              <div key={p.id} style={{background:'var(--card)',borderRadius:13,padding:'12px 14px',border:'0.5px solid var(--border2)'}}>
-                <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:36,height:36,borderRadius:9,display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,background:p.estado==='consumido'?'#f0fff4':'#fff8ee',flexShrink:0}}>{CATS[p.cat]||'📦'}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:14,fontWeight:500,color:'var(--text)',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
-                    <div style={{fontSize:11,color:'var(--text2)',marginTop:1}}>{p.cat}{p.precio?` · $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
-                  </div>
-                  <div style={{fontSize:12,fontWeight:500,padding:'3px 8px',borderRadius:999,background:p.estado==='consumido'?'#f0fff4':'#fff8ee',color:p.estado==='consumido'?'#34C759':'#FF9500',flexShrink:0}}>
-                    {p.estado==='consumido'?'✓ Consumido':'🗑 Descartado'}
+                  <div className="ad-note">
+                    💰 Ahorro estimado: ${historial.filter(p=>p.estado==='consumido'&&p.precio).reduce((sum,p)=>sum+Number(p.precio),0).toLocaleString('es-CO')}
+                    <div style={{fontSize:'.75rem',fontWeight:400,marginTop:2}}>Basado en productos consumidos con precio registrado</div>
                   </div>
                 </div>
-                <div style={{display:'flex',gap:8,marginTop:10}}>
-                  <button onClick={()=>restaurar(p.id)} style={{flex:1,height:34,borderRadius:10,background:'var(--input)',border:'none',fontSize:12,color:'var(--green)',fontWeight:500,cursor:'pointer'}}>↩ Restaurar</button>
-                  <button onClick={()=>eliminarDelHistorial(p.id)} style={{flex:1,height:34,borderRadius:10,background:'#fff2f2',border:'none',fontSize:12,color:'#FF3B30',fontWeight:500,cursor:'pointer'}}>🗑 Eliminar</button>
+              )}
+              {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>No hay productos en el historial aún.</div>}
+              {[...historial].sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado)).map(p=>(
+                <div key={p.id} className="ad-card ad-pad">
+                  <div style={{display:'flex',alignItems:'center',gap:12}}>
+                    <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
+                    <div className="ad-item__body">
+                      <div className="ad-item__name">{p.name}</div>
+                      <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` · $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
+                    </div>
+                    <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--warn'}`}>{p.estado==='consumido'?'✓ Consumido':'🗑 Descartado'}</span>
+                  </div>
+                  <div className="ad-btn-row" style={{marginTop:12}}>
+                    <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>restaurar(p.id)}>↩ Restaurar</button>
+                    <button className="ad-btn ad-btn--danger ad-btn--sm" onClick={()=>eliminarDelHistorial(p.id)}>🗑 Eliminar</button>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
-      <Navbar tab={tab} setTab={setTab} setPantalla={setPantalla}/>
-    </PageWrapper>
+      {navbar}
+    </>
   );
 }
