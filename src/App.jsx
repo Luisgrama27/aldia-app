@@ -84,15 +84,19 @@ const LOGO=()=>(
   </div>
 );
 
-function Navbar({tab,cuenta,onTab,onAdd,onCuenta}){
-  const item=(id,lbl,ico,active,onClick)=>(
+function Navbar({tab,cuenta,badge,onTab,onAdd,onCuenta}){
+  const item=(id,lbl,ico,active,onClick,count)=>(
     <button key={id} className={`ad-nav__item${active?' is-active':''}`} onClick={onClick} aria-current={active?'page':undefined}>
-      {ico}<span>{lbl}</span>
+      <span style={{position:'relative',display:'flex',overflow:'visible'}}>
+        {ico}
+        {count>0&&<span className="ad-badge" style={{top:-6,right:-12,minWidth:18,height:18,fontSize:'0.6875rem',padding:'0 5px'}}>{count}</span>}
+      </span>
+      <span>{lbl}</span>
     </button>
   );
   return (
     <nav className="ad-card ad-nav" aria-label="Navegación principal">
-      {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'))}
+      {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'),badge)}
       {item('estadisticas','Estadísticas',Ico.stats,tab==='estadisticas'&&!cuenta,()=>onTab('estadisticas'))}
       <button className="ad-nav__fab" onClick={onAdd} aria-label="Agregar producto">
         <span className="ad-nav__fab-btn">{Ico.plus}</span>Agregar
@@ -104,31 +108,48 @@ function Navbar({tab,cuenta,onTab,onAdd,onCuenta}){
 }
 
 function CuentaSheet({usuario,nombre,iniciales,onClose,onLogout}){
-  const filas=[
+  const [vista,setVista]=useState('menu');
+  const principal=[
     {ico:'✏️',t:'Editar perfil',fn:()=>alert('Editar perfil - En desarrollo')},
-    {ico:'⚙️',t:'Preferencias',fn:()=>alert('Preferencias - En desarrollo')},
+    {ico:'🎛️',t:'Preferencias',fn:()=>alert('Preferencias - En desarrollo')},
+    {ico:'⚙️',t:'Configuración',fn:()=>setVista('config'),flecha:true},
+  ];
+  const config=[
     {ico:'❓',t:'Ayuda y FAQ',fn:()=>alert('Ayuda y FAQ - En desarrollo')},
     {ico:'📧',t:'Contacto y soporte',fn:()=>alert('Contacto: soporte@aldia.com')},
     {ico:'📋',t:'Términos y privacidad',fn:()=>alert('Términos y privacidad - En desarrollo')},
     {ico:'ℹ️',t:'Versión 1.0.0',fn:()=>alert('Versión 1.0.0')},
   ];
+  const filas=vista==='menu'?principal:config;
   return (
     <div className="ad-overlay" onClick={onClose}>
-      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Cuenta">
+      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={vista==='menu'?'Cuenta':'Configuración'}>
         <div className="ad-sheet__handle"/>
-        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-          <div className="ad-avatar ad-avatar--solid">
-            {usuario.photoURL?<img src={usuario.photoURL} alt="perfil"/>:iniciales}
+        {vista==='menu'?(
+          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+            <div className="ad-avatar ad-avatar--solid">
+              {usuario.photoURL?<img src={usuario.photoURL} alt="perfil"/>:iniciales}
+            </div>
+            <div style={{minWidth:0}}>
+              <div className="ad-item__name">{nombre}</div>
+              <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
+            </div>
           </div>
-          <div style={{minWidth:0}}>
-            <div className="ad-item__name">{nombre}</div>
-            <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
+        ):(
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
+            <button className="ad-link" onClick={()=>setVista('menu')}>← Volver</button>
+            <h2 className="ad-section" style={{margin:0}}>Configuración</h2>
           </div>
-        </div>
+        )}
         {filas.map(f=>(
-          <button key={f.t} className="ad-sheet__row" onClick={f.fn}><span>{f.ico}</span>{f.t}</button>
+          <button key={f.t} className="ad-sheet__row" onClick={f.fn}>
+            <span>{f.ico}</span>{f.t}
+            {f.flecha&&<span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>}
+          </button>
         ))}
-        <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
+        {vista==='menu'&&(
+          <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
+        )}
       </div>
     </div>
   );
@@ -340,6 +361,7 @@ export default function App(){
   const [scanner,setScanner]=useState(false);
   const [scanMsg,setScanMsg]=useState('');
   const [compartir,setCompartir]=useState(false);
+  const [errorMsg,setErrorMsg]=useState('');
   const correoEnviadoHoy=useRef(false);
 
   useEffect(()=>{
@@ -451,42 +473,49 @@ export default function App(){
   const destSt=dest?status(dest):'ok';
   const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
 
-  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});setScanMsg('');setPantalla('form');};
-  const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setPantalla('form');};
+  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
 
-  const guardar=async()=>{
-    if(!form.name||!form.exp)return;setGuardando(true);
-    try{
-      if(editId)await updateDoc(doc(db,"productos",editId),form);
-      else await addDoc(collection(db,"productos"),{...form,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
-      setPantalla('');
-    }catch(e){console.error(e);}setGuardando(false);
+  // Muestra un mensaje visible cuando Firestore rechaza una operación
+  const falla=(e,que)=>{
+    console.error(e);
+    const codigo=e&&e.code?` (${e.code})`:'';
+    setErrorMsg(`No se pudo ${que}${codigo}. Revisa tu conexión e inténtalo de nuevo.`);
+    setTimeout(()=>setErrorMsg(''),10000);
   };
 
-  const marcarEstado=async(estado)=>{
-    setGuardando(true);
-    try{await updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()});setPantalla('');}
-    catch(e){console.error(e);}setGuardando(false);
+  // Las escrituras no esperan la respuesta del servidor: la pantalla vuelve al inicio
+  // enseguida y Firestore sincroniza en segundo plano (también sin conexión).
+  const guardar=()=>{
+    if(!form.name.trim()){setErrorMsg('Escribe el nombre del producto.');return;}
+    if(!form.exp){setErrorMsg('Elige la fecha de vencimiento.');return;}
+    setErrorMsg('');
+    const datos={...form,name:form.name.trim()};
+    const op=editId
+      ?updateDoc(doc(db,"productos",editId),datos)
+      :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
+    op.catch(e=>falla(e,'guardar el producto'));
+    setFiltro('Todos');setBusqueda('');
+    setTab('home');setPantalla('');
+  };
+
+  const marcarEstado=(estado)=>{
+    updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()}).catch(e=>falla(e,'actualizar el producto'));
+    setTab('home');setPantalla('');
   };
 
   // Marcar un producto directamente desde la tarjeta de inicio ("Ya la usé" / "Botar")
-  const marcarProducto=async(id,estado)=>{
-    if(guardando)return;
-    setGuardando(true);
-    try{await updateDoc(doc(db,"productos",id),{estado,fechaEstado:new Date().toISOString()});}
-    catch(e){console.error(e);}setGuardando(false);
+  const marcarProducto=(id,estado)=>{
+    updateDoc(doc(db,"productos",id),{estado,fechaEstado:new Date().toISOString()}).catch(e=>falla(e,'actualizar el producto'));
   };
 
-  const agregarEjemplo=async(ej)=>{
-    setGuardando(true);
-    try{await addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});}
-    catch(e){console.error(e);}setGuardando(false);
+  const agregarEjemplo=(ej)=>{
+    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
   };
 
-  const eliminar=async()=>{
-    setGuardando(true);
-    try{await deleteDoc(doc(db,"productos",editId));setPantalla('');}
-    catch(e){console.error(e);}setGuardando(false);
+  const eliminar=()=>{
+    deleteDoc(doc(db,"productos",editId)).catch(e=>falla(e,'eliminar el producto'));
+    setTab('home');setPantalla('');
   };
 
   const eliminarDelHistorial=async(id)=>{
@@ -503,17 +532,11 @@ export default function App(){
     try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){console.error(e);}
   };
 
-  const avatarBtn=(
-    <button className="ad-avatar" style={{marginLeft:'auto'}} onClick={()=>setMenuAbierto(true)} aria-label="Abrir cuenta">
-      {usuario.photoURL?<img src={usuario.photoURL} alt=""/>:iniciales}
-      {alertas>0&&<span className="ad-badge">{alertas}</span>}
-    </button>
-  );
-
   const navbar=(
     <Navbar
       tab={tab}
       cuenta={menuAbierto}
+      badge={alertas}
       onTab={(id)=>{setTab(id);setPantalla('');setMenuAbierto(false);}}
       onAdd={()=>{setMenuAbierto(false);abrirNuevo();}}
       onCuenta={()=>setMenuAbierto(true)}
@@ -548,6 +571,7 @@ export default function App(){
             </div>
           )}
           {scanMsg&&<div className={`ad-note${scanMsg.startsWith('✓')?'':' ad-note--warn'}`}>{scanMsg}</div>}
+          {errorMsg&&<div className="ad-note ad-note--danger" role="alert">⚠️ {errorMsg}</div>}
           <div className="ad-card" style={{overflow:'hidden'}}>
             <label className="ad-field"><span className="ad-field__label">📝 Nombre</span>
               <input list="nombresSugeridos" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
@@ -600,10 +624,10 @@ export default function App(){
                   <p className="ad-hello">{saludo}, {nombreCorto}</p>
                   <h1 className="ad-title">Al Día</h1>
                 </div>
-                {avatarBtn}
               </div>
             </header>
             <div className="ad-overlap">
+              {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}
               {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>📧 Te enviamos un correo con los productos por vencer</div>}
               {activos.length===0?(
                 esUsuarioNuevo
@@ -662,7 +686,7 @@ export default function App(){
         {tab==='estadisticas'&&(
           <>
             <header className="ad-hero ad-hero--sm">
-              <div className="ad-hero-row"><h1 className="ad-title">Estadísticas</h1>{avatarBtn}</div>
+              <div className="ad-hero-row"><h1 className="ad-title">Estadísticas</h1></div>
             </header>
             <div className="ad-overlap ad-stack">
               <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
@@ -741,7 +765,7 @@ export default function App(){
         {tab==='historial'&&(
           <>
             <header className="ad-hero ad-hero--sm">
-              <div className="ad-hero-row"><h1 className="ad-title">Historial</h1>{avatarBtn}</div>
+              <div className="ad-hero-row"><h1 className="ad-title">Historial</h1></div>
             </header>
             <div className="ad-overlap ad-stack">
               {historial.length>0&&(
