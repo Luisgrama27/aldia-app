@@ -276,6 +276,60 @@ function LegalVista(){
   );
 }
 
+function DiagnosticoPantalla(){
+  const [datos,setDatos]=useState(null);
+  const medir=()=>{
+    const alto=(css)=>{
+      const el=document.createElement('div');
+      el.style.cssText=`position:fixed;left:0;top:0;width:1px;visibility:hidden;pointer-events:none;${css}`;
+      document.body.appendChild(el);
+      const h=Math.round(el.getBoundingClientRect().height);
+      document.body.removeChild(el);
+      return h;
+    };
+    const zona=(lado)=>{
+      const el=document.createElement('div');
+      el.style.cssText=`position:fixed;visibility:hidden;pointer-events:none;padding-${lado}:env(safe-area-inset-${lado},0px)`;
+      document.body.appendChild(el);
+      const v=getComputedStyle(el)[lado==='top'?'paddingTop':'paddingBottom'];
+      document.body.removeChild(el);
+      return v;
+    };
+    const nav=document.querySelector('.ad-nav');
+    const root=document.getElementById('root');
+    const vv=window.visualViewport;
+    setDatos([
+      ['App instalada',(window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone)?'sí':'no'],
+      ['screen (ancho x alto)',`${window.screen.width} x ${window.screen.height}`],
+      ['window.innerHeight',window.innerHeight],
+      ['visualViewport.height',vv?Math.round(vv.height):'-'],
+      ['clientHeight',document.documentElement.clientHeight],
+      ['100vh',alto('height:100vh')],
+      ['100dvh',alto('height:100dvh')],
+      ['100svh',alto('height:100svh')],
+      ['100lvh',alto('height:100lvh')],
+      ['Zona segura arriba',zona('top')],
+      ['Zona segura abajo',zona('bottom')],
+      ['Alto de #root',root?Math.round(root.getBoundingClientRect().height):'-'],
+      ['Borde inferior de la barra',nav?Math.round(nav.getBoundingClientRect().bottom):'-'],
+    ]);
+  };
+  return (
+    <div style={{textAlign:'left'}}>
+      <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={medir}>Medir pantalla</button>
+      {datos&&(
+        <div className="ad-card" style={{marginTop:10,overflow:'hidden'}}>
+          {datos.map(([k,v])=>(
+            <div key={k} className="ad-row" style={{minHeight:40,padding:'8px 14px',fontSize:'0.875rem'}}>
+              <span className="ad-muted">{k}</span><strong>{String(v)}</strong>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function VersionVista(){
   const [actualizando,setActualizando]=useState(false);
   const actualizar=async()=>{
@@ -300,6 +354,8 @@ function VersionVista(){
       <p className="ad-muted" style={{margin:'14px 0 18px',lineHeight:1.5}}>Controla los vencimientos de tus productos del hogar y reduce el desperdicio.</p>
       <button className="ad-btn ad-btn--ghost" onClick={actualizar} disabled={actualizando}>{actualizando?'Actualizando...':'Buscar actualización'}</button>
       <p className="ad-muted" style={{marginTop:10,lineHeight:1.5}}>Si no ves los últimos cambios, toca aquí para recargar la app.</p>
+      <h3 className="ad-section" style={{margin:'22px 0 8px',textAlign:'left'}}>Diagnóstico de pantalla</h3>
+      <DiagnosticoPantalla/>
     </div>
   );
 }
