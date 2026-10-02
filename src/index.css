@@ -126,6 +126,14 @@ body {
   background: var(--bg);
 }
 
+/* App instalada en iPhone: el área que iOS reporta (100%) queda más corta que la pantalla
+   (le resta la zona del reloj), pero 100vh sí mide la pantalla completa. */
+@media (display-mode: standalone) {
+  #root {
+    height: 100vh;
+  }
+}
+
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
 
@@ -388,7 +396,7 @@ body {
 /* ---------- Barra inferior flotante con botón central ---------- */
 
 .ad-nav {
-  position: fixed;
+  position: absolute;
   left: 12px;
   right: 12px;
   bottom: calc(10px + min(env(safe-area-inset-bottom, 0px), 24px));
@@ -788,7 +796,7 @@ body {
 }
 
 .ad-overlay {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 200;
   display: flex;
