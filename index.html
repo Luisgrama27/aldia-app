@@ -10,7 +10,7 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Al Día" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
@@ -88,11 +88,6 @@
       #native-splash .dot { height: 8px; border-radius: 999px; background: rgba(255,255,255,0.4); }
       #native-splash .dot.active { width: 24px; background: #fff; }
       #native-splash .dot:not(.active) { width: 8px; }
-
-      /* App instalada en iPhone: 100vh mide la pantalla completa; el alto automatico queda mas corto */
-      @media (display-mode: standalone) {
-        #root, #native-splash { height: 100vh; }
-      }
 
       @keyframes splashPop { from { transform: scale(0.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
       @keyframes splashFade { to { opacity: 1; transform: translateY(0); } }

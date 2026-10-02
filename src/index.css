@@ -126,14 +126,6 @@ body {
   background: var(--bg);
 }
 
-/* App instalada en iPhone: el área que iOS reporta (100%) queda más corta que la pantalla
-   (le resta la zona del reloj), pero 100vh sí mide la pantalla completa. */
-@media (display-mode: standalone) {
-  #root {
-    height: 100vh;
-  }
-}
-
 ::-webkit-scrollbar { display: none; }
 * { scrollbar-width: none; }
 
