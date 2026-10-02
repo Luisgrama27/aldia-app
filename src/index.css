@@ -10,6 +10,7 @@
 }
 
 :root {
+  color-scheme: light;
   --bg: #f1f6ea;
   --bg2: #ffffff;
   --text: #1e3a2b;
@@ -44,7 +45,8 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-tema="claro"]) {
+    color-scheme: dark;
     --bg: #0e1812;
     --bg2: #15231b;
     --text: #e9f4ec;
@@ -70,6 +72,34 @@
     --shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
     --btn-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
   }
+}
+
+:root[data-tema="oscuro"] {
+  color-scheme: dark;
+  --bg: #0e1812;
+  --bg2: #15231b;
+  --text: #e9f4ec;
+  --text2: #a3bcaa;
+  --border: rgba(255, 255, 255, 0.1);
+  --border2: rgba(255, 255, 255, 0.06);
+  --card: #1a2c22;
+  --input: #22362b;
+  --green: #2f8f5f;
+
+  --green-soft: #23402f;
+  --hero: #1d4a36;
+  --hero-ink2: #b7d4bf;
+  --danger: #ff8a80;
+  --danger-bg: #5a2a1c;
+  --danger-ink: #ffd6c9;
+  --warn-bg: #5a4715;
+  --warn-ink: #fdecb0;
+  --ok-bg: #1f4a2c;
+  --ok-ink: #cdeecb;
+  --toggle-off: #4b5a51;
+
+  --shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  --btn-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
 }
 
 html, body {
@@ -882,6 +912,51 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ---------- Ayuda: preguntas frecuentes y enlaces ---------- */
+
+.ad-faq {
+  border-top: 1px solid var(--border2);
+}
+
+.ad-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 52px;
+  padding: 8px 4px;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ad-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.ad-faq summary::after {
+  content: "+";
+  flex: none;
+  color: var(--green);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.ad-faq[open] summary::after {
+  content: "\2212";
+}
+
+.ad-faq p {
+  padding: 0 4px 14px;
+  color: var(--text2);
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+a.ad-btn {
+  text-decoration: none;
 }
 
 /* ---------- Accesibilidad ---------- */

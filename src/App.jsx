@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
@@ -10,6 +10,21 @@ import "./index.css";
 const EMAILJS_SERVICE = "service_vi35bf4";
 const EMAILJS_TEMPLATE = "template_ndvpdby";
 const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
+
+const APP_VERSION = "1.0.0";
+// Cambia estos datos por los reales de tu soporte (el WhatsApp va con código de país, sin + ni espacios: 573001234567)
+const SOPORTE_EMAIL = "soporte@aldia.com";
+const SOPORTE_WHATSAPP = "";
+const FECHA_LEGAL = "1 de octubre de 2026";
+
+// Tema: "auto" sigue al teléfono; "claro" y "oscuro" lo fuerzan
+const TEMA_KEY = "tema_app";
+function aplicarTema(t){
+  const el = document.documentElement;
+  if(t==='claro'||t==='oscuro') el.dataset.tema = t;
+  else delete el.dataset.tema;
+}
+try{ aplicarTema(localStorage.getItem(TEMA_KEY)||'auto'); }catch(e){}
 
 const CATS = {
   'Lácteos':'🥛','Carnes':'🥩','Frutas y verduras':'🥦','Granos y cereales':'🌾',
@@ -107,23 +122,205 @@ function Navbar({tab,cuenta,badge,onTab,onAdd,onCuenta}){
   );
 }
 
-function CuentaSheet({usuario,nombre,iniciales,onClose,onLogout}){
+const TITULOS = {perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',version:'Versión'};
+const PADRE = {perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',version:'config'};
+
+function PerfilVista({usuario,nombre,onNombre}){
+  const [valor,setValor]=useState(nombre);
+  const [guardando,setGuardando]=useState(false);
+  const [msg,setMsg]=useState('');
+  const [err,setErr]=useState('');
+  const conClave=(usuario.providerData||[]).some(p=>p.providerId==='password');
+
+  const guardarNombre=async()=>{
+    const limpio=valor.trim();
+    if(!limpio){setErr('Escribe tu nombre.');setMsg('');return;}
+    setGuardando(true);setErr('');setMsg('');
+    try{
+      await updateProfile(auth.currentUser,{displayName:limpio});
+      onNombre(limpio);
+      setMsg('Nombre actualizado.');
+    }catch(e){console.error(e);setErr('No se pudo actualizar el nombre. Inténtalo de nuevo.');}
+    setGuardando(false);
+  };
+
+  const enviarEnlace=async()=>{
+    setGuardando(true);setErr('');setMsg('');
+    try{
+      await sendPasswordResetEmail(auth,usuario.email);
+      setMsg('Te enviamos un enlace a tu correo para cambiar la contraseña. Revisa también la carpeta de spam.');
+    }catch(e){console.error(e);setErr('No se pudo enviar el enlace. Inténtalo de nuevo.');}
+    setGuardando(false);
+  };
+
+  return (
+    <>
+      {err&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {err}</div>}
+      {msg&&<div className="ad-note" style={{marginBottom:10}}>✓ {msg}</div>}
+      <div className="ad-card" style={{overflow:'hidden',marginBottom:12}}>
+        <label className="ad-field"><span className="ad-field__label">Nombre</span>
+          <input value={valor} onChange={e=>setValor(e.target.value)} placeholder="Tu nombre" autoComplete="name"/>
+        </label>
+        <div className="ad-field"><span className="ad-field__label">Correo electrónico</span>
+          <div style={{padding:'6px 0',color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
+        </div>
+      </div>
+      <button className="ad-btn" onClick={guardarNombre} disabled={guardando} style={{opacity:guardando?0.7:1}}>{guardando?'Guardando...':'Guardar cambios'}</button>
+      <h3 className="ad-section" style={{margin:'20px 0 8px'}}>Contraseña</h3>
+      {conClave?(
+        <>
+          <p className="ad-muted" style={{marginBottom:10,lineHeight:1.5}}>Te enviaremos un enlace a tu correo para elegir una contraseña nueva.</p>
+          <button className="ad-btn ad-btn--ghost" onClick={enviarEnlace} disabled={guardando}>Enviar enlace para cambiarla</button>
+        </>
+      ):(
+        <p className="ad-muted" style={{lineHeight:1.5}}>Iniciaste sesión con Google, así que tu contraseña se gestiona desde tu cuenta de Google.</p>
+      )}
+    </>
+  );
+}
+
+function PrefsVista({prefs,onPrefs}){
+  const [tema,setTema]=useState(()=>{try{return localStorage.getItem(TEMA_KEY)||'auto';}catch(e){return 'auto';}});
+  const cambiarTema=(t)=>{setTema(t);aplicarTema(t);try{localStorage.setItem(TEMA_KEY,t);}catch(e){}};
+  return (
+    <>
+      <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Avisos</h3>
+      <div className="ad-card" style={{overflow:'hidden',marginBottom:8}}>
+        <label className="ad-field"><span className="ad-field__label">Alertar con anticipación (productos nuevos)</span>
+          <select value={prefs.alertaDefecto} onChange={e=>onPrefs({alertaDefecto:parseInt(e.target.value)})}>
+            <option value={3}>3 días antes</option>
+            <option value={7}>7 días antes</option>
+            <option value={14}>14 días antes</option>
+            <option value={30}>30 días antes</option>
+          </select>
+        </label>
+        <div className="ad-row">
+          <span>Resumen por correo</span>
+          <button className="ad-toggle" role="switch" aria-checked={prefs.correo} aria-label="Resumen por correo" onClick={()=>onPrefs({correo:!prefs.correo})}/>
+        </div>
+      </div>
+      <p className="ad-muted" style={{marginBottom:16,lineHeight:1.5}}>Cuando abres la app y tienes productos vencidos o por vencer, te enviamos un correo con la lista.</p>
+      <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Apariencia</h3>
+      <div className="ad-chips">
+        {[['auto','Automático'],['claro','Claro'],['oscuro','Oscuro']].map(([id,lbl])=>(
+          <button key={id} className="ad-chip" aria-pressed={tema===id} onClick={()=>cambiarTema(id)}>{lbl}</button>
+        ))}
+      </div>
+      <p className="ad-muted" style={{marginTop:10}}>Automático usa el modo claro u oscuro de tu teléfono.</p>
+    </>
+  );
+}
+
+const FAQ = [
+  {q:'¿Cómo agrego un producto?',a:'Toca el botón verde "+" de la barra inferior. Escribe el nombre, elige la categoría y la fecha de vencimiento (son obligatorios) y toca Guardar. Si quieres, también puedes registrar cantidad, precio y con cuántos días de anticipación quieres la alerta.'},
+  {q:'¿Qué significan los colores y etiquetas?',a:'Vencido y Urgente (3 días o menos) se muestran en rojo. Por vencer, que es cuando entra en el periodo de alerta que elegiste, va en amarillo. Al día, cuando aún falta tiempo, va en verde.'},
+  {q:'¿Cuándo me avisa la app?',a:'Cada producto tiene una alerta de 3, 7, 14 o 30 días antes. Al abrir la app, la tarjeta "Atención hoy" te muestra el producto más urgente. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
+  {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
+  {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
+  {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
+  {q:'¿Puedo compartir mi lista?',a:'Sí. En Inicio toca Compartir y elige WhatsApp, correo, copiar el texto u otra aplicación.'},
+  {q:'¿Mis datos son privados?',a:'Sí. Cada cuenta solo puede ver y modificar sus propios productos.'},
+  {q:'¿Cómo cambio mi contraseña?',a:'Entra a Cuenta, luego Editar perfil, y toca "Enviar enlace para cambiarla". Te llegará un correo con el enlace. Si iniciaste sesión con Google, la contraseña se cambia desde tu cuenta de Google.'},
+];
+
+function FaqVista(){
+  return (
+    <div>
+      {FAQ.map(f=>(
+        <details key={f.q} className="ad-faq">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+function ContactoVista({usuario}){
+  const cuerpo=encodeURIComponent(`\n\n---\nUsuario: ${usuario.email}\nVersión: ${APP_VERSION}`);
+  const wa=SOPORTE_WHATSAPP?`https://wa.me/${SOPORTE_WHATSAPP}?text=${encodeURIComponent('Hola, necesito ayuda con Al Día.')}`:'';
+  return (
+    <>
+      <p className="ad-muted" style={{marginBottom:14,lineHeight:1.5}}>¿Tienes una duda, una sugerencia o encontraste un problema? Escríbenos y te respondemos lo antes posible.</p>
+      <a className="ad-btn" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Soporte Al Día')}&body=${cuerpo}`}>📧 Escribir por correo</a>
+      {wa&&<a className="ad-btn ad-btn--ghost" href={wa} target="_blank" rel="noopener noreferrer">💬 Escribir por WhatsApp</a>}
+      <a className="ad-btn ad-btn--ghost" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Reporte de problema - Al Día')}&body=${cuerpo}`}>🐞 Reportar un problema</a>
+      <p className="ad-muted" style={{marginTop:14}}>Correo de soporte: {SOPORTE_EMAIL}</p>
+    </>
+  );
+}
+
+function LegalVista(){
+  const h={margin:'18px 0 6px'};
+  const p={color:'var(--text2)',lineHeight:1.55,fontSize:'0.9375rem',marginBottom:8};
+  return (
+    <div>
+      <p className="ad-muted">Última actualización: {FECHA_LEGAL}</p>
+
+      <h3 className="ad-section" style={h}>Términos de uso</h3>
+      <p style={p}><strong>1. Qué es Al Día.</strong> Es una aplicación para registrar los productos de tu hogar y recibir avisos antes de que venzan.</p>
+      <p style={p}><strong>2. Uso informativo.</strong> Los avisos se calculan con las fechas que tú registras. Al Día no reemplaza tu criterio: revisa siempre el estado del producto y la etiqueta del empaque antes de consumirlo, sobre todo alimentos y medicamentos. No nos hacemos responsables por decisiones tomadas únicamente con la información registrada.</p>
+      <p style={p}><strong>3. Tu cuenta.</strong> Eres responsable de tu contraseña y de la información que registras.</p>
+      <p style={p}><strong>4. Uso adecuado.</strong> No uses la app con fines ilícitos ni intentes acceder a datos de otras personas.</p>
+      <p style={p}><strong>5. Disponibilidad.</strong> La app se ofrece tal como está y puede tener interrupciones o cambios.</p>
+      <p style={p}><strong>6. Cambios.</strong> Podemos actualizar estos términos y te avisaremos dentro de la app.</p>
+
+      <h3 className="ad-section" style={h}>Política de privacidad</h3>
+      <p style={p}><strong>Qué datos guardamos.</strong> Tu nombre, tu correo, la foto de perfil de Google si inicias sesión con Google, y los productos que registras (nombre, categoría, fecha de vencimiento, cantidad, precio y estado).</p>
+      <p style={p}><strong>Para qué los usamos.</strong> Para mostrar tu lista, enviarte avisos y calcular tus estadísticas.</p>
+      <p style={p}><strong>Dónde se guardan.</strong> Usamos Firebase (Google) para el inicio de sesión y la base de datos, y EmailJS para enviar los correos de bienvenida y de aviso. Tu meta de desperdicio, tus preferencias y el tema se guardan solo en tu dispositivo.</p>
+      <p style={p}><strong>Con quién los compartimos.</strong> No vendemos tus datos. Solo los compartimos con los proveedores anteriores, que son necesarios para que la app funcione. La lista que compartes por WhatsApp o correo la decides tú.</p>
+      <p style={p}><strong>Tus derechos.</strong> Puedes pedir conocer, actualizar, corregir o eliminar tus datos personales, según la Ley 1581 de 2012 de Colombia. Escríbenos a {SOPORTE_EMAIL}.</p>
+      <p style={p}><strong>Seguridad.</strong> Cada cuenta solo puede acceder a sus propios productos.</p>
+    </div>
+  );
+}
+
+function VersionVista(){
+  const [actualizando,setActualizando]=useState(false);
+  const actualizar=async()=>{
+    setActualizando(true);
+    try{
+      if('serviceWorker' in navigator){
+        const regs=await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r=>r.update()));
+      }
+      if(window.caches){
+        const keys=await caches.keys();
+        await Promise.all(keys.map(k=>caches.delete(k)));
+      }
+    }catch(e){console.error(e);}
+    window.location.reload();
+  };
+  return (
+    <div style={{textAlign:'center',padding:'8px 0'}}>
+      <div style={{fontSize:48}}>🌿</div>
+      <h3 className="ad-section" style={{margin:'6px 0 2px'}}>Al Día</h3>
+      <p className="ad-muted">Versión {APP_VERSION}</p>
+      <p className="ad-muted" style={{margin:'14px 0 18px',lineHeight:1.5}}>Controla los vencimientos de tus productos del hogar y reduce el desperdicio.</p>
+      <button className="ad-btn ad-btn--ghost" onClick={actualizar} disabled={actualizando}>{actualizando?'Actualizando...':'Buscar actualización'}</button>
+      <p className="ad-muted" style={{marginTop:10,lineHeight:1.5}}>Si no ves los últimos cambios, toca aquí para recargar la app.</p>
+    </div>
+  );
+}
+
+function CuentaSheet({usuario,nombre,iniciales,prefs,onPrefs,onNombre,onClose,onLogout}){
   const [vista,setVista]=useState('menu');
   const principal=[
-    {ico:'✏️',t:'Editar perfil',fn:()=>alert('Editar perfil - En desarrollo')},
-    {ico:'🎛️',t:'Preferencias',fn:()=>alert('Preferencias - En desarrollo')},
-    {ico:'⚙️',t:'Configuración',fn:()=>setVista('config'),flecha:true},
+    {ico:'✏️',t:'Editar perfil',to:'perfil'},
+    {ico:'🎛️',t:'Preferencias',to:'prefs'},
+    {ico:'⚙️',t:'Configuración',to:'config'},
   ];
   const config=[
-    {ico:'❓',t:'Ayuda y FAQ',fn:()=>alert('Ayuda y FAQ - En desarrollo')},
-    {ico:'📧',t:'Contacto y soporte',fn:()=>alert('Contacto: soporte@aldia.com')},
-    {ico:'📋',t:'Términos y privacidad',fn:()=>alert('Términos y privacidad - En desarrollo')},
-    {ico:'ℹ️',t:'Versión 1.0.0',fn:()=>alert('Versión 1.0.0')},
+    {ico:'❓',t:'Ayuda y FAQ',to:'faq'},
+    {ico:'📧',t:'Contacto y soporte',to:'contacto'},
+    {ico:'📋',t:'Términos y privacidad',to:'legal'},
+    {ico:'ℹ️',t:'Versión',to:'version'},
   ];
-  const filas=vista==='menu'?principal:config;
+  const lista=vista==='menu'?principal:vista==='config'?config:null;
   return (
     <div className="ad-overlay" onClick={onClose}>
-      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={vista==='menu'?'Cuenta':'Configuración'}>
+      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={TITULOS[vista]||'Cuenta'}>
         <div className="ad-sheet__handle"/>
         {vista==='menu'?(
           <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
@@ -137,19 +334,25 @@ function CuentaSheet({usuario,nombre,iniciales,onClose,onLogout}){
           </div>
         ):(
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-            <button className="ad-link" onClick={()=>setVista('menu')}>← Volver</button>
-            <h2 className="ad-section" style={{margin:0}}>Configuración</h2>
+            <button className="ad-link" onClick={()=>setVista(PADRE[vista])}>← Volver</button>
+            <h2 className="ad-section" style={{margin:0}}>{TITULOS[vista]}</h2>
           </div>
         )}
-        {filas.map(f=>(
-          <button key={f.t} className="ad-sheet__row" onClick={f.fn}>
+        {lista&&lista.map(f=>(
+          <button key={f.t} className="ad-sheet__row" onClick={()=>setVista(f.to)}>
             <span>{f.ico}</span>{f.t}
-            {f.flecha&&<span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>}
+            <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>
           </button>
         ))}
         {vista==='menu'&&(
           <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
         )}
+        {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} onNombre={onNombre}/>}
+        {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs}/>}
+        {vista==='faq'&&<FaqVista/>}
+        {vista==='contacto'&&<ContactoVista usuario={usuario}/>}
+        {vista==='legal'&&<LegalVista/>}
+        {vista==='version'&&<VersionVista/>}
       </div>
     </div>
   );
@@ -362,6 +565,8 @@ export default function App(){
   const [scanMsg,setScanMsg]=useState('');
   const [compartir,setCompartir]=useState(false);
   const [errorMsg,setErrorMsg]=useState('');
+  const [nombreExtra,setNombreExtra]=useState('');
+  const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
 
   useEffect(()=>{
@@ -389,7 +594,12 @@ export default function App(){
       const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
       setProducts(prods);setListKey(k=>k+1);
       if(prods.length>0) setEsUsuarioNuevo(false);
-      if(!correoEnviadoHoy.current){
+      let correoActivo=true;
+      try{
+        const raw=localStorage.getItem(`prefs_${usuario.uid}`);
+        if(raw&&JSON.parse(raw).correo===false)correoActivo=false;
+      }catch(e){}
+      if(!correoEnviadoHoy.current&&correoActivo){
         const urgentes=prods.filter(p=>!p.estado&&(status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if(urgentes.length>0){
           correoEnviadoHoy.current=true;
@@ -409,6 +619,14 @@ export default function App(){
     if(m)setMeta(parseFloat(m));
   },[usuario]);
 
+  useEffect(()=>{
+    if(!usuario)return;
+    try{
+      const raw=localStorage.getItem(`prefs_${usuario.uid}`);
+      if(raw)setPrefs(p=>({...p,...JSON.parse(raw)}));
+    }catch(e){}
+  },[usuario]);
+
   const guardarMeta=()=>{
     if(!valorMeta||isNaN(valorMeta))return;
     const valor=parseFloat(valorMeta);
@@ -426,7 +644,7 @@ export default function App(){
   if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
   if(!usuario) return <Login/>;
 
-  const nombre=usuario.displayName||usuario.email.split('@')[0];
+  const nombre=nombreExtra||usuario.displayName||usuario.email.split('@')[0];
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const saludo=getSaludo();
@@ -473,8 +691,14 @@ export default function App(){
   const destSt=dest?status(dest):'ok';
   const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
 
-  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:7,precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:prefs.alertaDefecto,precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+
+  const actualizarPrefs=(cambios)=>{
+    const nuevas={...prefs,...cambios};
+    setPrefs(nuevas);
+    try{localStorage.setItem(`prefs_${usuario.uid}`,JSON.stringify(nuevas));}catch(e){}
+  };
 
   // Muestra un mensaje visible cuando Firestore rechaza una operación
   const falla=(e,que)=>{
@@ -544,7 +768,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
+    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} prefs={prefs} onPrefs={actualizarPrefs} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
   );
 
   if(pantalla==='form') return (
