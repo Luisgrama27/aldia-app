@@ -78,21 +78,22 @@ function Row({ focused, iconPath, iconColor, label, children }) {
 }
 
 function FechaNacimientoSelector({ value, onChange }) {
+  // Cada selector guarda su propio valor: antes solo se guardaba la fecha completa,
+  // y por eso cada elección se borraba hasta tener los tres campos.
   const partes = value ? value.split('-') : ['', '', ''];
-  const anio = partes[0] || '';
-  const mes = partes[1] || '';
-  const dia = partes[2] || '';
+  const [anio, setAnio] = useState(partes[0] || '');
+  const [mes, setMes] = useState(partes[1] || '');
+  const [dia, setDia] = useState(partes[2] || '');
 
   const anioActual = new Date().getFullYear();
   const anios = Array.from({length: 100}, (_, i) => anioActual - 18 - i);
-  const dias = Array.from({length: 31}, (_, i) => String(i + 1).padStart(2, '0'));
+  const maxDias = (a, m) => (a && m ? new Date(Number(a), Number(m), 0).getDate() : 31);
+  const dias = Array.from({length: maxDias(anio, mes)}, (_, i) => String(i + 1).padStart(2, '0'));
 
-  const actualizar = (nuevoAnio, nuevoMes, nuevoDia) => {
-    if (nuevoAnio && nuevoMes && nuevoDia) {
-      onChange(`${nuevoAnio}-${nuevoMes}-${nuevoDia}`);
-    } else {
-      onChange('');
-    }
+  const actualizar = (a, m, d) => {
+    if (d && Number(d) > maxDias(a, m)) d = '';
+    setAnio(a); setMes(m); setDia(d);
+    onChange(a && m && d ? `${a}-${m}-${d}` : '');
   };
 
   return (
