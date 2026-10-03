@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
 import Scanner from "./Scanner";
@@ -99,7 +99,7 @@ const LOGO=()=>(
   </div>
 );
 
-function Navbar({tab,cuenta,badge,onTab,onAdd,onCuenta}){
+function Navbar({tab,cuenta,badge,foto,onTab,onAdd,onCuenta}){
   const item=(id,lbl,ico,active,onClick,count)=>(
     <button key={id} className={`ad-nav__item${active?' is-active':''}`} onClick={onClick} aria-current={active?'page':undefined}>
       <span style={{position:'relative',display:'flex',overflow:'visible'}}>
@@ -117,20 +117,68 @@ function Navbar({tab,cuenta,badge,onTab,onAdd,onCuenta}){
         <span className="ad-nav__fab-btn">{Ico.plus}</span>Agregar
       </button>
       {item('historial','Historial',Ico.history,tab==='historial'&&!cuenta,()=>onTab('historial'))}
-      {item('cuenta','Cuenta',Ico.user,cuenta,onCuenta)}
+      {item('cuenta','Cuenta',foto?<img className="ad-nav__foto" src={foto} alt=""/>:Ico.user,cuenta,onCuenta)}
     </nav>
   );
+}
+
+// Recorta la foto al centro (cuadrada), la reduce a 256 px y la convierte a JPEG liviano (~20 KB)
+function redimensionarFoto(archivo,lado=256){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(archivo);
+    const img=new Image();
+    img.onload=()=>{
+      const min=Math.min(img.width,img.height);
+      const canvas=document.createElement('canvas');
+      canvas.width=lado;canvas.height=lado;
+      canvas.getContext('2d').drawImage(img,(img.width-min)/2,(img.height-min)/2,min,min,0,0,lado,lado);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg',0.8));
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('imagen'));};
+    img.src=url;
+  });
 }
 
 const TITULOS = {perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',version:'Versión'};
 const PADRE = {perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',version:'config'};
 
-function PerfilVista({usuario,nombre,onNombre}){
+function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
   const [valor,setValor]=useState(nombre);
   const [guardando,setGuardando]=useState(false);
+  const [procesando,setProcesando]=useState(false);
   const [msg,setMsg]=useState('');
   const [err,setErr]=useState('');
   const conClave=(usuario.providerData||[]).some(p=>p.providerId==='password');
+
+  const fallaFoto=(e)=>{
+    console.error(e);
+    setErr(`No se pudo guardar la foto${e&&e.code?` (${e.code})`:''}.`);
+    setMsg('');
+  };
+
+  const elegirFoto=async(e)=>{
+    const archivo=e.target.files&&e.target.files[0];
+    e.target.value='';
+    if(!archivo)return;
+    if(!archivo.type.startsWith('image/')){setErr('Elige un archivo de imagen.');setMsg('');return;}
+    setProcesando(true);setErr('');setMsg('');
+    try{
+      const data=await redimensionarFoto(archivo);
+      setDoc(doc(db,"perfiles",usuario.uid),{foto:data,actualizado:new Date().toISOString()},{merge:true}).catch(fallaFoto);
+      setMsg('Foto actualizada.');
+    }catch(er){
+      console.error(er);
+      setErr('No se pudo leer la imagen. Prueba con otra foto.');
+    }
+    setProcesando(false);
+  };
+
+  const quitarFoto=()=>{
+    setErr('');
+    setDoc(doc(db,"perfiles",usuario.uid),{foto:'',actualizado:new Date().toISOString()},{merge:true}).catch(fallaFoto);
+    setMsg('Foto eliminada.');
+  };
 
   const guardarNombre=async()=>{
     const limpio=valor.trim();
@@ -157,6 +205,14 @@ function PerfilVista({usuario,nombre,onNombre}){
     <>
       {err&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {err}</div>}
       {msg&&<div className="ad-note" style={{marginBottom:10}}>✓ {msg}</div>}
+      <div style={{textAlign:'center',marginBottom:14}}>
+        {foto?<img className="ad-foto" src={foto} alt="Tu foto de perfil"/>:<div className="ad-foto">{iniciales}</div>}
+        <label className="ad-btn ad-btn--ghost ad-btn--sm" style={{width:'auto',display:'inline-flex',padding:'0 18px',opacity:procesando?0.7:1}}>
+          {procesando?'Procesando...':'📷 Cambiar foto'}
+          <input type="file" accept="image/*" onChange={elegirFoto} disabled={procesando} style={{display:'none'}}/>
+        </label>
+        {fotoPropia&&<div><button className="ad-link ad-link--danger" onClick={quitarFoto}>Quitar foto</button></div>}
+      </div>
       <div className="ad-card" style={{overflow:'hidden',marginBottom:12}}>
         <label className="ad-field"><span className="ad-field__label">Nombre</span>
           <input value={valor} onChange={e=>setValor(e.target.value)} placeholder="Tu nombre" autoComplete="name"/>
@@ -360,7 +416,7 @@ function VersionVista(){
   );
 }
 
-function CuentaSheet({usuario,nombre,iniciales,prefs,onPrefs,onNombre,onClose,onLogout}){
+function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onNombre,onClose,onLogout}){
   const [vista,setVista]=useState('menu');
   const principal=[
     {ico:'✏️',t:'Editar perfil',to:'perfil'},
@@ -381,7 +437,7 @@ function CuentaSheet({usuario,nombre,iniciales,prefs,onPrefs,onNombre,onClose,on
         {vista==='menu'?(
           <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
             <div className="ad-avatar ad-avatar--solid">
-              {usuario.photoURL?<img src={usuario.photoURL} alt="perfil"/>:iniciales}
+              {foto?<img src={foto} alt="perfil"/>:iniciales}
             </div>
             <div style={{minWidth:0}}>
               <div className="ad-item__name">{nombre}</div>
@@ -403,7 +459,7 @@ function CuentaSheet({usuario,nombre,iniciales,prefs,onPrefs,onNombre,onClose,on
         {vista==='menu'&&(
           <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
         )}
-        {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} onNombre={onNombre}/>}
+        {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
         {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs}/>}
         {vista==='faq'&&<FaqVista/>}
         {vista==='contacto'&&<ContactoVista usuario={usuario}/>}
@@ -622,6 +678,7 @@ export default function App(){
   const [compartir,setCompartir]=useState(false);
   const [errorMsg,setErrorMsg]=useState('');
   const [nombreExtra,setNombreExtra]=useState('');
+  const [fotoPerfil,setFotoPerfil]=useState('');
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
 
@@ -683,6 +740,15 @@ export default function App(){
     }catch(e){}
   },[usuario]);
 
+  // Foto de perfil guardada en Firestore (colección "perfiles")
+  useEffect(()=>{
+    if(!usuario){setFotoPerfil('');return;}
+    const unsub=onSnapshot(doc(db,"perfiles",usuario.uid),(snap)=>{
+      setFotoPerfil(snap.exists()?(snap.data().foto||''):'');
+    },(e)=>console.error(e));
+    return()=>unsub();
+  },[usuario]);
+
   const guardarMeta=()=>{
     if(!valorMeta||isNaN(valorMeta))return;
     const valor=parseFloat(valorMeta);
@@ -704,6 +770,7 @@ export default function App(){
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const saludo=getSaludo();
+  const foto=fotoPerfil||usuario.photoURL||'';
 
   const activos=products.filter(p=>!p.estado);
   const historial=products.filter(p=>p.estado==='consumido'||p.estado==='descartado');
@@ -817,6 +884,7 @@ export default function App(){
       tab={tab}
       cuenta={menuAbierto}
       badge={alertas}
+      foto={foto}
       onTab={(id)=>{setTab(id);setPantalla('');setMenuAbierto(false);}}
       onAdd={()=>{setMenuAbierto(false);abrirNuevo();}}
       onCuenta={()=>setMenuAbierto(true)}
@@ -824,7 +892,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} prefs={prefs} onPrefs={actualizarPrefs} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
+    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
   );
 
   if(pantalla==='form') return (

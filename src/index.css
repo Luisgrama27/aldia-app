@@ -111,6 +111,12 @@ html, body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* El fondo de <html> solo se ve en la franja que iOS no deja usar al final de la pantalla:
+   lo pintamos del color de la barra inferior para que parezca que la barra llega al borde. */
+html {
+  background: var(--card);
+}
+
 body {
   overflow: hidden;
   font-family: var(--font);
@@ -957,6 +963,54 @@ body {
 
 a.ad-btn {
   text-decoration: none;
+}
+
+/* ---------- Barra inferior pegada al fondo (cuando iOS deja una franja sin usar) ---------- */
+
+html.vp-gap .ad-nav {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  margin: 0;
+  padding: 8px 6px;
+  border-width: 1px 0 0 0;
+  border-radius: 0;
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.08);
+}
+
+html.vp-gap .ad-screen {
+  padding-bottom: 100px;
+}
+
+/* ---------- Foto de perfil ---------- */
+
+.ad-foto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: var(--green);
+  color: var(--green-ink);
+  font-size: 2rem;
+  font-weight: 700;
+  object-fit: cover;
+  box-shadow: var(--shadow);
+}
+
+.ad-nav__foto {
+  width: 26px;
+  height: 26px;
+  border: 2px solid var(--border);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.ad-nav__item.is-active .ad-nav__foto {
+  border-color: var(--green);
 }
 
 /* ---------- Accesibilidad ---------- */

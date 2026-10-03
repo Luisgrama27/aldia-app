@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { auth } from "./firebase";
 import {
   signInWithEmailAndPassword,
@@ -34,6 +34,21 @@ if (!document.getElementById('ad-login-style')) {
     .ad-login-hint { margin-top:4px; font-size:0.8125rem; font-weight:700; }
   `;
   document.head.appendChild(styleEl);
+}
+
+function mensajeAuth(e, accion) {
+  const codigo = e && e.code ? e.code : '';
+  const conocidos = {
+    'auth/invalid-email': 'El correo electrónico no es válido.',
+    'auth/network-request-failed': 'Sin conexión. Revisa tu internet e inténtalo de nuevo.',
+    'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
+    'auth/operation-not-allowed': 'El acceso con correo y contraseña no está habilitado en este momento.',
+    'auth/admin-restricted-operation': 'El registro de nuevos usuarios está desactivado en este momento.',
+    'auth/unauthorized-domain': 'Este sitio no está autorizado para iniciar sesión con Google.',
+    'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes e inténtalo de nuevo.',
+  };
+  if (conocidos[codigo]) return conocidos[codigo];
+  return `No se pudo ${accion}${codigo ? ` (${codigo})` : ''}. Inténtalo de nuevo.`;
 }
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -120,6 +135,15 @@ export default function Login() {
 
   const reset = () => { setError(""); setMensaje(""); };
 
+  // Los avisos se muestran junto al botón y la pantalla se desplaza hasta ellos,
+  // para que no queden fuera de la vista en el formulario largo del registro.
+  const avisoRef = useRef(null);
+  useEffect(() => {
+    if ((error || mensaje) && avisoRef.current) {
+      avisoRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [error, mensaje]);
+
   useEffect(() => {
     if (email) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -154,7 +178,7 @@ export default function Login() {
       else if (e.code === 'auth/wrong-password') setError("Contraseña incorrecta.");
       else if (e.code === 'auth/invalid-credential') setError("Correo o contraseña incorrectos.");
       else if (e.code === 'auth/too-many-requests') setError("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.");
-      else setError("Error al iniciar sesión. Inténtalo de nuevo.");
+      else { console.error(e); setError(mensajeAuth(e, 'iniciar sesión')); }
     }
   };
 
@@ -170,8 +194,8 @@ export default function Login() {
     setCargando(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(userCredential.user, { displayName: nombre.trim() });
-      await sendEmailVerification(userCredential.user);
+      try { await updateProfile(userCredential.user, { displayName: nombre.trim() }); } catch(e2) { console.error(e2); }
+      try { await sendEmailVerification(userCredential.user); } catch(e3) { console.error(e3); }
       try {
         await emailjs.send(
           EMAILJS_SERVICE,
@@ -186,7 +210,7 @@ export default function Login() {
       setCargando(false);
       if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo.");
       else if (e.code === 'auth/weak-password') setError("La contraseña es muy débil.");
-      else setError("Error al crear la cuenta. Inténtalo de nuevo.");
+      else { console.error(e); setError(mensajeAuth(e, 'crear la cuenta')); }
     }
   };
 
@@ -197,7 +221,8 @@ export default function Login() {
     } catch(e) {
       setCargando(false);
       if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
-        setError("Error al iniciar sesión con Google.");
+        console.error(e);
+        setError(mensajeAuth(e, 'iniciar sesión con Google'));
       }
     }
   };
@@ -254,9 +279,6 @@ export default function Login() {
       <div className="ad-overlap" style={{ marginTop: -60 }}>
         <div className="ad-card" style={{ maxWidth: 420, margin: '0 auto', padding: '20px 16px' }}>
 
-          {error && <div className="ad-note ad-note--danger" style={{ marginBottom: 14 }}>⚠️ {error}</div>}
-          {mensaje && <div className="ad-note" style={{ marginBottom: 14 }}>✓ {mensaje}</div>}
-
           <div className="ad-login-group">
             {modo==='registro' && (
               <>
@@ -311,6 +333,11 @@ export default function Login() {
               <span>Recibir notificaciones sobre consejos para reducir desperdicio</span>
             </label>
           )}
+
+          <div ref={avisoRef}>
+            {error && <div className="ad-note ad-note--danger" role="alert" style={{ marginBottom: 12 }}>⚠️ {error}</div>}
+            {mensaje && <div className="ad-note" style={{ marginBottom: 12 }}>✓ {mensaje}</div>}
+          </div>
 
           <button className="ad-btn" style={{ opacity: cargando ? 0.7 : 1, cursor: cargando ? 'not-allowed' : 'pointer' }} onClick={onSubmit} disabled={cargando}>
             {cargando?(
