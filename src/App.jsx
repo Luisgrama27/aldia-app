@@ -5,6 +5,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
 import Scanner from "./Scanner";
+import { sugerirReceta } from "./recetas";
 import "./index.css";
 
 const EMAILJS_SERVICE = "service_vi35bf4";
@@ -271,6 +272,7 @@ const FAQ = [
   {q:'¿Cómo agrego un producto?',a:'Toca el botón verde "+" de la barra inferior. Escribe el nombre, elige la categoría y la fecha de vencimiento (son obligatorios) y toca Guardar. Si quieres, también puedes registrar cantidad, precio y con cuántos días de anticipación quieres la alerta.'},
   {q:'¿Qué significan los colores y etiquetas?',a:'Vencido y Urgente (3 días o menos) se muestran en rojo. Por vencer, que es cuando entra en el periodo de alerta que elegiste, va en amarillo. Al día, cuando aún falta tiempo, va en verde.'},
   {q:'¿Cuándo me avisa la app?',a:'Cada producto tiene una alerta de 3, 7, 14 o 30 días antes. Al abrir la app, la tarjeta "Atención hoy" te muestra el producto más urgente. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
+  {q:'¿Cómo funcionan las recetas sugeridas?',a:'Cuando tienes productos por vencer (que aún no han vencido), en Inicio te proponemos una receta que los aproveche. Si hay varios, buscamos una receta que use la mayor cantidad posible. Si no hay nada por vencer, verás el mensaje "Todo al día". No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
   {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
   {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
   {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
@@ -683,6 +685,42 @@ function BarrasMensuales({datos,max,anio}){
   );
 }
 
+function RecetaSheet({sug,onClose}){
+  const {receta:r,productos,tags}=sug;
+  return (
+    <div className="ad-overlay" onClick={onClose}>
+      <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={r.n}>
+        <div className="ad-sheet__handle"/>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
+          <span className="ad-icon" style={{width:52,height:52,fontSize:'1.75rem'}}>{r.e}</span>
+          <div style={{minWidth:0}}>
+            <h2 className="ad-section" style={{margin:0}}>{r.n}</h2>
+            <p className="ad-muted">⏱ {r.min} min · 🍽 {r.por} {r.por===1?'porción':'porciones'}</p>
+          </div>
+        </div>
+        <div className="ad-note ad-note--warn" style={{margin:'8px 0 4px'}}>Aprovecha lo que está por vencer: {productos.map(p=>p.name).join(', ')}</div>
+        <h3 className="ad-section" style={{margin:'14px 0 6px'}}>Ingredientes</h3>
+        <div>
+          {r.ing.map(([txt,tag])=>{
+            const porVencer=!!tag&&tags.includes(tag);
+            return (
+              <div key={txt} className="ad-ing">
+                <span>{porVencer?'✅':'•'}</span>
+                <span style={{flex:1}}>{txt}</span>
+                {porVencer&&<span className="ad-pill ad-pill--warn">Por vencer</span>}
+              </div>
+            );
+          })}
+        </div>
+        <h3 className="ad-section" style={{margin:'14px 0 6px'}}>Preparación</h3>
+        <ol className="ad-pasos">{r.pasos.map((t,i)=><li key={i}>{t}</li>)}</ol>
+        <p className="ad-muted" style={{margin:'12px 0 16px',lineHeight:1.5}}>Antes de cocinar, revisa que los productos estén en buen estado, y cocina bien las carnes, el pollo, el pescado y los huevos.</p>
+        <button className="ad-btn" onClick={onClose}>Cerrar</button>
+      </div>
+    </div>
+  );
+}
+
 function ProductCard({p,index,onClick}){
   const [visible,setVisible]=useState(false);
   const [barW,setBarW]=useState(0);
@@ -738,6 +776,7 @@ export default function App(){
   const [verConsumidos,setVerConsumidos]=useState(true);
   const [verDescartados,setVerDescartados]=useState(true);
   const [accionHist,setAccionHist]=useState(null);
+  const [recetaAbierta,setRecetaAbierta]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
 
@@ -872,6 +911,13 @@ export default function App(){
   const destD=dest?daysUntil(dest.exp):0;
   const destSt=dest?status(dest):'ok';
   const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
+
+  // Receta con lo que está por vencer (sin vencer todavía, y solo comida)
+  const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas'];
+  const candidatosReceta=activos
+    .filter(p=>daysUntil(p.exp)>=0&&status(p)!=='ok'&&!EXCLUIR_RECETA.includes(p.cat))
+    .sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  const sugerencia=sugerirReceta(candidatosReceta);
 
   const histFiltrado=[...historial]
     .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
@@ -1034,6 +1080,7 @@ export default function App(){
   return (
     <>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
+      {recetaAbierta&&<RecetaSheet sug={recetaAbierta} onClose={()=>setRecetaAbierta(null)}/>}
       {accionHist&&(
         <div className="ad-overlay" onClick={()=>setAccionHist(null)}>
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
@@ -1085,6 +1132,20 @@ export default function App(){
                         <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(dest.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
                         <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(dest.id,'descartado')} disabled={guardando}>Botar</button>
                       </div>
+                      {sugerencia&&(
+                        <div className="ad-receta">
+                          <div className="ad-receta__top">💡 Sugerencia de receta</div>
+                          <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerencia)}>
+                            <span className="ad-icon">{sugerencia.receta.e}</span>
+                            <span style={{minWidth:0,flex:1}}>
+                              <span className="ad-receta__name">{sugerencia.receta.n}</span>
+                              <span className="ad-muted" style={{display:'block'}}>Usa: {sugerencia.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
+                            </span>
+                            <span className="ad-pill ad-pill--ok">⏱ {sugerencia.receta.min} min</span>
+                          </button>
+                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerencia)}>👩‍🍳 Ver receta</button>
+                        </div>
+                      )}
                     </div>
                   ):(
                     <div className="ad-card ad-urgent" style={{textAlign:'center'}}>
