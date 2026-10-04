@@ -280,8 +280,8 @@ body {
   background: var(--green);
 }
 
-.ad-bar--danger > span { background: #e4775a; }
-.ad-bar--warn > span { background: #e0a92b; }
+.ad-bar--danger > span { background: linear-gradient(90deg, #e0a92b, #e4775a); }
+.ad-bar--warn > span { background: linear-gradient(90deg, var(--green), #e0a92b); }
 
 /* ---------- Botones ---------- */
 
@@ -1011,6 +1011,26 @@ html.vp-gap .ad-screen {
 
 .ad-nav__item.is-active .ad-nav__foto {
   border-color: var(--green);
+}
+
+/* ---------- Historial ---------- */
+
+.ad-chip--danger[aria-pressed="true"] {
+  background: var(--danger-bg);
+  border-color: var(--danger-ink);
+  color: var(--danger-ink);
+}
+
+.ad-kebab {
+  flex: none;
+  width: 36px;
+  height: 44px;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 /* ---------- Accesibilidad ---------- */

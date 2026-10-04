@@ -628,6 +628,61 @@ function SimpleCharts({descartados,consumidos,catStats}){
   );
 }
 
+const MESES_CORTOS = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+function fechaCorta(iso){
+  if(!iso)return '';
+  return new Date(iso).toLocaleDateString('es-CO',{day:'numeric',month:'short'}).replace('.','');
+}
+
+function Donut({consumidos,descartados}){
+  const total=consumidos+descartados;
+  const r=70;
+  const c=2*Math.PI*r;
+  const pct=total>0?consumidos/total:0;
+  return (
+    <div className="ad-card ad-pad">
+      <div style={{position:'relative',width:180,height:180,margin:'0 auto'}}>
+        <svg width="180" height="180" viewBox="0 0 180 180" role="img" aria-label={total>0?`Eficiencia ${Math.round(pct*100)} por ciento`:'Sin datos de eficiencia'}>
+          <circle cx="90" cy="90" r={r} fill="none" stroke={total>0?'#e4775a':'var(--green-soft)'} strokeWidth="22"/>
+          {total>0&&<circle cx="90" cy="90" r={r} fill="none" stroke="var(--green)" strokeWidth="22" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 90 90)"/>}
+        </svg>
+        <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
+          <div className="ad-big" style={{fontSize:'2rem'}}>{total>0?`${Math.round(pct*100)}%`:'—'}</div>
+          <div className="ad-muted">Eficiencia</div>
+        </div>
+      </div>
+      <div style={{display:'flex',justifyContent:'center',gap:18,marginTop:12,flexWrap:'wrap'}}>
+        <span style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos ({consumidos})</span>
+        <span style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados ({descartados})</span>
+      </div>
+    </div>
+  );
+}
+
+function BarrasMensuales({datos,max,anio}){
+  return (
+    <div className="ad-card ad-pad">
+      <p className="ad-muted" style={{marginBottom:12}}>📅 Productos por mes ({anio})</p>
+      <div style={{display:'flex',alignItems:'flex-end',gap:4,height:120,borderBottom:'1px solid var(--border)'}}>
+        {datos.map(m=>(
+          <div key={m.lbl} style={{flex:1,height:'100%',display:'flex',alignItems:'flex-end',justifyContent:'center',gap:2}}>
+            <div title={`${m.lbl}: ${m.c} consumidos`} style={{width:'44%',height:`${(m.c/max)*100}%`,minHeight:m.c?4:0,background:'var(--green)',borderRadius:'4px 4px 0 0'}}/>
+            <div title={`${m.lbl}: ${m.d} descartados`} style={{width:'44%',height:`${(m.d/max)*100}%`,minHeight:m.d?4:0,background:'#e4775a',borderRadius:'4px 4px 0 0'}}/>
+          </div>
+        ))}
+      </div>
+      <div style={{display:'flex',gap:4,marginTop:6}}>
+        {datos.map(m=><span key={m.lbl} className="ad-muted" style={{flex:1,textAlign:'center',fontSize:'0.6875rem'}}>{m.lbl}</span>)}
+      </div>
+      <div style={{display:'flex',justifyContent:'center',gap:18,marginTop:10,flexWrap:'wrap'}}>
+        <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos</span>
+        <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados</span>
+      </div>
+    </div>
+  );
+}
+
 function ProductCard({p,index,onClick}){
   const [visible,setVisible]=useState(false);
   const [barW,setBarW]=useState(0);
@@ -679,6 +734,10 @@ export default function App(){
   const [errorMsg,setErrorMsg]=useState('');
   const [nombreExtra,setNombreExtra]=useState('');
   const [fotoPerfil,setFotoPerfil]=useState('');
+  const [busquedaHist,setBusquedaHist]=useState('');
+  const [verConsumidos,setVerConsumidos]=useState(true);
+  const [verDescartados,setVerDescartados]=useState(true);
+  const [accionHist,setAccionHist]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
 
@@ -813,6 +872,21 @@ export default function App(){
   const destD=dest?daysUntil(dest.exp):0;
   const destSt=dest?status(dest):'ok';
   const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
+
+  const histFiltrado=[...historial]
+    .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
+    .filter(p=>!busquedaHist||p.name.toLowerCase().includes(busquedaHist.toLowerCase()))
+    .sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado));
+
+  const porMes=MESES_CORTOS.map(lbl=>({lbl,c:0,d:0}));
+  historial.forEach(p=>{
+    if(!p.fechaEstado)return;
+    const f=new Date(p.fechaEstado);
+    if(f.getFullYear()!==añoActual)return;
+    if(p.estado==='consumido')porMes[f.getMonth()].c++;
+    else porMes[f.getMonth()].d++;
+  });
+  const maxMes=Math.max(1,...porMes.map(m=>Math.max(m.c,m.d)));
 
   const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:prefs.alertaDefecto,precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
@@ -960,6 +1034,17 @@ export default function App(){
   return (
     <>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
+      {accionHist&&(
+        <div className="ad-overlay" onClick={()=>setAccionHist(null)}>
+          <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
+            <div className="ad-sheet__handle"/>
+            <h2 className="ad-section" style={{margin:'0 0 8px'}}>{accionHist.name}</h2>
+            <button className="ad-sheet__row" onClick={()=>{restaurar(accionHist.id);setAccionHist(null);}}><span>↩</span>Restaurar a mi lista</button>
+            <button className="ad-sheet__row ad-sheet__row--danger" onClick={()=>{eliminarDelHistorial(accionHist.id);setAccionHist(null);}}><span>🗑</span>Eliminar del historial</button>
+            <button className="ad-sheet__row" onClick={()=>setAccionHist(null)}><span>✕</span>Cancelar</button>
+          </div>
+        </div>
+      )}
       {cuentaSheet}
       <div className="ad-screen">
 
@@ -1037,16 +1122,10 @@ export default function App(){
               <div className="ad-hero-row"><h1 className="ad-title">Estadísticas</h1></div>
             </header>
             <div className="ad-overlap ad-stack">
-              <SimpleCharts descartados={descartados} consumidos={consumidos} catStats={catStats}/>
+              <Donut consumidos={consumidos.length} descartados={descartados.length}/>
               <div className="ad-grid2">
-                <div className="ad-card ad-pad"><p className="ad-muted">Consumidos</p><div className="ad-big" style={{color:'var(--green)'}}>{consumidos.length}</div></div>
-                <div className="ad-card ad-pad"><p className="ad-muted">Descartados</p><div className="ad-big" style={{color:'var(--warn-ink)'}}>{descartados.length}</div></div>
-              </div>
-              <div className="ad-card ad-pad">
-                <p className="ad-muted" style={{marginBottom:6}}>💰 Comparativa mes a mes</p>
-                <div className="ad-big" style={{color:cambioMesAMes<=0?'var(--green)':'var(--danger)'}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
-                <p className="ad-muted" style={{marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</p>
-                <p className="ad-muted" style={{marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</p>
+                <div className="ad-card ad-pad"><p className="ad-muted">Dinero salvado</p><div className="ad-big" style={{fontSize:'1.375rem',color:'var(--green)'}}>${Math.round(ahorro).toLocaleString('es-CO')}</div></div>
+                <div className="ad-card ad-pad"><p className="ad-muted">Dinero perdido</p><div className="ad-big" style={{fontSize:'1.375rem',color:'var(--danger)'}}>${Math.round(perdida).toLocaleString('es-CO')}</div></div>
               </div>
               <div className="ad-card ad-pad">
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
@@ -1057,7 +1136,7 @@ export default function App(){
                   meta?(<>
                     <div className="ad-big" style={{fontSize:'1.375rem',color:pérdidaActual<=meta?'var(--green)':'var(--danger)'}}>${Math.round(pérdidaActual).toLocaleString('es-CO')} / ${Math.round(meta).toLocaleString('es-CO')}</div>
                     <div className={`ad-bar ad-bar--lg ${pérdidaActual<=meta?'':'ad-bar--danger'}`}><span style={{width:`${Math.min(100,(pérdidaActual/meta)*100)}%`,transition:'width 0.3s'}}/></div>
-                    <p className="ad-muted" style={{marginTop:8}}>{pérdidaActual<=meta?'✓ ¡Lo lograste!':`⚠ Vas $${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima`}</p>
+                    <p className="ad-muted" style={{marginTop:8}}>{pérdidaActual<=meta?'✓ ¡Excelente trabajo!':`⚠ Vas $${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} por encima`}</p>
                   </>):<p className="ad-muted" style={{fontStyle:'italic'}}>Sin meta establecida. ¡Define una para motivarte!</p>
                 ):(
                   <div style={{display:'flex',gap:8}}>
@@ -1067,15 +1146,12 @@ export default function App(){
                 )}
               </div>
               <div className="ad-card ad-pad">
-                <p className="ad-muted" style={{marginBottom:6}}>Dinero perdido en descartados</p>
-                <div className="ad-big" style={{color:'var(--danger)'}}>${Math.round(perdida).toLocaleString('es-CO')}</div>
-                <p className="ad-muted" style={{marginTop:4}}>Basado en los precios que registraste</p>
+                <p className="ad-muted" style={{marginBottom:6}}>💰 Comparativa mes a mes</p>
+                <div className="ad-big" style={{color:cambioMesAMes<=0?'var(--green)':'var(--danger)'}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
+                <p className="ad-muted" style={{marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</p>
+                <p className="ad-muted" style={{marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</p>
               </div>
-              <div className="ad-card ad-pad">
-                <p className="ad-muted" style={{marginBottom:6}}>Dinero aprovechado en consumidos</p>
-                <div className="ad-big" style={{color:'var(--green)'}}>${Math.round(ahorro).toLocaleString('es-CO')}</div>
-                <p className="ad-muted" style={{marginTop:4}}>Productos que consumiste a tiempo</p>
-              </div>
+              <BarrasMensuales datos={porMes} max={maxMes} anio={añoActual}/>
               {catStats.length>0&&(
                 <div className="ad-card ad-pad">
                   <p className="ad-muted" style={{marginBottom:12}}>📊 Categorías con más desperdicios</p>
@@ -1116,49 +1192,27 @@ export default function App(){
               <div className="ad-hero-row"><h1 className="ad-title">Historial</h1></div>
             </header>
             <div className="ad-overlap ad-stack">
-              {historial.length>0&&(
-                <div className="ad-card ad-pad">
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                    <p style={{fontWeight:700}}>📊 Estadísticas del historial</p>
-                    <button className="ad-link ad-link--danger" onClick={eliminarTodoHistorial}>Borrar todo</button>
-                  </div>
-                  <div className="ad-grid2" style={{marginBottom:16}}>
-                    {[{n:consumidos.length,l:'Consumidos',c:'var(--green)'},{n:descartados.length,l:'Descartados',c:'var(--danger)'},{n:historial.length,l:'Total',c:'var(--text)'},{n:Math.round((consumidos.length/historial.length)*100)+'%',l:'% Consumidos',c:'var(--green)'}].map(s=>(
-                      <div key={s.l} style={{textAlign:'center'}}><div className="ad-big" style={{fontSize:'1.375rem',color:s.c}}>{s.n}</div><div className="ad-muted" style={{fontSize:'.8125rem'}}>{s.l}</div></div>
-                    ))}
-                  </div>
-                  <p style={{fontWeight:700,marginBottom:8}}>Distribución por categoría</p>
-                  <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:14}}>
-                    {Object.entries(historial.reduce((acc,p)=>{acc[p.cat]=(acc[p.cat]||0)+1;return acc;},{})).sort(([,a],[,b])=>b-a).slice(0,5).map(([cat,count])=>(
-                      <div key={cat} style={{display:'flex',alignItems:'center',gap:10}}>
-                        <span style={{fontSize:18,width:26}}>{CATS[cat]||'📦'}</span>
-                        <div style={{flex:1,minWidth:0}}>
-                          <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:'.875rem',fontWeight:700}}>{cat}</span><span className="ad-muted">{count}</span></div>
-                          <div className="ad-bar" style={{marginTop:6}}><span style={{width:`${(count/historial.length)*100}%`}}/></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="ad-note">
-                    💰 Ahorro estimado: ${historial.filter(p=>p.estado==='consumido'&&p.precio).reduce((sum,p)=>sum+Number(p.precio),0).toLocaleString('es-CO')}
-                    <div style={{fontSize:'.75rem',fontWeight:400,marginTop:2}}>Basado en productos consumidos con precio registrado</div>
-                  </div>
-                </div>
-              )}
+              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="🔍 Buscar en historial..."/>
+              <div className="ad-filters" style={{paddingBottom:0,alignItems:'center'}}>
+                <button className="ad-chip" aria-pressed={verConsumidos} onClick={()=>setVerConsumidos(!verConsumidos)}>✓ Consumidos</button>
+                <button className="ad-chip ad-chip--danger" aria-pressed={verDescartados} onClick={()=>setVerDescartados(!verDescartados)}>✕ Descartados</button>
+                {historial.length>0&&<button className="ad-link ad-link--danger" style={{marginLeft:'auto'}} onClick={eliminarTodoHistorial}>Borrar todo</button>}
+              </div>
               {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>No hay productos en el historial aún.</div>}
-              {[...historial].sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado)).map(p=>(
-                <div key={p.id} className="ad-card ad-pad">
+              {historial.length>0&&histFiltrado.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
+              {histFiltrado.map(p=>(
+                <div key={p.id} className="ad-card ad-pad" style={{paddingRight:6}}>
                   <div style={{display:'flex',alignItems:'center',gap:12}}>
                     <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
                     <div className="ad-item__body">
                       <div className="ad-item__name">{p.name}</div>
-                      <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` · $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
+                      <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
                     </div>
-                    <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--warn'}`}>{p.estado==='consumido'?'✓ Consumido':'🗑 Descartado'}</span>
-                  </div>
-                  <div className="ad-btn-row" style={{marginTop:12}}>
-                    <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>restaurar(p.id)}>↩ Restaurar</button>
-                    <button className="ad-btn ad-btn--danger ad-btn--sm" onClick={()=>eliminarDelHistorial(p.id)}>🗑 Eliminar</button>
+                    <div style={{textAlign:'right',flex:'none'}}>
+                      <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--danger'}`}>{p.estado==='consumido'?'✓ Consumido':'✕ Descartado'}</span>
+                      <div className="ad-muted" style={{fontSize:'.75rem',marginTop:4}}>{fechaCorta(p.fechaEstado)}</div>
+                    </div>
+                    <button className="ad-kebab" aria-label={`Más opciones de ${p.name}`} onClick={()=>setAccionHist(p)}>⋮</button>
                   </div>
                 </div>
               ))}
