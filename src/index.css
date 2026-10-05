@@ -1,9 +1,8 @@
-/* Al Día · estilo Raycast (Refero Styles)
-   Lienzo casi negro, bordes de 1px, relieve interno sutil, botones neutros y un solo acento coral.
-   Se conservan los nombres de variables originales (--bg, --bg2, --text, --text2, --border,
-   --border2, --card, --input, --green, --green-soft...) para no romper los componentes:
-   solo cambian sus valores. Nuevas: --primary, --accent, --link, --focus, --surface-hi, --track, --glass.
-   Modo oscuro = Raycast fiel. Modo claro = adaptación con los mismos roles. */
+/* Al Día · estilo Glow (Refero Styles)
+   Lienzo porcelana (#f4f5f6) con tarjetas blancas planas, radios grandes, titulares gruesos con
+   tracking apretado, etiquetas en mayúsculas y un acento magenta para la acción principal.
+   --green queda como verde semántico ("fresco", "ahorrado") y para el logo; --accent es el magenta.
+   El tema oscuro es una adaptación (el DESIGN.md solo define el claro). */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -13,139 +12,125 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f4f5;
+  --bg: #f4f5f6;
   --bg2: #ffffff;
+  --text: #131517;
+  --text2: #66686a;
+  --border: #b3b5b7;
+  --border2: rgba(19, 21, 23, 0.08);
   --card: #ffffff;
-  --input: #efeff1;
-  --text: #07080a;
-  --text2: #55565a;
-  --border: rgba(7, 8, 10, 0.12);
-  --border2: rgba(7, 8, 10, 0.07);
-  --border-strong: rgba(7, 8, 10, 0.22);
-
-  --green: #13794a;
-  --green-soft: #e1f3ea;
+  --input: #eceeef;
+  --green: #1f9d63;
+  --green-soft: rgba(31, 157, 99, 0.12);
   --green-ink: #ffffff;
-  --accent: #d93a40;
-  --accent-ink: #ffffff;
-  --primary: #07080a;
-  --primary-ink: #ffffff;
-  --link: #1a5fd0;
-  --focus: #1a5fd0;
-  --surface-hi: #ececee;
-  --track: #e4e4e8;
-  --glass: rgba(255, 255, 255, 0.78);
-  --glow: rgba(217, 58, 64, 0.08);
+  --accent: #cc62d5;
+  --accent-ink: #131517;
+  --accent-text: #a63aae;
+  --hero: #f4f5f6;
+  --hero-ink: #131517;
+  --hero-ink2: #66686a;
+  --danger: #c8283a;
+  --danger-bg: #fdeaec;
+  --danger-ink: #8f1a27;
+  --warn: #ec660d;
+  --warn-bg: #fef0e8;
+  --warn-ink: #9a3f05;
+  --ok-bg: #e1f5ea;
+  --ok-ink: #0f5b38;
+  --toggle-off: #c9cbcd;
+  --track: #e8e9ea;
+  --icon-bg: #f4f5f6;
+  --on-fill: #131517;
+  --on-ink: #ffffff;
+  --nav-bg: #ffffff;
+  --badge-ink: #ffffff;
+  --shadow: none;
+  --btn-shadow: none;
 
-  --hero: transparent;
-  --hero-ink: #07080a;
-  --hero-ink2: #55565a;
-  --danger: #c0292e;
-  --danger-bg: #fde6e6;
-  --danger-ink: #8f1d21;
-  --warn-bg: #fdf0cc;
-  --warn-ink: #6d4204;
-  --ok-bg: #dcf3e7;
-  --ok-ink: #0d5c36;
-  --toggle-off: #cfcfd5;
+  --radius-card: 28px;
+  --radius-btn: 19px;
+  --radius-icon: 14px;
+  --radius-pill: 100px;
 
-  --shadow: 0 1px 2px rgba(7, 8, 10, 0.06);
-  --shadow-xl: 0 -8px 40px rgba(7, 8, 10, 0.18);
-  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 1px 2px rgba(7, 8, 10, 0.25);
-  --radius-card: 16px;
-  --radius-btn: 8px;
-  --radius-icon: 50%;
-  --radius-input: 10px;
-
-  --font: 'Inter', ui-sans-serif, -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  --font: 'Manrope Variable', 'Manrope', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="claro"]) {
     color-scheme: dark;
-    --bg: #040506;
-    --bg2: #07080a;
-    --card: #07080a;
-    --input: #111214;
-    --text: #ffffff;
-    --text2: #9c9c9d;
-    --border: rgba(255, 255, 255, 0.1);
-    --border2: rgba(255, 255, 255, 0.06);
-    --border-strong: rgba(255, 255, 255, 0.2);
-
-    --green: #59d499;
-    --green-soft: rgba(89, 212, 153, 0.12);
-    --green-ink: #07080a;
-    --accent: #ff6363;
-    --accent-ink: #07080a;
-    --primary: #e6e6e6;
-    --primary-ink: #07080a;
-    --link: #56c2ff;
-    --focus: #56c2ff;
-    --surface-hi: #1b1c1e;
-    --track: #1b1c1e;
-    --glass: rgba(7, 8, 10, 0.72);
-    --glow: rgba(255, 99, 99, 0.14);
-
-    --hero: transparent;
-    --hero-ink: #ffffff;
-    --hero-ink2: #9c9c9d;
-    --danger: #ff6363;
-    --danger-bg: #452324;
-    --danger-ink: #ffa8a8;
-    --warn-bg: #3a2f14;
-    --warn-ink: #f5d37a;
-    --ok-bg: #0f2a1e;
-    --ok-ink: #59d499;
-    --toggle-off: #2f3031;
-
-    --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 4px rgba(0, 0, 0, 0.25);
-    --shadow-xl: 0 -8px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-    --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    --bg: #0e0f11;
+    --bg2: #17191b;
+    --text: #f4f5f6;
+    --text2: #a2a4a6;
+    --border: #3a3c3e;
+    --border2: rgba(244, 245, 246, 0.09);
+    --card: #17191b;
+    --input: #212326;
+    --green: #3fcf8e;
+    --green-soft: rgba(63, 207, 142, 0.14);
+    --green-ink: #06150d;
+    --accent: #cc62d5;
+    --accent-ink: #131517;
+    --accent-text: #e48ee9;
+    --hero: #0e0f11;
+    --hero-ink: #f4f5f6;
+    --hero-ink2: #a2a4a6;
+    --danger: #ff6b76;
+    --danger-bg: rgba(255, 107, 118, 0.15);
+    --danger-ink: #ff9aa2;
+    --warn: #ff8a3d;
+    --warn-bg: rgba(255, 138, 61, 0.15);
+    --warn-ink: #ffb27d;
+    --ok-bg: rgba(63, 207, 142, 0.15);
+    --ok-ink: #7be2b2;
+    --toggle-off: #3a3c3e;
+    --track: #2a2c2f;
+    --icon-bg: #212326;
+    --on-fill: #f4f5f6;
+    --on-ink: #131517;
+    --nav-bg: #17191b;
+    --badge-ink: #131517;
+    --shadow: none;
+    --btn-shadow: none;
   }
 }
 
 :root[data-tema="oscuro"] {
   color-scheme: dark;
-  --bg: #040506;
-  --bg2: #07080a;
-  --card: #07080a;
-  --input: #111214;
-  --text: #ffffff;
-  --text2: #9c9c9d;
-  --border: rgba(255, 255, 255, 0.1);
-  --border2: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.2);
-
-  --green: #59d499;
-  --green-soft: rgba(89, 212, 153, 0.12);
-  --green-ink: #07080a;
-  --accent: #ff6363;
-  --accent-ink: #07080a;
-  --primary: #e6e6e6;
-  --primary-ink: #07080a;
-  --link: #56c2ff;
-  --focus: #56c2ff;
-  --surface-hi: #1b1c1e;
-  --track: #1b1c1e;
-  --glass: rgba(7, 8, 10, 0.72);
-  --glow: rgba(255, 99, 99, 0.14);
-
-  --hero: transparent;
-  --hero-ink: #ffffff;
-  --hero-ink2: #9c9c9d;
-  --danger: #ff6363;
-  --danger-bg: #452324;
-  --danger-ink: #ffa8a8;
-  --warn-bg: #3a2f14;
-  --warn-ink: #f5d37a;
-  --ok-bg: #0f2a1e;
-  --ok-ink: #59d499;
-  --toggle-off: #2f3031;
-
-  --shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 4px rgba(0, 0, 0, 0.25);
-  --shadow-xl: 0 -8px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --btn-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --bg: #0e0f11;
+  --bg2: #17191b;
+  --text: #f4f5f6;
+  --text2: #a2a4a6;
+  --border: #3a3c3e;
+  --border2: rgba(244, 245, 246, 0.09);
+  --card: #17191b;
+  --input: #212326;
+  --green: #3fcf8e;
+  --green-soft: rgba(63, 207, 142, 0.14);
+  --green-ink: #06150d;
+  --accent: #cc62d5;
+  --accent-ink: #131517;
+  --accent-text: #e48ee9;
+  --hero: #0e0f11;
+  --hero-ink: #f4f5f6;
+  --hero-ink2: #a2a4a6;
+  --danger: #ff6b76;
+  --danger-bg: rgba(255, 107, 118, 0.15);
+  --danger-ink: #ff9aa2;
+  --warn: #ff8a3d;
+  --warn-bg: rgba(255, 138, 61, 0.15);
+  --warn-ink: #ffb27d;
+  --ok-bg: rgba(63, 207, 142, 0.15);
+  --ok-ink: #7be2b2;
+  --toggle-off: #3a3c3e;
+  --track: #2a2c2f;
+  --icon-bg: #212326;
+  --on-fill: #f4f5f6;
+  --on-ink: #131517;
+  --nav-bg: #17191b;
+  --badge-ink: #131517;
+  --shadow: none;
+  --btn-shadow: none;
 }
 
 html, body {
@@ -166,8 +151,9 @@ html {
 body {
   overflow: hidden;
   font-family: var(--font);
-  font-feature-settings: 'calt', 'kern', 'liga', 'ss03';
   color: var(--text);
+  letter-spacing: -0.018em;
+  -webkit-font-smoothing: antialiased;
 }
 
 /* #root ocupa toda la pantalla, incluidas las zonas seguras del iPhone,
@@ -194,17 +180,9 @@ body {
 .ad-hero {
   position: relative;
   overflow: hidden;
-  padding: calc(18px + env(safe-area-inset-top, 0px)) 18px 20px;
-  background: var(--hero);
+  padding: calc(18px + env(safe-area-inset-top, 0px)) 18px 76px;
+  background: var(--bg);
   color: var(--hero-ink);
-}
-
-.ad-hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(70% 90% at 100% 0%, var(--glow), transparent 70%);
-  pointer-events: none;
 }
 
 .ad-hero > * {
@@ -217,19 +195,23 @@ body {
 }
 
 .ad-hello {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
 }
 
 .ad-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
 }
 
 .ad-overlap {
   position: relative;
   z-index: 2;
-  margin-top: 0;
+  margin-top: -52px;
   padding: 0 16px;
 }
 
@@ -238,9 +220,10 @@ body {
 }
 
 .ad-section {
-  margin: 18px 0 10px;
-  font-size: 1.0625rem;
-  font-weight: 600;
+  margin: 22px 0 12px;
+  font-size: 1.1875rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .ad-muted {
@@ -252,7 +235,7 @@ body {
 
 .ad-card {
   background: var(--card);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow);
 }
@@ -264,6 +247,7 @@ body {
   min-height: 44px;
   margin-bottom: 10px;
   padding: 12px;
+  border-radius: 20px;
 }
 
 .ad-item__body {
@@ -273,7 +257,7 @@ body {
 
 .ad-item__name {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -287,8 +271,7 @@ body {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-icon);
-  border: 1px solid var(--border);
-  background: var(--surface-hi);
+  background: var(--icon-bg);
   color: var(--text);
   font-size: 1.25rem;
 }
@@ -300,7 +283,7 @@ body {
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 0.8125rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
@@ -323,8 +306,8 @@ body {
   background: var(--green);
 }
 
-.ad-bar--danger > span { background: linear-gradient(90deg, #f0b429, #ff6363); }
-.ad-bar--warn > span { background: linear-gradient(90deg, var(--green), #f0b429); }
+.ad-bar--danger > span { background: linear-gradient(90deg, var(--warn), var(--danger)); }
+.ad-bar--warn > span { background: linear-gradient(90deg, var(--green), var(--warn)); }
 
 /* ---------- Botones ---------- */
 
@@ -338,12 +321,12 @@ body {
   padding: 0 20px;
   border: 0;
   border-radius: var(--radius-btn);
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--accent);
+  color: var(--accent-ink);
   box-shadow: var(--btn-shadow);
   font: inherit;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   transition: transform 0.12s ease;
 }
@@ -351,15 +334,15 @@ body {
 .ad-btn:active { transform: scale(0.98); }
 
 .ad-btn--ghost {
-  background: transparent;
+  background: var(--card);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--border-strong);
+  box-shadow: inset 0 0 0 1.5px var(--text);
 }
 
 .ad-btn--danger {
-  background: transparent;
+  background: var(--card);
   color: var(--danger);
-  box-shadow: inset 0 0 0 1px var(--danger);
+  box-shadow: inset 0 0 0 1.5px var(--danger);
 }
 
 .ad-btn--sm {
@@ -390,7 +373,10 @@ body {
 .ad-field__label {
   display: block;
   margin-bottom: 2px;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
   color: var(--text2);
 }
 
@@ -429,9 +415,9 @@ body {
 
 .ad-chip[aria-pressed="true"],
 .ad-chip.is-active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--primary-ink);
+  background: var(--on-fill);
+  border-color: var(--on-fill);
+  color: var(--on-ink);
 }
 
 /* ---------- Barra inferior flotante con botón central ---------- */
@@ -448,12 +434,8 @@ body {
   max-width: 456px;
   margin: 0 auto;
   padding: 8px 6px;
-  border: 1px solid var(--border);
-  border-radius: 22px;
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(20px) saturate(140%);
-  backdrop-filter: blur(20px) saturate(140%);
-  box-shadow: var(--shadow);
+  border-radius: 32px;
+  background: var(--nav-bg);
 }
 
 .ad-nav__item {
@@ -466,7 +448,7 @@ body {
   min-height: 48px;
   padding: 6px 2px;
   border: 0;
-  border-radius: 16px;
+  border-radius: 24px;
   background: none;
   color: var(--text2);
   font: inherit;
@@ -483,9 +465,9 @@ body {
 }
 
 .ad-nav__item.is-active {
-  background: var(--surface-hi);
-  color: var(--text);
-  font-weight: 600;
+  background: var(--on-fill);
+  color: var(--on-ink);
+  font-weight: 700;
 }
 
 .ad-nav__fab {
@@ -501,7 +483,7 @@ body {
   color: var(--text);
   font: inherit;
   font-size: 0.6875rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -511,7 +493,7 @@ body {
   justify-content: center;
   width: 58px;
   height: 58px;
-  border: 5px solid var(--bg);
+  border: 4px solid var(--bg);
   border-radius: 50%;
   background: var(--accent);
   color: var(--accent-ink);
@@ -562,7 +544,7 @@ body {
   transition: transform 0.15s ease;
 }
 
-.ad-toggle[aria-checked="true"] { background: var(--green); }
+.ad-toggle[aria-checked="true"] { background: var(--accent); }
 .ad-toggle[aria-checked="true"]::after { transform: translateX(20px); }
 
 /* ---------- Calendario ---------- */
@@ -576,8 +558,10 @@ body {
 }
 
 .ad-cal__head {
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
   color: var(--text2);
 }
 
@@ -585,7 +569,7 @@ body {
   position: relative;
   padding: 8px 0;
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   background: none;
   color: inherit;
   font: inherit;
@@ -593,9 +577,9 @@ body {
 }
 
 .ad-cal__day.is-today {
-  background: var(--primary);
-  color: var(--primary-ink);
-  font-weight: 600;
+  background: var(--on-fill);
+  color: var(--on-ink);
+  font-weight: 700;
 }
 
 .ad-cal__day.has-expired::after,
@@ -611,7 +595,7 @@ body {
 }
 
 .ad-cal__day.has-expired::after { background: var(--danger); }
-.ad-cal__day.has-soon::after { background: #f0b429; }
+.ad-cal__day.has-soon::after { background: var(--warn); }
 
 /* ---------- Bloques de pantalla ---------- */
 
@@ -622,11 +606,11 @@ body {
 }
 
 .ad-hero--sm {
-  padding-bottom: 16px;
+  padding-bottom: 64px;
 }
 
 .ad-hero--sm + .ad-overlap {
-  margin-top: 0;
+  margin-top: -40px;
 }
 
 .ad-logo {
@@ -636,10 +620,9 @@ body {
   flex: none;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: var(--radius-icon);
-  background: var(--surface-hi);
-  box-shadow: var(--shadow);
+  background: var(--card);
 }
 
 .ad-hero-btn {
@@ -649,9 +632,9 @@ body {
   flex: none;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: 50%;
-  background: var(--surface-hi);
+  background: var(--card);
   color: var(--text);
   font: inherit;
   font-size: 1.25rem;
@@ -667,13 +650,13 @@ body {
   width: 44px;
   height: 44px;
   padding: 0;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border2);
   border-radius: 50%;
-  background: var(--surface-hi);
+  background: var(--card);
   color: var(--text);
   font: inherit;
   font-size: 0.9375rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -685,9 +668,9 @@ body {
 }
 
 .ad-avatar--solid {
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--accent);
   border-color: transparent;
+  color: var(--accent-ink);
   cursor: default;
 }
 
@@ -702,10 +685,10 @@ body {
   height: 22px;
   padding: 0 6px;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--danger);
+  color: var(--badge-ink);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ad-stack {
@@ -720,11 +703,11 @@ body {
 
 .ad-note {
   padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 20px;
   background: var(--ok-bg);
   color: var(--ok-ink);
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ad-note--warn {
@@ -737,8 +720,15 @@ body {
   color: var(--danger-ink);
 }
 
+.ad-card.ad-urgent,
 .ad-urgent {
-  padding: 14px;
+  padding: 18px;
+  border-radius: 32px;
+}
+
+.ad-card.ad-item,
+.ad-card.ad-product {
+  border-radius: 20px;
 }
 
 .ad-urgent__top {
@@ -772,7 +762,7 @@ body {
 .ad-urgent__name {
   display: block;
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ad-tags {
@@ -792,10 +782,10 @@ body {
   min-height: 44px;
   border: 0;
   background: none;
-  color: var(--link);
+  color: var(--accent-text);
   font: inherit;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
@@ -820,7 +810,7 @@ body {
   margin-bottom: 12px;
   padding: 0 16px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-pill);
   background: var(--card);
   color: var(--text);
   font: inherit;
@@ -833,6 +823,7 @@ body {
   width: 100%;
   margin-bottom: 10px;
   padding: 12px;
+  border-radius: 20px;
   cursor: pointer;
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
@@ -850,7 +841,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .ad-sheet {
@@ -859,9 +850,7 @@ body {
   max-height: 88%;
   overflow-y: auto;
   padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
-  border-top: 1px solid var(--border);
-  border-radius: 20px 20px 0 0;
-  box-shadow: var(--shadow-xl);
+  border-radius: 32px 32px 0 0;
   background: var(--bg2);
   color: var(--text);
 }
@@ -871,7 +860,7 @@ body {
   height: 4px;
   margin: 0 auto 18px;
   border-radius: 2px;
-  background: var(--border-strong);
+  background: var(--border);
 }
 
 .ad-sheet__row {
@@ -915,8 +904,8 @@ body {
 
 .ad-big {
   font-size: 1.75rem;
-  font-weight: 600;
-  letter-spacing: -0.5px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
 }
 
 .ad-empty {
@@ -929,7 +918,7 @@ body {
 
 .ad-empty h2 {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -948,9 +937,9 @@ body {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  background: var(--primary);
-  color: var(--primary-ink);
-  font-weight: 600;
+  background: var(--on-fill);
+  color: var(--on-ink);
+  font-weight: 700;
 }
 
 .ad-bar--lg {
@@ -985,7 +974,7 @@ body {
   gap: 12px;
   min-height: 52px;
   padding: 8px 4px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   list-style: none;
 }
@@ -997,7 +986,7 @@ body {
 .ad-faq summary::after {
   content: "+";
   flex: none;
-  color: var(--text2);
+  color: var(--green);
   font-size: 1.5rem;
   line-height: 1;
 }
@@ -1028,7 +1017,7 @@ html.vp-gap .ad-nav {
   padding: 8px 6px;
   border-width: 1px 0 0 0;
   border-radius: 0;
-  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 html.vp-gap .ad-screen {
@@ -1045,10 +1034,10 @@ html.vp-gap .ad-screen {
   height: 96px;
   margin: 0 auto 12px;
   border-radius: 50%;
-  background: var(--primary);
-  color: var(--primary-ink);
+  background: var(--accent);
+  color: var(--accent-ink);
   font-size: 2rem;
-  font-weight: 600;
+  font-weight: 700;
   object-fit: cover;
   box-shadow: var(--shadow);
 }
@@ -1062,7 +1051,7 @@ html.vp-gap .ad-screen {
 }
 
 .ad-nav__item.is-active .ad-nav__foto {
-  border-color: var(--text);
+  border-color: var(--green);
 }
 
 /* ---------- Historial ---------- */
@@ -1095,8 +1084,10 @@ html.vp-gap .ad-screen {
 
 .ad-receta__top {
   color: var(--text2);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
 }
 
 .ad-receta__main {
@@ -1117,7 +1108,7 @@ html.vp-gap .ad-screen {
 .ad-receta__name {
   display: block;
   font-size: 1.0625rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .ad-ing {
@@ -1140,25 +1131,24 @@ html.vp-gap .ad-screen {
   margin-bottom: 8px;
 }
 
+/* ---------- Inicio de sesión (Login.jsx inyecta sus propios estilos; ":root" sube la especificidad) ---------- */
+
+:root .ad-login-group {
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+}
+
+:root .ad-login-select {
+  border-radius: 12px;
+}
+
 /* ---------- Accesibilidad ---------- */
 
 :focus-visible {
-  outline: 3px solid var(--focus);
+  outline: 3px solid var(--text);
   outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
-}
-
-/* ---------- Pantallas con estilos propios (Login) ---------- */
-
-.ad-btn .ad-spin {
-  border-color: rgba(128, 128, 128, 0.35);
-  border-top-color: currentColor;
-}
-
-.ad-screen .ad-login-group {
-  border: 1px solid var(--border);
-  border-radius: 12px;
 }
