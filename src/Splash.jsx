@@ -15,7 +15,7 @@ export default function Splash({ onDone }) {
     <div style={{
       minHeight:'100vh', display:'flex', flexDirection:'column',
       alignItems:'center', justifyContent:'center',
-      background:'var(--bg)', fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif',
+      background:'var(--bg)', fontFamily:'var(--font)',
       gap:20
     }}>
       <div style={{
@@ -24,9 +24,9 @@ export default function Splash({ onDone }) {
         transition:'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease',
       }}>
         <svg width="96" height="96" viewBox="0 0 72 72">
-          <rect width="72" height="72" rx="20" fill="var(--green)"/>
-          <path d="M36 18 C36 18 48 26 48 36 C48 46 42 52 36 54 C30 52 24 46 24 36 C24 26 36 18 36 18Z" fill="none" stroke="#fff" stroke-width="2.2"/>
-          <polyline points="29,36 34,41 43,30" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="0.5" y="0.5" width="71" height="71" rx="20" fill="var(--input)" stroke="var(--border-strong)"/>
+          <path d="M36 18 C36 18 48 26 48 36 C48 46 42 52 36 54 C30 52 24 46 24 36 C24 26 36 18 36 18Z" fill="none" stroke="var(--green)" stroke-width="2.2"/>
+          <polyline points="29,36 34,41 43,30" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
 
@@ -36,7 +36,7 @@ export default function Splash({ onDone }) {
         transition:'opacity 0.4s ease, transform 0.4s ease',
         textAlign:'center',
       }}>
-        <div style={{fontSize:36,fontWeight:700,color:'var(--text)',letterSpacing:-1}}>Al Día</div>
+        <div style={{fontSize:36,fontWeight:600,color:'var(--text)',letterSpacing:-0.7}}>Al Día</div>
         <div style={{fontSize:14,color:'var(--text2)',marginTop:6}}>Controla lo que tienes en casa</div>
       </div>
 
