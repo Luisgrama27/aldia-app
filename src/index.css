@@ -42,7 +42,11 @@
   --icon-bg: #f4f5f6;
   --on-fill: #131517;
   --on-ink: #ffffff;
-  --nav-bg: #ffffff;
+  --nav-bg: #131517;
+  --nav-ink: #ffffff;
+  --nav-muted: rgba(255, 255, 255, 0.62);
+  --nav-active-bg: #ffffff;
+  --nav-active-ink: #131517;
   --badge-ink: #ffffff;
   --shadow: none;
   --btn-shadow: none;
@@ -88,7 +92,11 @@
     --icon-bg: #212326;
     --on-fill: #f4f5f6;
     --on-ink: #131517;
-    --nav-bg: #17191b;
+    --nav-bg: #26282b;
+    --nav-ink: #f4f5f6;
+    --nav-muted: #a2a4a6;
+    --nav-active-bg: #f4f5f6;
+    --nav-active-ink: #131517;
     --badge-ink: #131517;
     --shadow: none;
     --btn-shadow: none;
@@ -127,7 +135,11 @@
   --icon-bg: #212326;
   --on-fill: #f4f5f6;
   --on-ink: #131517;
-  --nav-bg: #17191b;
+  --nav-bg: #26282b;
+  --nav-ink: #f4f5f6;
+  --nav-muted: #a2a4a6;
+  --nav-active-bg: #f4f5f6;
+  --nav-active-ink: #131517;
   --badge-ink: #131517;
   --shadow: none;
   --btn-shadow: none;
@@ -450,7 +462,7 @@ body {
   border: 0;
   border-radius: 24px;
   background: none;
-  color: var(--text2);
+  color: var(--nav-muted);
   font: inherit;
   font-size: 0.6875rem;
   text-decoration: none;
@@ -465,8 +477,8 @@ body {
 }
 
 .ad-nav__item.is-active {
-  background: var(--on-fill);
-  color: var(--on-ink);
+  background: var(--nav-active-bg);
+  color: var(--nav-active-ink);
   font-weight: 700;
 }
 
@@ -480,7 +492,7 @@ body {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--text);
+  color: var(--nav-ink);
   font: inherit;
   font-size: 0.6875rem;
   font-weight: 700;
@@ -726,9 +738,12 @@ body {
   border-radius: 32px;
 }
 
-.ad-card.ad-item,
-.ad-card.ad-product {
+.ad-card.ad-item {
   border-radius: 20px;
+}
+
+.ad-card.ad-product {
+  border-radius: 28px;
 }
 
 .ad-urgent__top {
@@ -1129,6 +1144,128 @@ html.vp-gap .ad-screen {
 
 .ad-pasos li {
   margin-bottom: 8px;
+}
+
+/* ---------- Inicio: titular editorial, estadísticas en bloques y productos en cuadrícula ---------- */
+
+.ad-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.ad-wordmark {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.ad-display {
+  margin-top: 6px;
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.045em;
+}
+
+.ad-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ad-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 14px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  background: var(--card);
+}
+
+.ad-stat__n {
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.ad-stat__n--danger { color: var(--danger); }
+.ad-stat__n--warn { color: var(--warn); }
+.ad-stat__n--ok { color: var(--green); }
+
+.ad-stat__l {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.ad-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.ad-grid > .ad-card {
+  margin-bottom: 0;
+}
+
+.ad-grid > .ad-pad {
+  grid-column: 1 / -1;
+}
+
+.ad-product {
+  padding: 16px;
+}
+
+.ad-product__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas: "icon pill" "body body";
+  align-items: start;
+  gap: 14px 8px;
+}
+
+.ad-product__row > .ad-icon {
+  grid-area: icon;
+  width: 48px;
+  height: 48px;
+  font-size: 1.5rem;
+}
+
+.ad-product__row > .ad-pill {
+  grid-area: pill;
+  justify-self: end;
+  font-size: 0.75rem;
+  text-align: right;
+  white-space: normal;
+}
+
+.ad-product__row > .ad-item__body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.ad-product .ad-item__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.ad-product .ad-bar {
+  margin-top: 14px;
 }
 
 /* ---------- Inicio de sesión (Login.jsx inyecta sus propios estilos; ":root" sube la especificidad) ---------- */

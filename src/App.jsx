@@ -1098,13 +1098,12 @@ export default function App(){
         {tab==='home'&&(
           <>
             <header className="ad-hero">
-              <div className="ad-hero-row">
+              <div className="ad-brand">
                 <LOGO/>
-                <div style={{minWidth:0}}>
-                  <p className="ad-hello">{saludo}, {nombreCorto}</p>
-                  <h1 className="ad-title">Al Día</h1>
-                </div>
+                <span className="ad-wordmark">al día</span>
               </div>
+              <p className="ad-hello">{saludo}, {nombreCorto}</p>
+              <h1 className="ad-display">{activos.length===0?'Tu despensa, bajo control':(expired+danger+warn)===0?'Todo está al día':`${expired+danger+warn} ${(expired+danger+warn)===1?'producto necesita':'productos necesitan'} tu atención`}</h1>
             </header>
             <div className="ad-overlap">
               {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}
@@ -1115,6 +1114,11 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
+                  <div className="ad-stats">
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--danger">{expired}</span><span className="ad-stat__l">Vencidos</span></div>
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--warn">{danger+warn}</span><span className="ad-stat__l">Por vencer</span></div>
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--ok">{ok}</span><span className="ad-stat__l">Al día</span></div>
+                  </div>
                   {dest?(
                     <div className="ad-card ad-urgent">
                       <div className="ad-urgent__top">
@@ -1154,11 +1158,6 @@ export default function App(){
                       <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
                     </div>
                   )}
-                  <div className="ad-tags">
-                    <span className="ad-pill ad-pill--danger">{expired} vencido{expired===1?'':'s'}</span>
-                    <span className="ad-pill ad-pill--warn">{danger+warn} por vencer</span>
-                    <span className="ad-pill ad-pill--ok">{ok} al día</span>
-                  </div>
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>📤 Compartir</button>
@@ -1167,7 +1166,7 @@ export default function App(){
                     {cats.map(c=><button key={c} className="ad-chip" aria-pressed={filtro===c} onClick={()=>setFiltro(c)}>{c}</button>)}
                   </div>
                   <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
-                  <div key={listKey}>
+                  <div key={listKey} className="ad-grid">
                     {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
                     {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>)}
                   </div>
