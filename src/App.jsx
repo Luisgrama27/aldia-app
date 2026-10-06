@@ -710,19 +710,56 @@ function RecetaSheet({sug,onClose}){
   );
 }
 
-function ProductCard({p,index,onClick}){
+function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   const [visible,setVisible]=useState(false);
   const [barW,setBarW]=useState(0);
   const d=daysUntil(p.exp);const st=status(p);
+  // Deslizar: a la derecha deja ver "Consumido", a la izquierda "Eliminar" (se confirma tocando el botón)
+  const ANCHO=88;
+  const [dx,setDx]=useState(0);
+  const [arrastrando,setArrastrando]=useState(false);
+  const ini=useRef(null);
+  const movio=useRef(false);
+  const alBajar=e=>{ini.current={x:e.clientX,y:e.clientY,base:dx};movio.current=false;};
+  const alMover=e=>{
+    const s=ini.current;if(!s)return;
+    const mx=e.clientX-s.x;const my=e.clientY-s.y;
+    if(!movio.current){
+      if(Math.abs(mx)<8)return;
+      if(Math.abs(my)>Math.abs(mx)){ini.current=null;return;}
+      movio.current=true;setArrastrando(true);
+      if(e.currentTarget.setPointerCapture)e.currentTarget.setPointerCapture(e.pointerId);
+    }
+    setDx(Math.max(-ANCHO,Math.min(ANCHO,s.base+mx)));
+  };
+  const ajustar=()=>setDx(v=>v>ANCHO/2?ANCHO:v<-ANCHO/2?-ANCHO:0);
+  const alSoltar=()=>{
+    const s=ini.current;ini.current=null;setArrastrando(false);
+    if(s&&movio.current)ajustar();
+  };
+  const alCancelar=()=>{ini.current=null;setArrastrando(false);if(movio.current)ajustar();};
+  const tocar=()=>{
+    if(movio.current){movio.current=false;return;}
+    if(dx!==0){setDx(0);return;}
+    onClick();
+  };
   useEffect(()=>{
     const t1=setTimeout(()=>setVisible(true),index*80);
     const t2=setTimeout(()=>setBarW(getBarWidth(d,p.alert)),index*80+300);
     return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
   return (
-    <div className="ad-card ad-product" role="button" tabIndex={0} onClick={onClick}
+    <div className="ad-swipe" style={{opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)',transition:'opacity 0.4s ease, transform 0.4s ease'}}>
+    <button type="button" className="ad-swipe__pane ad-swipe__pane--ok" tabIndex={dx>0?0:-1}
+      style={{opacity:dx>0?1:0,pointerEvents:dx>0?'auto':'none'}}
+      onClick={()=>{setDx(0);onConsumido();}}>Consumido</button>
+    <button type="button" className="ad-swipe__pane ad-swipe__pane--del" tabIndex={dx<0?0:-1}
+      style={{opacity:dx<0?1:0,pointerEvents:dx<0?'auto':'none'}}
+      onClick={()=>{setDx(0);onEliminar();}}>Eliminar</button>
+    <div className="ad-card ad-product" role="button" tabIndex={0} onClick={tocar}
       onKeyDown={e=>{if(e.key==='Enter')onClick();}}
-      style={{opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)'}}>
+      onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
+      style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
       <div className="ad-product__row">
         <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
         <div className="ad-item__body">
@@ -732,6 +769,7 @@ function ProductCard({p,index,onClick}){
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
       <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
+    </div>
     </div>
   );
 }
@@ -765,6 +803,7 @@ export default function App(){
   const [verConsumidos,setVerConsumidos]=useState(true);
   const [verDescartados,setVerDescartados]=useState(true);
   const [accionHist,setAccionHist]=useState(null);
+  const [accionProd,setAccionProd]=useState(null);
   const [recetaAbierta,setRecetaAbierta]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
@@ -974,6 +1013,12 @@ export default function App(){
     setTab('home');setPantalla('');
   };
 
+  // Eliminar un producto activo directamente desde la lista (sin abrir el formulario)
+  const eliminarProducto=(id)=>{
+    if(!window.confirm('¿Eliminar este producto?'))return;
+    deleteDoc(doc(db,"productos",id)).catch(e=>falla(e,'eliminar el producto'));
+  };
+
   const eliminarDelHistorial=async(id)=>{
     if(!window.confirm('¿Eliminar este producto del historial?'))return;
     try{await deleteDoc(doc(db,"productos",id));}catch(e){console.error(e);}
@@ -1070,6 +1115,19 @@ export default function App(){
     <>
       {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
       {recetaAbierta&&<RecetaSheet sug={recetaAbierta} onClose={()=>setRecetaAbierta(null)}/>}
+      {accionProd&&(
+        <div className="ad-overlay" onClick={()=>setAccionProd(null)}>
+          <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
+            <div className="ad-sheet__handle"/>
+            <h2 className="ad-section" style={{margin:'0 0 8px'}}>{accionProd.name}</h2>
+            <button className="ad-sheet__row" onClick={()=>{marcarProducto(accionProd.id,'consumido');setAccionProd(null);}}>Marcar como consumido</button>
+            <button className="ad-sheet__row" onClick={()=>{marcarProducto(accionProd.id,'descartado');setAccionProd(null);}}>Marcar como descartado</button>
+            <button className="ad-sheet__row" onClick={()=>{abrirEditar(accionProd);setAccionProd(null);}}>Editar producto</button>
+            <button className="ad-sheet__row ad-sheet__row--danger" onClick={()=>{eliminarProducto(accionProd.id);setAccionProd(null);}}>Eliminar producto</button>
+            <button className="ad-sheet__row" onClick={()=>setAccionProd(null)}>Cancelar</button>
+          </div>
+        </div>
+      )}
       {accionHist&&(
         <div className="ad-overlay" onClick={()=>setAccionHist(null)}>
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
@@ -1114,7 +1172,7 @@ export default function App(){
                         <span className="ad-muted" style={{fontWeight:700}}>{destSt==='warn'?'Próximo a vencer':'Atención hoy'}</span>
                         <span className={`ad-pill ${pillClass(destSt)}`}>{pillIcon(destSt)} {daysLabel(destD)}</span>
                       </div>
-                      <button className="ad-urgent__main" onClick={()=>abrirEditar(dest)}>
+                      <button className="ad-urgent__main" onClick={()=>setAccionProd(dest)}>
                         <span className="ad-icon">{CATS[dest.cat]||'📦'}</span>
                         <span style={{minWidth:0}}>
                           <span className="ad-urgent__name">{dest.name}</span>
@@ -1156,7 +1214,7 @@ export default function App(){
                   <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
                   <div key={listKey} className="ad-grid">
                     {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
-                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>)}
+                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
                   </div>
                 </>
               )}
