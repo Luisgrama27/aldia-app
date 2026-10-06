@@ -32,6 +32,8 @@ if (!document.getElementById('ad-login-style')) {
     .ad-login-check { display:flex; align-items:flex-start; gap:12px; margin-bottom:16px; color:var(--text); font-size:0.9375rem; line-height:1.4; cursor:pointer; }
     .ad-login-check input { flex:none; width:22px; height:22px; margin-top:1px; cursor:pointer; accent-color:var(--green); }
     .ad-login-hint { margin-top:4px; font-size:0.8125rem; font-weight:700; }
+    .ad-login-eye { flex:none; display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-8px; border:0; border-radius:50%; background:none; color:var(--text2); cursor:pointer; }
+    .ad-login-eye[aria-pressed="true"] { color:var(--text); }
   `;
   document.head.appendChild(styleEl);
 }
@@ -65,7 +67,17 @@ const ICONS = {
   lock: "M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm3 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z",
 };
 
-function Row({ focused, iconPath, iconColor, label, children }) {
+function OjoIcon({ tachado }) {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M1.5 12S5.5 5 12 5s10.5 7 10.5 7-4 7-10.5 7S1.5 12 1.5 12z"/>
+      <circle cx="12" cy="12" r="3"/>
+      {tachado && <line x1="3" y1="3" x2="21" y2="21"/>}
+    </svg>
+  );
+}
+
+function Row({ focused, iconPath, iconColor, label, accion, children }) {
   return (
     <div className="ad-login-row" style={{ boxShadow: focused ? 'inset 0 -2px 0 var(--green)' : 'none' }}>
       <span style={{ display: 'flex', flexShrink: 0, color: iconColor || 'var(--text2)' }}>{icon(iconPath)}</span>
@@ -73,6 +85,7 @@ function Row({ focused, iconPath, iconColor, label, children }) {
         <div className="ad-field__label">{label}</div>
         {children}
       </div>
+      {accion}
     </div>
   );
 }
@@ -132,6 +145,7 @@ export default function Login() {
   const [focusField, setFocusField] = useState(null);
   const [emailValido, setEmailValido] = useState(null);
   const [passwordFuerte, setPasswordFuerte] = useState(null);
+  const [verPassword, setVerPassword] = useState(false);
   const [telefonoValido, setTelefonoValido] = useState(null);
 
   const reset = () => { setError(""); setMensaje(""); };
@@ -314,8 +328,15 @@ export default function Login() {
             </Row>
 
             {modo!=='recuperar'&&(
-              <Row focused={focusField==='password'} iconPath={ICONS.lock} label="Contraseña" iconColor={passwordFuerte?strengthColor:undefined}>
-                <input className="ad-login-input" type="password" value={password} onChange={e=>{setPassword(e.target.value);reset();}} {...field('password')} placeholder="••••••••" autoComplete={modo==='login'?'current-password':'new-password'}/>
+              <Row focused={focusField==='password'} iconPath={ICONS.lock} label="Contraseña" iconColor={passwordFuerte?strengthColor:undefined}
+                accion={
+                  <button type="button" className="ad-login-eye" aria-pressed={verPassword}
+                    aria-label={verPassword?'Ocultar contraseña':'Mostrar contraseña'}
+                    onMouseDown={e=>e.preventDefault()} onClick={()=>setVerPassword(v=>!v)}>
+                    <OjoIcon tachado={verPassword}/>
+                  </button>
+                }>
+                <input className="ad-login-input" type={verPassword?'text':'password'} value={password} onChange={e=>{setPassword(e.target.value);reset();}} {...field('password')} placeholder="••••••••" autoComplete={modo==='login'?'current-password':'new-password'} autoCapitalize="off" autoCorrect="off" spellCheck={false}/>
                 {password&&modo==='registro'&&(
                   <div style={{display:'flex',alignItems:'center',gap:6,marginTop:6}}>
                     {[1,2,3].map(i=>(
