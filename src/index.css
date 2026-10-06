@@ -632,9 +632,14 @@ body {
   flex: none;
   width: 44px;
   height: 44px;
-  border: 1px solid var(--border2);
+  border: 0;
   border-radius: var(--radius-icon);
-  background: var(--card);
+  background: var(--green);
+}
+
+.ad-logo svg path,
+.ad-logo svg polyline {
+  stroke: var(--green-ink);
 }
 
 .ad-hero-btn {
@@ -744,6 +749,19 @@ body {
 
 .ad-card.ad-product {
   border-radius: 28px;
+}
+
+.ad-card.ad-urgent--ok {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.ad-urgent--ok .ad-section {
+  color: var(--green);
+}
+
+.ad-urgent--ok .ad-muted {
+  color: var(--text);
 }
 
 .ad-urgent__top {
@@ -1165,7 +1183,7 @@ html.vp-gap .ad-screen {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 12px;
+  margin: 12px 0 0;
 }
 
 .ad-stat {

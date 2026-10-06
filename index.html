@@ -27,17 +27,17 @@
       /* Variables de la pantalla de carga (mismos valores que en index.css) */
       :root {
         --s-bg: #f4f5f6; --s-card: #ffffff; --s-text: #131517; --s-text2: #66686a;
-        --s-green: #2f6b4f; --s-line: rgba(19,21,23,0.12);
+        --s-green: #2f6b4f; --s-logo-ink: #ffffff; --s-line: rgba(19,21,23,0.12);
       }
       @media (prefers-color-scheme: dark) {
         :root:not([data-tema="claro"]) {
           --s-bg: #0e0f11; --s-card: #17191b; --s-text: #f4f5f6; --s-text2: #a2a4a6;
-          --s-green: #5cc08d; --s-line: rgba(244,245,246,0.14);
+          --s-green: #5cc08d; --s-logo-ink: #06150d; --s-line: rgba(244,245,246,0.14);
         }
       }
       :root[data-tema="oscuro"] {
         --s-bg: #0e0f11; --s-card: #17191b; --s-text: #f4f5f6; --s-text2: #a2a4a6;
-        --s-green: #5cc08d; --s-line: rgba(244,245,246,0.14);
+        --s-green: #5cc08d; --s-logo-ink: #06150d; --s-line: rgba(244,245,246,0.14);
       }
 
       /* Fondo de toda la pantalla (incluida la zona segura del iPhone) = fondo de la app */
@@ -57,8 +57,8 @@
 
       #native-splash .logo {
         width: 112px; height: 112px;
-        background: var(--s-card); color: var(--s-green);
-        border: 1px solid var(--s-line); border-radius: 36px;
+        background: var(--s-green); color: var(--s-logo-ink);
+        border: 0; border-radius: 36px;
         display: flex; align-items: center; justify-content: center;
         animation: splashPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards;
       }

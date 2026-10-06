@@ -1160,11 +1160,6 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
-                  <div className="ad-stats">
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--danger">{expired}</span><span className="ad-stat__l">Vencidos</span></div>
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--warn">{danger+warn}</span><span className="ad-stat__l">Por vencer</span></div>
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--ok">{ok}</span><span className="ad-stat__l">Al día</span></div>
-                  </div>
                   {dest?(
                     <div className="ad-card ad-urgent">
                       <div className="ad-urgent__top">
@@ -1198,11 +1193,16 @@ export default function App(){
                       )}
                     </div>
                   ):(
-                    <div className="ad-card ad-urgent" style={{textAlign:'center'}}>
+                    <div className="ad-card ad-urgent ad-urgent--ok" style={{textAlign:'center'}}>
                       <h2 className="ad-section" style={{margin:'6px 0 4px'}}>Todo al día</h2>
                       <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
                     </div>
                   )}
+                  <div className="ad-stats">
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--danger">{expired}</span><span className="ad-stat__l">Vencidos</span></div>
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--warn">{danger+warn}</span><span className="ad-stat__l">Por vencer</span></div>
+                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--ok">{ok}</span><span className="ad-stat__l">Al día</span></div>
+                  </div>
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
