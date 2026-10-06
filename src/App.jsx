@@ -1147,10 +1147,9 @@ export default function App(){
             <header className="ad-hero">
               <div className="ad-brand">
                 <LOGO/>
-                <span className="ad-wordmark">al día</span>
+                <h1 className="ad-wordmark">al día</h1>
               </div>
               <p className="ad-hello">{saludo}, {nombreCorto}</p>
-              <h1 className="ad-display">{activos.length===0?'Tu despensa, bajo control':(expired+danger+warn)===0?'Todo está al día':`${expired+danger+warn} ${(expired+danger+warn)===1?'producto necesita':'productos necesitan'} tu atención`}</h1>
             </header>
             <div className="ad-overlap">
               {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}

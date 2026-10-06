@@ -1161,14 +1161,6 @@ html.vp-gap .ad-screen {
   letter-spacing: -0.04em;
 }
 
-.ad-display {
-  margin-top: 6px;
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
-}
-
 .ad-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
