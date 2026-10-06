@@ -1312,24 +1312,81 @@ html.vp-gap .ad-screen {
   margin-top: 14px;
 }
 
-/* ---------- Tarjeta de atención: lista compacta de productos ---------- */
+/* ---------- Tarjeta de atención: selector de productos (tamaño fijo) ---------- */
 
-.ad-urgent__list {
+.ad-urgent__chips {
   display: flex;
-  flex-direction: column;
-  margin: 6px 0 4px;
+  gap: 8px;
+  margin: 12px -18px 0;
+  padding: 2px 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.ad-urgent__row {
+.ad-urgent__chips::-webkit-scrollbar {
+  display: none;
+}
+
+.ad-urgent__chip {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 8px;
+  max-width: 70%;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.ad-urgent__chip[aria-pressed="true"] {
+  border-color: var(--on-fill);
+  background: var(--on-fill);
+  color: var(--on-ink);
+}
+
+.ad-urgent__chipname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ad-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.ad-dot--danger {
+  background: var(--danger);
+}
+
+.ad-dot--warn {
+  background: var(--warn);
+}
+
+.ad-urgent__sel {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  width: 100%;
-  min-height: 44px;
-  padding: 0 2px;
+  margin: 12px 0;
+}
+
+.ad-urgent__selmain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 0;
   border: 0;
-  border-bottom: 1px solid var(--border2);
   background: none;
   color: inherit;
   font: inherit;
@@ -1337,18 +1394,14 @@ html.vp-gap .ad-screen {
   cursor: pointer;
 }
 
-.ad-urgent__row:last-child {
-  border-bottom: 0;
-}
-
-.ad-urgent__rname {
-  min-width: 0;
+.ad-urgent__name {
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
 }
 
 /* ---------- Compartir y vista compartida ---------- */

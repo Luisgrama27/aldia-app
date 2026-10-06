@@ -105,19 +105,16 @@ const LOGO=()=>(
   </div>
 );
 
-function Navbar({tab,cuenta,badge,foto,onTab,onAdd,onCuenta}){
-  const item=(id,lbl,ico,active,onClick,count)=>(
+function Navbar({tab,cuenta,foto,onTab,onAdd,onCuenta}){
+  const item=(id,lbl,ico,active,onClick)=>(
     <button key={id} className={`ad-nav__item${active?' is-active':''}`} onClick={onClick} aria-current={active?'page':undefined}>
-      <span style={{position:'relative',display:'flex',overflow:'visible'}}>
-        {ico}
-        {count>0&&<span className="ad-badge" style={{top:-6,right:-12,minWidth:18,height:18,fontSize:'0.6875rem',padding:'0 5px'}}>{count}</span>}
-      </span>
+      <span style={{display:'flex'}}>{ico}</span>
       <span>{lbl}</span>
     </button>
   );
   return (
     <nav className="ad-card ad-nav" aria-label="Navegación principal">
-      {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'),badge)}
+      {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'))}
       {item('estadisticas','Estadísticas',Ico.stats,tab==='estadisticas'&&!cuenta,()=>onTab('estadisticas'))}
       <button className="ad-nav__fab" onClick={onAdd} aria-label="Agregar producto">
         <span className="ad-nav__fab-btn">{Ico.plus}</span>Agregar
@@ -836,6 +833,7 @@ export default function App(){
   const [accionHist,setAccionHist]=useState(null);
   const [accionProd,setAccionProd]=useState(null);
   const [avisos,setAvisos]=useState(false);
+  const [selDest,setSelDest]=useState(null);
   const [recetaAbierta,setRecetaAbierta]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
@@ -961,7 +959,6 @@ export default function App(){
   const danger=activos.filter(p=>status(p)==='danger').length;
   const warn=activos.filter(p=>status(p)==='warn').length;
   const ok=activos.filter(p=>status(p)==='ok').length;
-  const alertas=expired+danger+warn;
   const cats=['Todos',...new Set(activos.map(p=>p.cat))];
   const filtered=activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
 
@@ -969,13 +966,23 @@ export default function App(){
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
   const dest=destacados[0];
   const destSt=dest?status(dest):'ok';
+  // Producto elegido en la tarjeta de atención (por defecto, el que vence primero)
+  const sel=destacados.find(p=>p.id===selDest)||dest;
+  const selD=sel?daysUntil(sel.exp):0;
+  const selSt=sel?status(sel):'ok';
+  const selTexto=!sel?'':selD<0?`Venció hace ${Math.abs(selD)} día${Math.abs(selD)>1?'s':''}`:selD===0?'Vence hoy':`Vence en ${selD} día${selD>1?'s':''}`;
 
   // Receta con lo que está por vencer (sin vencer todavía, y solo comida)
   const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas','Cuidado personal','Mascotas','Bebé'];
   const candidatosReceta=activos
     .filter(p=>daysUntil(p.exp)>=0&&status(p)!=='ok'&&!EXCLUIR_RECETA.includes(p.cat))
     .sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
-  const sugerencia=sugerirReceta(candidatosReceta);
+  // Receta para el producto elegido: si otros productos también encajan, los aprovecha
+  const selEsCandidato=!!sel&&candidatosReceta.some(p=>p.id===sel.id);
+  const sugerenciaSel=!selEsCandidato?null:(()=>{
+    const r=sugerirReceta([sel,...candidatosReceta.filter(p=>p.id!==sel.id)]);
+    return r&&r.productos.some(p=>p.id===sel.id)?r:sugerirReceta([sel]);
+  })();
 
   const histFiltrado=[...historial]
     .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
@@ -1067,7 +1074,6 @@ export default function App(){
     <Navbar
       tab={tab}
       cuenta={menuAbierto}
-      badge={alertas}
       foto={foto}
       onTab={(id)=>{setTab(id);setPantalla('');setMenuAbierto(false);}}
       onAdd={()=>{setMenuAbierto(false);abrirNuevo();}}
@@ -1222,32 +1228,38 @@ export default function App(){
                         <span className="ad-muted" style={{fontWeight:700}}>{destSt==='warn'?'Próximo a vencer':'Atención hoy'}</span>
                         <span className="ad-muted">{destacados.length} producto{destacados.length!==1?'s':''}</span>
                       </div>
-                      <div className="ad-urgent__list">
-                        {destacados.slice(0,3).map(p=>{const st=status(p);return(
-                          <button key={p.id} className="ad-urgent__row" onClick={()=>setAccionProd(p)}>
-                            <span className="ad-urgent__rname">{p.name}</span>
-                            <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(daysUntil(p.exp))}</span>
-                          </button>
-                        );})}
-                      </div>
-                      {destacados.length>3&&<button className="ad-link" onClick={()=>setAvisos(true)}>Ver {destacados.length-3} más</button>}
-                      {destacados.length===1&&(
-                        <div className="ad-btn-row">
-                          <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(dest.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
-                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(dest.id,'descartado')} disabled={guardando}>Botar</button>
+                      {destacados.length>1&&(
+                        <div className="ad-urgent__chips" role="group" aria-label="Productos por atender">
+                          {destacados.map(p=>(
+                            <button key={p.id} className="ad-urgent__chip" aria-pressed={p.id===sel.id} onClick={()=>setSelDest(p.id)}>
+                              <span className={`ad-dot ad-dot--${status(p)==='warn'?'warn':'danger'}`} aria-hidden="true"/>
+                              <span className="ad-urgent__chipname">{p.name}</span>
+                            </button>
+                          ))}
                         </div>
                       )}
-                      {sugerencia&&(
+                      <div className="ad-urgent__sel">
+                        <button className="ad-urgent__selmain" onClick={()=>setAccionProd(sel)}>
+                          <span className="ad-urgent__name">{sel.name}</span>
+                          <span className="ad-muted">{selTexto} · {sel.cat}</span>
+                        </button>
+                        <span className={`ad-pill ${pillClass(selSt)}`}>{pillIcon(selSt)} {daysLabel(selD)}</span>
+                      </div>
+                      <div className="ad-btn-row">
+                        <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(sel.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
+                        <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(sel.id,'descartado')} disabled={guardando}>Botar</button>
+                      </div>
+                      {sugerenciaSel&&(
                         <div className="ad-receta">
                           <div className="ad-receta__top">Sugerencia de receta</div>
-                          <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerencia)}>
+                          <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerenciaSel)}>
                             <span style={{minWidth:0,flex:1}}>
-                              <span className="ad-receta__name">{sugerencia.receta.n}</span>
-                              <span className="ad-muted" style={{display:'block'}}>Usa: {sugerencia.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
+                              <span className="ad-receta__name">{sugerenciaSel.receta.n}</span>
+                              <span className="ad-muted" style={{display:'block'}}>Usa: {sugerenciaSel.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
                             </span>
-                            <span className="ad-pill ad-pill--ok">{sugerencia.receta.min} min</span>
+                            <span className="ad-pill ad-pill--ok">{sugerenciaSel.receta.min} min</span>
                           </button>
-                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerencia)}>Ver receta</button>
+                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerenciaSel)}>Ver receta</button>
                         </div>
                       )}
                     </div>
