@@ -209,7 +209,7 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
       <div style={{textAlign:'center',marginBottom:14}}>
         {foto?<img className="ad-foto" src={foto} alt="Tu foto de perfil"/>:<div className="ad-foto">{iniciales}</div>}
         <label className="ad-btn ad-btn--ghost ad-btn--sm" style={{width:'auto',display:'inline-flex',padding:'0 18px',opacity:procesando?0.7:1}}>
-          {procesando?'Procesando...':'📷 Cambiar foto'}
+          {procesando?'Procesando...':'Cambiar foto'}
           <input type="file" accept="image/*" onChange={elegirFoto} disabled={procesando} style={{display:'none'}}/>
         </label>
         {fotoPropia&&<div><button className="ad-link ad-link--danger" onClick={quitarFoto}>Quitar foto</button></div>}
@@ -300,9 +300,9 @@ function ContactoVista({usuario}){
   return (
     <>
       <p className="ad-muted" style={{marginBottom:14,lineHeight:1.5}}>¿Tienes una duda, una sugerencia o encontraste un problema? Escríbenos y te respondemos lo antes posible.</p>
-      <a className="ad-btn" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Soporte Al Día')}&body=${cuerpo}`}>📧 Escribir por correo</a>
-      {wa&&<a className="ad-btn ad-btn--ghost" href={wa} target="_blank" rel="noopener noreferrer">💬 Escribir por WhatsApp</a>}
-      <a className="ad-btn ad-btn--ghost" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Reporte de problema - Al Día')}&body=${cuerpo}`}>🐞 Reportar un problema</a>
+      <a className="ad-btn" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Soporte Al Día')}&body=${cuerpo}`}>Escribir por correo</a>
+      {wa&&<a className="ad-btn ad-btn--ghost" href={wa} target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a>}
+      <a className="ad-btn ad-btn--ghost" href={`mailto:${SOPORTE_EMAIL}?subject=${encodeURIComponent('Reporte de problema - Al Día')}&body=${cuerpo}`}>Reportar un problema</a>
       <p className="ad-muted" style={{marginTop:14}}>Correo de soporte: {SOPORTE_EMAIL}</p>
     </>
   );
@@ -406,7 +406,6 @@ function VersionVista(){
   };
   return (
     <div style={{textAlign:'center',padding:'8px 0'}}>
-      <div style={{fontSize:48}}>🌿</div>
       <h3 className="ad-section" style={{margin:'6px 0 2px'}}>Al Día</h3>
       <p className="ad-muted">Versión {APP_VERSION}</p>
       <p className="ad-muted" style={{margin:'14px 0 18px',lineHeight:1.5}}>Controla los vencimientos de tus productos del hogar y reduce el desperdicio.</p>
@@ -482,11 +481,6 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
   ];
   return (
     <div className="ad-empty">
-      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
-        <path d="M60 8c22 0 44 14 44 40s-14 54-46 56S12 84 14 54 34 8 60 8z" fill="var(--green-soft)"/>
-        <path d="M60 30c0 0 22 14 22 32 0 16-10 26-22 30-12-4-22-14-22-30 0-18 22-32 22-32z" fill="none" stroke="var(--green)" strokeWidth="4" strokeLinecap="round"/>
-        <polyline points="49,60 57,68 72,50" fill="none" stroke="var(--green)" strokeWidth="4.4" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
       <h2>¡Bienvenido a Al Día!</h2>
       <p className="ad-muted" style={{maxWidth:280,lineHeight:1.6}}>Empieza registrando tus productos y nunca más se te vencerá nada en casa.</p>
       <div style={{width:'100%',display:'flex',flexDirection:'column',gap:8}}>
@@ -497,7 +491,7 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
           </div>
         ))}
       </div>
-      <button className="ad-btn" onClick={onAgregar}>✨ Agregar mi primer producto</button>
+      <button className="ad-btn" onClick={onAgregar}>Agregar mi primer producto</button>
       <div style={{width:'100%'}}>
         <p className="ad-muted" style={{textAlign:'center',fontWeight:700,marginBottom:10}}>O prueba con estos ejemplos</p>
         <div className="ad-grid2">
@@ -530,11 +524,6 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
 function EmptyStateExistente({onAgregar,catsUsadas}){
   return (
     <div className="ad-empty">
-      <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
-        <path d="M60 8c22 0 44 14 44 40s-14 54-46 56S12 84 14 54 34 8 60 8z" fill="var(--green-soft)"/>
-        <rect x="34" y="44" width="52" height="36" rx="10" fill="none" stroke="var(--green)" strokeWidth="4"/>
-        <path d="M34 58h52" stroke="var(--green)" strokeWidth="4"/>
-      </svg>
       <h2>Sin productos registrados</h2>
       <p className="ad-muted" style={{maxWidth:280,lineHeight:1.6}}>No tienes ningún producto en tu lista en este momento.</p>
       {catsUsadas.length>0&&(
@@ -547,7 +536,7 @@ function EmptyStateExistente({onAgregar,catsUsadas}){
           </div>
         </div>
       )}
-      <button className="ad-btn" onClick={onAgregar}>✨ Agregar producto</button>
+      <button className="ad-btn" onClick={onAgregar}>Agregar producto</button>
     </div>
   );
 }
@@ -594,7 +583,7 @@ function SimpleCharts({descartados,consumidos,catStats}){
   return (
     <>
       <div className="ad-card ad-pad">
-        <p className="ad-muted" style={{marginBottom:10}}>🎯 Consumidos vs Descartados</p>
+        <p className="ad-muted" style={{marginBottom:10}}>Consumidos vs Descartados</p>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden',background:'var(--input)'}}>
             <div style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'var(--green)'}}/>
@@ -609,7 +598,7 @@ function SimpleCharts({descartados,consumidos,catStats}){
       </div>
       {catStats.length>0&&(
         <div className="ad-card ad-pad">
-          <p className="ad-muted" style={{marginBottom:10}}>📊 Top categorías</p>
+          <p className="ad-muted" style={{marginBottom:10}}>Top categorías</p>
           <div style={{display:'flex',flexDirection:'column',gap:10}}>
             {catStats.slice(0,5).map(c=>{
               const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;
@@ -665,7 +654,7 @@ function Donut({consumidos,descartados}){
 function BarrasMensuales({datos,max,anio}){
   return (
     <div className="ad-card ad-pad">
-      <p className="ad-muted" style={{marginBottom:12}}>📅 Productos por mes ({anio})</p>
+      <p className="ad-muted" style={{marginBottom:12}}>Productos por mes ({anio})</p>
       <div style={{display:'flex',alignItems:'flex-end',gap:4,height:120,borderBottom:'1px solid var(--border)'}}>
         {datos.map(m=>(
           <div key={m.lbl} style={{flex:1,height:'100%',display:'flex',alignItems:'flex-end',justifyContent:'center',gap:2}}>
@@ -695,7 +684,7 @@ function RecetaSheet({sug,onClose}){
           <span className="ad-icon" style={{width:52,height:52,fontSize:'1.75rem'}}>{r.e}</span>
           <div style={{minWidth:0}}>
             <h2 className="ad-section" style={{margin:0}}>{r.n}</h2>
-            <p className="ad-muted">⏱ {r.min} min · 🍽 {r.por} {r.por===1?'porción':'porciones'}</p>
+            <p className="ad-muted">{r.min} min · {r.por} {r.por===1?'porción':'porciones'}</p>
           </div>
         </div>
         <div className="ad-note ad-note--warn" style={{margin:'8px 0 4px'}}>Aprovecha lo que está por vencer: {productos.map(p=>p.name).join(', ')}</div>
@@ -1030,7 +1019,7 @@ export default function App(){
         <div className="ad-overlap ad-stack">
           {!editId&&productosFrecuentes.length>0&&(
             <div className="ad-card ad-pad">
-              <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>⚡ Productos frecuentes</p>
+              <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>Productos frecuentes</p>
               <div className="ad-chips">
                 {productosFrecuentes.map((p,i)=>(
                   <button key={i} className="ad-chip" onClick={()=>setForm({...form,name:p.name,cat:p.cat})}>{CATS[p.cat]} {p.name}</button>
@@ -1041,23 +1030,23 @@ export default function App(){
           {scanMsg&&<div className={`ad-note${scanMsg.startsWith('✓')?'':' ad-note--warn'}`}>{scanMsg}</div>}
           {errorMsg&&<div className="ad-note ad-note--danger" role="alert">⚠️ {errorMsg}</div>}
           <div className="ad-card" style={{overflow:'hidden'}}>
-            <label className="ad-field"><span className="ad-field__label">📝 Nombre</span>
+            <label className="ad-field"><span className="ad-field__label">Nombre</span>
               <input list="nombresSugeridos" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
               <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
             </label>
-            <label className="ad-field"><span className="ad-field__label">🏷️ Categoría</span>
+            <label className="ad-field"><span className="ad-field__label">Categoría</span>
               <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select>
             </label>
-            <label className="ad-field"><span className="ad-field__label">📅 Fecha de vencimiento</span>
+            <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
               <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
             </label>
-            <label className="ad-field"><span className="ad-field__label">📊 Cantidad / notas</span>
+            <label className="ad-field"><span className="ad-field__label">Cantidad / notas</span>
               <input value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/>
             </label>
-            <label className="ad-field"><span className="ad-field__label">💰 Precio (opcional)</span>
+            <label className="ad-field"><span className="ad-field__label">Precio (opcional)</span>
               <input type="number" value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/>
             </label>
-            <label className="ad-field"><span className="ad-field__label">🔔 Alertar con anticipación</span>
+            <label className="ad-field"><span className="ad-field__label">Alertar con anticipación</span>
               <select value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}>
                 <option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option>
               </select>
@@ -1067,7 +1056,7 @@ export default function App(){
           {editId&&(
             <div>
               <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('consumido')} disabled={guardando}>✓ Marcar como consumido</button>
-              <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('descartado')} disabled={guardando}>🗑 Marcar como descartado</button>
+              <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('descartado')} disabled={guardando}>Marcar como descartado</button>
               <button className="ad-btn ad-btn--danger" style={{opacity:guardando?0.6:1}} onClick={eliminar} disabled={guardando}>Eliminar producto</button>
             </div>
           )}
@@ -1107,7 +1096,7 @@ export default function App(){
             </header>
             <div className="ad-overlap">
               {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}
-              {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>📧 Te enviamos un correo con los productos por vencer</div>}
+              {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>Te enviamos un correo con los productos por vencer</div>}
               {activos.length===0?(
                 esUsuarioNuevo
                   ?<div className="ad-card ad-pad"><EmptyStateNuevo onAgregar={()=>abrirNuevo()} onCategoria={cat=>abrirNuevo(cat)} onAgregarEjemplo={agregarEjemplo}/></div>
@@ -1138,34 +1127,33 @@ export default function App(){
                       </div>
                       {sugerencia&&(
                         <div className="ad-receta">
-                          <div className="ad-receta__top">💡 Sugerencia de receta</div>
+                          <div className="ad-receta__top">Sugerencia de receta</div>
                           <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerencia)}>
                             <span className="ad-icon">{sugerencia.receta.e}</span>
                             <span style={{minWidth:0,flex:1}}>
                               <span className="ad-receta__name">{sugerencia.receta.n}</span>
                               <span className="ad-muted" style={{display:'block'}}>Usa: {sugerencia.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
                             </span>
-                            <span className="ad-pill ad-pill--ok">⏱ {sugerencia.receta.min} min</span>
+                            <span className="ad-pill ad-pill--ok">{sugerencia.receta.min} min</span>
                           </button>
-                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerencia)}>👩‍🍳 Ver receta</button>
+                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerencia)}>Ver receta</button>
                         </div>
                       )}
                     </div>
                   ):(
                     <div className="ad-card ad-urgent" style={{textAlign:'center'}}>
-                      <div style={{fontSize:40}}>🌿</div>
                       <h2 className="ad-section" style={{margin:'6px 0 4px'}}>Todo al día</h2>
                       <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
                     </div>
                   )}
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
-                    <button className="ad-link" onClick={()=>setCompartir(true)}>📤 Compartir</button>
+                    <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
                   </div>
                   <div className="ad-filters">
                     {cats.map(c=><button key={c} className="ad-chip" aria-pressed={filtro===c} onClick={()=>setFiltro(c)}>{c}</button>)}
                   </div>
-                  <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="🔍 Buscar producto..."/>
+                  <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
                   <div key={listKey} className="ad-grid">
                     {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
                     {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>abrirEditar(p)}/>)}
@@ -1189,7 +1177,7 @@ export default function App(){
               </div>
               <div className="ad-card ad-pad">
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                  <p className="ad-muted">🎯 Tu meta de desperdicio</p>
+                  <p className="ad-muted">Tu meta de desperdicio</p>
                   <button className="ad-link" onClick={()=>{setEditandoMeta(!editandoMeta);setValorMeta(meta?meta.toString():'');}}>{editandoMeta?'Cancelar':'Editar'}</button>
                 </div>
                 {!editandoMeta?(
@@ -1206,7 +1194,7 @@ export default function App(){
                 )}
               </div>
               <div className="ad-card ad-pad">
-                <p className="ad-muted" style={{marginBottom:6}}>💰 Comparativa mes a mes</p>
+                <p className="ad-muted" style={{marginBottom:6}}>Comparativa mes a mes</p>
                 <div className="ad-big" style={{color:cambioMesAMes<=0?'var(--green)':'var(--danger)'}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
                 <p className="ad-muted" style={{marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</p>
                 <p className="ad-muted" style={{marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</p>
@@ -1214,7 +1202,7 @@ export default function App(){
               <BarrasMensuales datos={porMes} max={maxMes} anio={añoActual}/>
               {catStats.length>0&&(
                 <div className="ad-card ad-pad">
-                  <p className="ad-muted" style={{marginBottom:12}}>📊 Categorías con más desperdicios</p>
+                  <p className="ad-muted" style={{marginBottom:12}}>Categorías con más desperdicios</p>
                   {catStats.map(c=>(
                     <div key={c.cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -1232,16 +1220,16 @@ export default function App(){
               )}
               {historial.length>0&&(
                 <div className="ad-card ad-pad">
-                  <p className="ad-muted" style={{marginBottom:10}}>💡 Recomendaciones inteligentes</p>
+                  <p className="ad-muted" style={{marginBottom:10}}>Recomendaciones inteligentes</p>
                   <div style={{display:'flex',flexDirection:'column',gap:8}}>
                     {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div className="ad-note ad-note--danger">⚠ {catStats[0].cat}: {catStats[0].pctDesperdicio}% de desperdicio.</div>}
                     {consumidos.length>descartados.length&&<div className="ad-note">✓ Mejorando: consumes más de lo que descartas. ¡Sigue así!</div>}
-                    {cambioMesAMes<0&&<div className="ad-note">🎯 Progreso: este mes reduciste el desperdicio {Math.abs(cambioMesAMes)}%.</div>}
-                    {meta&&pérdidaActual>meta&&<div className="ad-note ad-note--warn">🚀 Meta: necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
+                    {cambioMesAMes<0&&<div className="ad-note">Progreso: este mes reduciste el desperdicio {Math.abs(cambioMesAMes)}%.</div>}
+                    {meta&&pérdidaActual>meta&&<div className="ad-note ad-note--warn">Meta: necesitas reducir ${Math.round(pérdidaActual-meta).toLocaleString('es-CO')} para alcanzarla.</div>}
                   </div>
                 </div>
               )}
-              {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>📊 Aún no hay datos.</div>}
+              {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Aún no hay datos.</div>}
             </div>
           </>
         )}
@@ -1252,7 +1240,7 @@ export default function App(){
               <div className="ad-hero-row"><h1 className="ad-title">Historial</h1></div>
             </header>
             <div className="ad-overlap ad-stack">
-              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="🔍 Buscar en historial..."/>
+              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="Buscar en historial..."/>
               <div className="ad-filters" style={{paddingBottom:0,alignItems:'center'}}>
                 <button className="ad-chip" aria-pressed={verConsumidos} onClick={()=>setVerConsumidos(!verConsumidos)}>✓ Consumidos</button>
                 <button className="ad-chip ad-chip--danger" aria-pressed={verDescartados} onClick={()=>setVerDescartados(!verDescartados)}>✕ Descartados</button>

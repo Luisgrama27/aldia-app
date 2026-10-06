@@ -68,7 +68,7 @@ export default function Scanner({ onResult, onClose }) {
     <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.97)',zIndex:200,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'0 20px',paddingTop:'env(safe-area-inset-top,0px)',paddingBottom:'env(safe-area-inset-bottom,0px)'}}>
       <div style={{width:'100%',maxWidth:400}}>
         <div style={{textAlign:'center',marginBottom:16}}>
-          <div style={{fontSize:17,fontWeight:600,color:'#fff',marginBottom:4}}>📷 Escanear código de barras</div>
+          <div style={{fontSize:17,fontWeight:600,color:'#fff',marginBottom:4}}>Escanear código de barras</div>
           <div style={{fontSize:13,color:'rgba(255,255,255,0.6)'}}>Apunta la cámara al código del producto</div>
         </div>
 

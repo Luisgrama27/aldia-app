@@ -1,7 +1,7 @@
 /* Al Día · estilo Glow (Refero Styles)
    Lienzo porcelana (#f4f5f6) con tarjetas blancas planas, radios grandes, titulares gruesos con
-   tracking apretado, etiquetas en mayúsculas y un acento magenta para la acción principal.
-   --green queda como verde semántico ("fresco", "ahorrado") y para el logo; --accent es el magenta.
+   tracking apretado, etiquetas en mayúsculas y el verde de Al Día como color principal (acción principal, enlaces, interruptores).
+   --green es el verde de la marca ("fresco", "ahorrado", logo); --accent es el color de las acciones y hoy coincide con él.
    El tema oscuro es una adaptación (el DESIGN.md solo define el claro). */
 
 *, *::before, *::after {
@@ -20,12 +20,12 @@
   --border2: rgba(19, 21, 23, 0.08);
   --card: #ffffff;
   --input: #eceeef;
-  --green: #1f9d63;
-  --green-soft: rgba(31, 157, 99, 0.12);
+  --green: #2f6b4f;
+  --green-soft: rgba(47, 107, 79, 0.12);
   --green-ink: #ffffff;
-  --accent: #cc62d5;
-  --accent-ink: #131517;
-  --accent-text: #a63aae;
+  --accent: #2f6b4f;
+  --accent-ink: #ffffff;
+  --accent-text: #2f6b4f;
   --hero: #f4f5f6;
   --hero-ink: #131517;
   --hero-ink2: #66686a;
@@ -70,12 +70,12 @@
     --border2: rgba(244, 245, 246, 0.09);
     --card: #17191b;
     --input: #212326;
-    --green: #3fcf8e;
-    --green-soft: rgba(63, 207, 142, 0.14);
+    --green: #5cc08d;
+    --green-soft: rgba(92, 192, 141, 0.16);
     --green-ink: #06150d;
-    --accent: #cc62d5;
-    --accent-ink: #131517;
-    --accent-text: #e48ee9;
+    --accent: #5cc08d;
+    --accent-ink: #08140d;
+    --accent-text: #6fd09c;
     --hero: #0e0f11;
     --hero-ink: #f4f5f6;
     --hero-ink2: #a2a4a6;
@@ -113,12 +113,12 @@
   --border2: rgba(244, 245, 246, 0.09);
   --card: #17191b;
   --input: #212326;
-  --green: #3fcf8e;
-  --green-soft: rgba(63, 207, 142, 0.14);
+  --green: #5cc08d;
+  --green-soft: rgba(92, 192, 141, 0.16);
   --green-ink: #06150d;
-  --accent: #cc62d5;
-  --accent-ink: #131517;
-  --accent-text: #e48ee9;
+  --accent: #5cc08d;
+  --accent-ink: #08140d;
+  --accent-text: #6fd09c;
   --hero: #0e0f11;
   --hero-ink: #f4f5f6;
   --hero-ink2: #a2a4a6;
