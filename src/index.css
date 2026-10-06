@@ -771,33 +771,6 @@ body {
   gap: 8px;
 }
 
-.ad-urgent__main {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  margin: 12px 0 14px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.ad-urgent__main .ad-icon {
-  width: 48px;
-  height: 48px;
-  font-size: 1.5rem;
-}
-
-.ad-urgent__name {
-  display: block;
-  font-size: 1.125rem;
-  font-weight: 700;
-}
-
 .ad-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1170,13 +1143,25 @@ html.vp-gap .ad-screen {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.ad-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 22px;
+}
+
+.ad-bell {
+  position: relative;
 }
 
 .ad-wordmark {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.04em;
+  color: var(--green);
 }
 
 .ad-stats {
@@ -1279,17 +1264,22 @@ html.vp-gap .ad-screen {
 
 .ad-product__row {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas: "icon pill" "body body";
   align-items: start;
   gap: 14px 8px;
 }
 
-.ad-product__row > .ad-icon {
+.ad-product__cat {
   grid-area: icon;
-  width: 48px;
-  height: 48px;
-  font-size: 1.5rem;
+  align-self: center;
+  min-width: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+  color: var(--text2);
 }
 
 .ad-product__row > .ad-pill {
@@ -1320,6 +1310,80 @@ html.vp-gap .ad-screen {
 
 .ad-product .ad-bar {
   margin-top: 14px;
+}
+
+/* ---------- Tarjeta de atención: lista compacta de productos ---------- */
+
+.ad-urgent__list {
+  display: flex;
+  flex-direction: column;
+  margin: 6px 0 4px;
+}
+
+.ad-urgent__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px solid var(--border2);
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ad-urgent__row:last-child {
+  border-bottom: 0;
+}
+
+.ad-urgent__rname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* ---------- Compartir y vista compartida ---------- */
+
+.ad-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.ad-sharelink {
+  font-size: 0.8125rem;
+  color: var(--text2);
+  word-break: break-all;
+}
+
+.ad-shared {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--bg);
+  color: var(--text);
+}
+
+.ad-cta {
+  margin-top: 16px;
+}
+
+.ad-cta .ad-btn + .ad-note,
+.ad-cta .ad-btn + .ad-btn,
+.ad-cta .ad-note + .ad-btn {
+  margin-top: 10px;
 }
 
 /* ---------- Inicio de sesión (Login.jsx inyecta sus propios estilos; ":root" sube la especificidad) ---------- */

@@ -27,10 +27,11 @@ function aplicarTema(t){
 }
 try{ aplicarTema(localStorage.getItem(TEMA_KEY)||'auto'); }catch(e){}
 
-const CATS = {
-  'Lácteos':'🥛','Carnes':'🥩','Frutas y verduras':'🥦','Granos y cereales':'🌾',
-  'Enlatados':'🥫','Bebidas':'🧃','Medicamentos':'💊','Limpieza':'🧴','Otro':'📦'
-};
+const CATS = [
+  'Lácteos','Carnes','Pescados y mariscos','Frutas y verduras','Granos y cereales',
+  'Panadería y repostería','Congelados','Enlatados','Salsas y condimentos','Snacks y dulces',
+  'Bebidas','Medicamentos','Cuidado personal','Limpieza','Bebé','Mascotas','Otro'
+];
 
 const today = new Date();
 today.setHours(0,0,0,0);
@@ -90,6 +91,10 @@ const Ico = {
   user:(<svg {...svgProps}><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>),
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
+
+const BellIcon=()=>(
+  <svg {...svgProps} width="22" height="22"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+);
 
 const LOGO=()=>(
   <div className="ad-logo">
@@ -276,7 +281,7 @@ const FAQ = [
   {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
   {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
   {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
-  {q:'¿Puedo compartir mi lista?',a:'Sí. En Inicio toca Compartir y elige WhatsApp, correo, copiar el texto u otra aplicación.'},
+  {q:'¿Puedo compartir mi lista?',a:'Sí. En Inicio toca Compartir y crea un enlace. Quien lo reciba verá tu lista dentro de Al Día sin necesitar cuenta y podrá descargar la app. El enlace vence a los 7 días y puedes desactivarlo cuando quieras.'},
   {q:'¿Mis datos son privados?',a:'Sí. Cada cuenta solo puede ver y modificar sus propios productos.'},
   {q:'¿Cómo cambio mi contraseña?',a:'Entra a Cuenta, luego Editar perfil, y toca "Enviar enlace para cambiarla". Te llegará un correo con el enlace. Si iniciaste sesión con Google, la contraseña se cambia desde tu cuenta de Google.'},
 ];
@@ -420,15 +425,15 @@ function VersionVista(){
 function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onNombre,onClose,onLogout}){
   const [vista,setVista]=useState('menu');
   const principal=[
-    {ico:'✏️',t:'Editar perfil',to:'perfil'},
-    {ico:'🎛️',t:'Preferencias',to:'prefs'},
-    {ico:'⚙️',t:'Configuración',to:'config'},
+    {t:'Editar perfil',to:'perfil'},
+    {t:'Preferencias',to:'prefs'},
+    {t:'Configuración',to:'config'},
   ];
   const config=[
-    {ico:'❓',t:'Ayuda y FAQ',to:'faq'},
-    {ico:'📧',t:'Contacto y soporte',to:'contacto'},
-    {ico:'📋',t:'Términos y privacidad',to:'legal'},
-    {ico:'ℹ️',t:'Versión',to:'version'},
+    {t:'Ayuda y FAQ',to:'faq'},
+    {t:'Contacto y soporte',to:'contacto'},
+    {t:'Términos y privacidad',to:'legal'},
+    {t:'Versión',to:'version'},
   ];
   const lista=vista==='menu'?principal:vista==='config'?config:null;
   return (
@@ -453,12 +458,12 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onN
         )}
         {lista&&lista.map(f=>(
           <button key={f.t} className="ad-sheet__row" onClick={()=>setVista(f.to)}>
-            <span>{f.ico}</span>{f.t}
+            {f.t}
             <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>
           </button>
         ))}
         {vista==='menu'&&(
-          <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}><span>🚪</span>Cerrar sesión</button>
+          <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
         {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs}/>}
@@ -498,7 +503,6 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
           {ejemplos.map((ej,i)=>(
             <div key={i} className="ad-card ad-pad" style={{padding:12}}>
               <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:10}}>
-                <span className="ad-icon">{CATS[ej.cat]}</span>
                 <div style={{minWidth:0}}>
                   <div className="ad-item__name" style={{fontSize:'.9375rem'}}>{ej.name}</div>
                   <div className="ad-muted" style={{fontSize:'.75rem'}}>{ej.cat}</div>
@@ -531,7 +535,7 @@ function EmptyStateExistente({onAgregar,catsUsadas}){
           <p className="ad-muted" style={{fontWeight:700,marginBottom:10}}>Últimas categorías usadas</p>
           <div className="ad-grid2">
             {catsUsadas.slice(0,4).map(cat=>(
-              <div key={cat} className="ad-chip" style={{justifyContent:'center',gap:6}}>{CATS[cat]||'📦'} {cat}</div>
+              <div key={cat} className="ad-chip" style={{justifyContent:'center',gap:6}}>{cat}</div>
             ))}
           </div>
         </div>
@@ -541,37 +545,66 @@ function EmptyStateExistente({onAgregar,catsUsadas}){
   );
 }
 
-function CompartirModal({activos,onClose}){
+// Crea una copia de solo lectura de la lista y devuelve un enlace que se abre sin cuenta
+function nuevoToken(){
+  const b=new Uint8Array(12);
+  crypto.getRandomValues(b);
+  return Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+const conTiempo=(promesa,ms)=>Promise.race([promesa,new Promise((_,rechazar)=>setTimeout(()=>rechazar(new Error('tiempo')),ms))]);
+
+function CompartirModal({activos,uid,nombre,onClose}){
+  const [fase,setFase]=useState('inicio'); // inicio | creando | listo | error
+  const [token,setToken]=useState('');
   const [copiado,setCopiado]=useState(false);
-  const generarTexto=()=>{
-    const lineas=activos.map(p=>{const d=daysUntil(p.exp);const label=d<0?'🔴 Vencido':d===0?'🟠 Vence hoy':d<=3?`🟠 Vence en ${d} día${d>1?'s':''}`:`🟢 Vence en ${d} días`;return `• ${p.name} (${p.cat}) — ${label}`;}).join('\n');
-    return `📋 Mi lista de vencimientos - Al Día\n\n${lineas}\n\nCompartido desde Al Día 🛡️`;
+  const url=token?`${window.location.origin}/?c=${token}`:'';
+  const mensaje=`${nombre?`${nombre} te compartió`:'Te compartieron'} su lista de vencimientos en Al Día.`;
+  const crear=async()=>{
+    setFase('creando');
+    const t=nuevoToken();
+    const ahora=Date.now();
+    try{
+      await conTiempo(setDoc(doc(db,'compartidos',t),{
+        uid,nombre:nombre||'',creadoMs:ahora,venceMs:ahora+7*86400000,
+        productos:[...activos].sort((x,y)=>daysUntil(x.exp)-daysUntil(y.exp)).map(p=>({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert??7})),
+      }),10000);
+      setToken(t);setFase('listo');
+    }catch(e){console.error(e);setFase('error');}
   };
-  const compartirWhatsApp=()=>window.open(`https://wa.me/?text=${encodeURIComponent(generarTexto())}`,'_blank');
-  const copiarPortapapeles=async()=>{try{await navigator.clipboard.writeText(generarTexto());setCopiado(true);setTimeout(()=>setCopiado(false),2000);}catch(e){alert('No se pudo copiar.');}};
-  const compartirCorreo=()=>window.open(`mailto:?subject=${encodeURIComponent('Mi lista - Al Día')}&body=${encodeURIComponent(generarTexto())}`,'_blank');
-  const compartirNativo=async()=>{if(navigator.share){try{await navigator.share({title:'Al Día',text:generarTexto()});}catch(e){}}else copiarPortapapeles();};
-  const opciones=[
-    {ico:'💬',label:'WhatsApp',fn:compartirWhatsApp},
-    {ico:'📋',label:copiado?'¡Copiado!':'Copiar texto',fn:copiarPortapapeles},
-    {ico:'📧',label:'Correo',fn:compartirCorreo},
-    {ico:'📤',label:'Compartir',fn:compartirNativo},
-  ];
+  const desactivar=async()=>{
+    try{await deleteDoc(doc(db,'compartidos',token));}catch(e){console.error(e);}
+    setToken('');setFase('inicio');
+  };
+  const copiar=async()=>{try{await navigator.clipboard.writeText(url);setCopiado(true);setTimeout(()=>setCopiado(false),2000);}catch(e){alert('No se pudo copiar.');}};
+  const nativo=async()=>{if(navigator.share){try{await navigator.share({title:'Al Día',text:mensaje,url});}catch{ /* compartir cancelado */ }}else copiar();};
+  const whatsapp=()=>window.open(`https://wa.me/?text=${encodeURIComponent(`${mensaje} ${url}`)}`,'_blank');
+  const correo=()=>window.open(`mailto:?subject=${encodeURIComponent('Mi lista de vencimientos - Al Día')}&body=${encodeURIComponent(`${mensaje}\n\n${url}`)}`,'_blank');
   return (
     <div className="ad-overlay" onClick={onClose}>
       <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Compartir lista">
         <div className="ad-sheet__handle"/>
         <h2 className="ad-section" style={{margin:'0 0 4px'}}>Compartir lista</h2>
-        <p className="ad-muted" style={{marginBottom:16}}>{activos.length} producto{activos.length!==1?'s':''} en tu inventario</p>
-        <div className="ad-grid2" style={{marginBottom:14}}>
-          {opciones.map(b=>(
-            <button key={b.label} className="ad-card ad-share" onClick={b.fn}>
-              <span style={{fontSize:24}}>{b.ico}</span>
-              <span style={{fontSize:'.8125rem',fontWeight:700}}>{b.label}</span>
-            </button>
-          ))}
-        </div>
-        <button className="ad-btn ad-btn--ghost" onClick={onClose}>Cancelar</button>
+        {fase!=='listo'?(
+          <>
+            <p className="ad-muted" style={{marginBottom:16}}>Crea un enlace para que otra persona vea tus {activos.length} producto{activos.length!==1?'s':''} dentro de Al Día, sin necesidad de tener cuenta. Es una copia de tu lista de hoy y el enlace vence en 7 días.</p>
+            {fase==='error'&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:12}}>No se pudo crear el enlace. Revisa tu conexión e inténtalo de nuevo.</div>}
+            <button className="ad-btn" onClick={crear} disabled={fase==='creando'||activos.length===0}>{fase==='creando'?'Creando enlace...':'Crear enlace'}</button>
+          </>
+        ):(
+          <>
+            <p className="ad-muted" style={{marginBottom:12}}>Tu enlace está listo. Quien lo abra verá tu lista y podrá descargar la app. Vence en 7 días.</p>
+            <div className="ad-card ad-pad ad-sharelink">{url}</div>
+            <div className="ad-stack">
+              <button className="ad-btn" onClick={nativo}>Compartir enlace</button>
+              <button className="ad-btn ad-btn--ghost" onClick={whatsapp}>WhatsApp</button>
+              <button className="ad-btn ad-btn--ghost" onClick={correo}>Correo</button>
+              <button className="ad-btn ad-btn--ghost" onClick={copiar}>{copiado?'¡Copiado!':'Copiar enlace'}</button>
+            </div>
+            <button className="ad-link" onClick={desactivar}>Desactivar este enlace</button>
+          </>
+        )}
+        <button className="ad-btn ad-btn--ghost" style={{marginTop:12}} onClick={onClose}>{fase==='listo'?'Listo':'Cancelar'}</button>
       </div>
     </div>
   );
@@ -604,7 +637,6 @@ function SimpleCharts({descartados,consumidos,catStats}){
               const pct=maxCat>0?Math.round((c.descartados/maxCat)*100):0;
               return (
                 <div key={c.cat} style={{display:'flex',alignItems:'center',gap:10}}>
-                  <span style={{fontSize:18,width:26}}>{CATS[c.cat]||'📦'}</span>
                   <div style={{flex:1}}>
                     <div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:'.875rem',fontWeight:700}}>{c.cat}</span><span className="ad-muted">{c.descartados}</span></div>
                     <div className="ad-bar" style={{marginTop:6}}><span style={{width:`${pct}%`}}/></div>
@@ -681,7 +713,6 @@ function RecetaSheet({sug,onClose}){
       <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={r.n}>
         <div className="ad-sheet__handle"/>
         <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
-          <span className="ad-icon" style={{width:52,height:52,fontSize:'1.75rem'}}>{r.e}</span>
           <div style={{minWidth:0}}>
             <h2 className="ad-section" style={{margin:0}}>{r.n}</h2>
             <p className="ad-muted">{r.min} min · {r.por} {r.por===1?'porción':'porciones'}</p>
@@ -761,10 +792,10 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
       <div className="ad-product__row">
-        <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
+        <span className="ad-product__cat">{p.cat}</span>
         <div className="ad-item__body">
           <div className="ad-item__name">{p.name}</div>
-          <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.qty?` · ${p.qty}`:''}{p.precio?` · $${parseFloat(p.precio).toLocaleString('es-CO')}`:''}</div>
+          {(p.qty||p.precio)&&<div className="ad-muted" style={{fontSize:'.8125rem'}}>{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
         </div>
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
@@ -804,6 +835,7 @@ export default function App(){
   const [verDescartados,setVerDescartados]=useState(true);
   const [accionHist,setAccionHist]=useState(null);
   const [accionProd,setAccionProd]=useState(null);
+  const [avisos,setAvisos]=useState(false);
   const [recetaAbierta,setRecetaAbierta]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
@@ -909,7 +941,7 @@ export default function App(){
   const frecuentesCont={};
   todosLosProductos.forEach(p=>{const key=`${p.name}|||${p.cat}`;frecuentesCont[key]=(frecuentesCont[key]||0)+1;});
   const productosFrecuentes=Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{const[name,cat]=key.split('|||');return{name,cat};});
-  const catStats=Object.keys(CATS).map(cat=>{
+  const catStats=CATS.map(cat=>{
     const dc=descartados.filter(p=>p.cat===cat);const cc=consumidos.filter(p=>p.cat===cat);
     const totalCat=dc.length+cc.length;const pctDesperdicio=totalCat>0?Math.round((dc.length/totalCat)*100):0;
     return{cat,descartados:dc.length,total:totalCat,pctDesperdicio,pérdidaCat:dc.reduce((s,p)=>s+(parseFloat(p.precio)||0),0)};
@@ -936,12 +968,10 @@ export default function App(){
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
   const dest=destacados[0];
-  const destD=dest?daysUntil(dest.exp):0;
   const destSt=dest?status(dest):'ok';
-  const destTexto=!dest?'':destD<0?`Venció hace ${Math.abs(destD)} día${Math.abs(destD)>1?'s':''}`:destD===0?'Vence hoy':`Vence en ${destD} día${destD>1?'s':''}`;
 
   // Receta con lo que está por vencer (sin vencer todavía, y solo comida)
-  const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas'];
+  const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas','Cuidado personal','Mascotas','Bebé'];
   const candidatosReceta=activos
     .filter(p=>daysUntil(p.exp)>=0&&status(p)!=='ok'&&!EXCLUIR_RECETA.includes(p.cat))
     .sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
@@ -1067,7 +1097,7 @@ export default function App(){
               <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>Productos frecuentes</p>
               <div className="ad-chips">
                 {productosFrecuentes.map((p,i)=>(
-                  <button key={i} className="ad-chip" onClick={()=>setForm({...form,name:p.name,cat:p.cat})}>{CATS[p.cat]} {p.name}</button>
+                  <button key={i} className="ad-chip" onClick={()=>setForm({...form,name:p.name,cat:p.cat})}>{p.name}</button>
                 ))}
               </div>
             </div>
@@ -1080,7 +1110,7 @@ export default function App(){
               <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
             </label>
             <label className="ad-field"><span className="ad-field__label">Categoría</span>
-              <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{Object.keys(CATS).map(c=><option key={c}>{c}</option>)}</select>
+              <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{CATS.map(c=><option key={c}>{c}</option>)}</select>
             </label>
             <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
               <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
@@ -1113,8 +1143,27 @@ export default function App(){
 
   return (
     <>
-      {compartir&&<CompartirModal activos={activos} onClose={()=>setCompartir(false)}/>}
+      {compartir&&<CompartirModal activos={activos} uid={usuario.uid} nombre={nombreCorto} onClose={()=>setCompartir(false)}/>}
       {recetaAbierta&&<RecetaSheet sug={recetaAbierta} onClose={()=>setRecetaAbierta(null)}/>}
+      {avisos&&(
+        <div className="ad-overlay" onClick={()=>setAvisos(false)}>
+          <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Avisos">
+            <div className="ad-sheet__handle"/>
+            <h2 className="ad-section" style={{margin:'0 0 4px'}}>Avisos</h2>
+            <p className="ad-muted" style={{marginBottom:12}}>{destacados.length===0?'Todo está al día. No tienes avisos.':`${destacados.length} producto${destacados.length!==1?'s':''} necesita${destacados.length!==1?'n':''} tu atención`}</p>
+            {destacados.map(p=>{const st=status(p);const d=daysUntil(p.exp);return(
+              <button key={p.id} className="ad-sheet__row" onClick={()=>{setAvisos(false);setAccionProd(p);}}>
+                <span style={{minWidth:0}}>
+                  <span style={{display:'block',fontWeight:700}}>{p.name}</span>
+                  <span className="ad-muted" style={{display:'block',fontSize:'.8125rem'}}>{d<0?`Venció hace ${Math.abs(d)} día${Math.abs(d)>1?'s':''}`:d===0?'Vence hoy':`Vence en ${d} día${d>1?'s':''}`} · {p.cat}</span>
+                </span>
+                <span className={`ad-pill ${pillClass(st)}`} style={{marginLeft:'auto'}}>{pillIcon(st)} {daysLabel(d)}</span>
+              </button>
+            );})}
+            <button className="ad-btn ad-btn--ghost" style={{marginTop:12}} onClick={()=>setAvisos(false)}>Cerrar</button>
+          </div>
+        </div>
+      )}
       {accionProd&&(
         <div className="ad-overlay" onClick={()=>setAccionProd(null)}>
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
@@ -1145,9 +1194,16 @@ export default function App(){
         {tab==='home'&&(
           <>
             <header className="ad-hero">
-              <div className="ad-brand">
-                <LOGO/>
-                <h1 className="ad-wordmark">al día</h1>
+              <div className="ad-topbar">
+                <div className="ad-brand">
+                  <LOGO/>
+                  <h1 className="ad-wordmark">al día</h1>
+                </div>
+                <button className="ad-hero-btn ad-bell" onClick={()=>setAvisos(true)}
+                  aria-label={destacados.length?`Avisos: ${destacados.length} producto${destacados.length!==1?'s':''} por atender`:'Avisos'}>
+                  <BellIcon/>
+                  {destacados.length>0&&<span className="ad-badge" aria-hidden="true">{destacados.length}</span>}
+                </button>
               </div>
               <p className="ad-hello">{saludo}, {nombreCorto}</p>
             </header>
@@ -1164,24 +1220,27 @@ export default function App(){
                     <div className="ad-card ad-urgent">
                       <div className="ad-urgent__top">
                         <span className="ad-muted" style={{fontWeight:700}}>{destSt==='warn'?'Próximo a vencer':'Atención hoy'}</span>
-                        <span className={`ad-pill ${pillClass(destSt)}`}>{pillIcon(destSt)} {daysLabel(destD)}</span>
+                        <span className="ad-muted">{destacados.length} producto{destacados.length!==1?'s':''}</span>
                       </div>
-                      <button className="ad-urgent__main" onClick={()=>setAccionProd(dest)}>
-                        <span className="ad-icon">{CATS[dest.cat]||'📦'}</span>
-                        <span style={{minWidth:0}}>
-                          <span className="ad-urgent__name">{dest.name}</span>
-                          <span className="ad-muted" style={{display:'block'}}>{destTexto} · {dest.cat}</span>
-                        </span>
-                      </button>
-                      <div className="ad-btn-row">
-                        <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(dest.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
-                        <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(dest.id,'descartado')} disabled={guardando}>Botar</button>
+                      <div className="ad-urgent__list">
+                        {destacados.slice(0,3).map(p=>{const st=status(p);return(
+                          <button key={p.id} className="ad-urgent__row" onClick={()=>setAccionProd(p)}>
+                            <span className="ad-urgent__rname">{p.name}</span>
+                            <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(daysUntil(p.exp))}</span>
+                          </button>
+                        );})}
                       </div>
+                      {destacados.length>3&&<button className="ad-link" onClick={()=>setAvisos(true)}>Ver {destacados.length-3} más</button>}
+                      {destacados.length===1&&(
+                        <div className="ad-btn-row">
+                          <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(dest.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
+                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(dest.id,'descartado')} disabled={guardando}>Botar</button>
+                        </div>
+                      )}
                       {sugerencia&&(
                         <div className="ad-receta">
                           <div className="ad-receta__top">Sugerencia de receta</div>
                           <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerencia)}>
-                            <span className="ad-icon">{sugerencia.receta.e}</span>
                             <span style={{minWidth:0,flex:1}}>
                               <span className="ad-receta__name">{sugerencia.receta.n}</span>
                               <span className="ad-muted" style={{display:'block'}}>Usa: {sugerencia.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
@@ -1263,7 +1322,6 @@ export default function App(){
                   {catStats.map(c=>(
                     <div key={c.cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
-                        <span style={{fontSize:20}}>{CATS[c.cat]}</span>
                         <div style={{flex:1}}>
                           <div style={{fontWeight:700}}>{c.cat}</div>
                           <div className="ad-muted" style={{fontSize:'.8125rem'}}>{c.descartados} descartados de {c.total} ({c.pctDesperdicio}%)</div>
@@ -1308,7 +1366,6 @@ export default function App(){
               {histFiltrado.map(p=>(
                 <div key={p.id} className="ad-card ad-pad" style={{paddingRight:6}}>
                   <div style={{display:'flex',alignItems:'center',gap:12}}>
-                    <span className="ad-icon">{CATS[p.cat]||'📦'}</span>
                     <div className="ad-item__body">
                       <div className="ad-item__name">{p.name}</div>
                       <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
