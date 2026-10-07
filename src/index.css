@@ -1519,6 +1519,17 @@ button.ad-stat {
   border-top: 0;
 }
 
+.ad-select-sm {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
 /* ---------- Aviso inferior con "Deshacer" ---------- */
 
 .ad-toast {
@@ -1526,7 +1537,7 @@ button.ad-stat {
   right: 0;
   bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   left: 0;
-  z-index: 60;
+  z-index: 300;
   display: flex;
   align-items: center;
   justify-content: space-between;

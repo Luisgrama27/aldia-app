@@ -63,6 +63,16 @@ function fechaEnMeses(n){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+// Días de anticipación sugeridos según lo que dura cada tipo de producto
+const ALERTAS_CAT = {
+  'Lácteos':7,'Carnes':3,'Pescados y mariscos':3,'Frutas y verduras':7,'Granos y cereales':30,
+  'Panadería y repostería':7,'Congelados':30,'Enlatados':30,'Salsas y condimentos':14,'Snacks y dulces':14,
+  'Bebidas':14,'Medicamentos':30,'Cuidado personal':30,'Limpieza':30,'Bebé':14,'Mascotas':14
+};
+const OPCIONES_ALERTA = [3,7,14,30];
+// La categoría "Otro" usa el valor general que ya tenía la persona
+const alertaDe = (cat, prefs) => prefs.alertasCat?.[cat] ?? (cat === 'Otro' ? prefs.alertaDefecto : (ALERTAS_CAT[cat] ?? prefs.alertaDefecto));
+
 function status(p){
   const d = daysUntil(p.exp);
   if(d<0) return 'expired';
@@ -246,27 +256,41 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
   );
 }
 
-function PrefsVista({prefs,onPrefs}){
+function PrefsVista({prefs,onPrefs,onAplicar,numActivos}){
+  const [abierto,setAbierto]=useState(false);
   const [tema,setTema]=useState(()=>{try{return localStorage.getItem(TEMA_KEY)||'auto';}catch(e){return 'auto';}});
   const cambiarTema=(t)=>{setTema(t);aplicarTema(t);try{localStorage.setItem(TEMA_KEY,t);}catch(e){}};
   return (
     <>
       <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Avisos</h3>
       <div className="ad-card" style={{overflow:'hidden',marginBottom:8}}>
-        <label className="ad-field"><span className="ad-field__label">Alertar con anticipación (productos nuevos)</span>
-          <select value={prefs.alertaDefecto} onChange={e=>onPrefs({alertaDefecto:parseInt(e.target.value)})}>
-            <option value={3}>3 días antes</option>
-            <option value={7}>7 días antes</option>
-            <option value={14}>14 días antes</option>
-            <option value={30}>30 días antes</option>
-          </select>
-        </label>
+        <button className="ad-sheet__row" style={{padding:'0 14px',borderTop:0}} onClick={()=>setAbierto(!abierto)} aria-expanded={abierto}>
+          Días de alerta por categoría
+          <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'.875rem'}}>{abierto?'Ocultar':'Editar'}</span>
+        </button>
+        {abierto&&(
+          <>
+            {CATS.map(c=>(
+              <div className="ad-row" key={c}>
+                <span>{c}</span>
+                <select className="ad-select-sm" aria-label={`Días de alerta para ${c}`} value={alertaDe(c,prefs)}
+                  onChange={e=>{const n=parseInt(e.target.value);onPrefs(c==='Otro'?{alertaDefecto:n}:{alertasCat:{...(prefs.alertasCat||{}),[c]:n}});}}>
+                  {OPCIONES_ALERTA.map(n=><option key={n} value={n}>{n} días</option>)}
+                </select>
+              </div>
+            ))}
+            <div className="ad-row">
+              <button className="ad-link" onClick={()=>onPrefs({alertasCat:{},alertaDefecto:7})}>Restablecer sugeridos</button>
+              <button className="ad-link" onClick={onAplicar}>Aplicar a mis {numActivos} productos</button>
+            </div>
+          </>
+        )}
         <div className="ad-row">
           <span>Resumen por correo</span>
           <button className="ad-toggle" role="switch" aria-checked={prefs.correo} aria-label="Resumen por correo" onClick={()=>onPrefs({correo:!prefs.correo})}/>
         </div>
       </div>
-      <p className="ad-muted" style={{marginBottom:16,lineHeight:1.5}}>Cuando abres la app y tienes productos vencidos o por vencer, te enviamos un correo con la lista.</p>
+      <p className="ad-muted" style={{marginBottom:16,lineHeight:1.5}}>Cada categoría tiene sus días de alerta sugeridos: la carne avisa más cerca de la fecha y los enlatados con más tiempo. Se aplican a los productos nuevos. Si activas el resumen por correo, te enviamos la lista una vez al día al abrir la app con productos vencidos o por vencer.</p>
       <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Apariencia</h3>
       <div className="ad-chips">
         {[['auto','Automático'],['claro','Claro'],['oscuro','Oscuro']].map(([id,lbl])=>(
@@ -281,7 +305,7 @@ function PrefsVista({prefs,onPrefs}){
 const FAQ = [
   {q:'¿Cómo agrego un producto?',a:'Toca el botón verde "+" de la barra inferior. Escribe el nombre, elige la categoría y la fecha de vencimiento (son obligatorios) y toca Guardar. Si quieres, también puedes registrar cantidad, precio y con cuántos días de anticipación quieres la alerta.'},
   {q:'¿Qué significan los colores y etiquetas?',a:'Vencido y Urgente (3 días o menos) se muestran en rojo. Por vencer, que es cuando entra en el periodo de alerta que elegiste, va en amarillo. Al día, cuando aún falta tiempo, va en verde.'},
-  {q:'¿Cuándo me avisa la app?',a:'Cada producto tiene una alerta de 3, 7, 14 o 30 días antes. Al abrir la app, la tarjeta "Atención hoy" te muestra el producto más urgente. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
+  {q:'¿Cuándo me avisa la app?',a:'La alerta depende de la categoría (por ejemplo, la carne avisa más cerca de la fecha y los enlatados con más tiempo) y puedes cambiarla en Cuenta, Preferencias, o en cada producto. Al abrir la app, la tarjeta "Atención hoy" te muestra el producto más urgente. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
   {q:'¿Cómo funcionan las recetas sugeridas?',a:'Cuando tienes productos por vencer (que aún no han vencido), en Inicio te proponemos una receta que los aproveche. Si hay varios, buscamos una receta que use la mayor cantidad posible. Si no hay nada por vencer, verás el mensaje "Todo al día". No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
   {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
   {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
@@ -427,7 +451,7 @@ function VersionVista(){
   );
 }
 
-function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onNombre,onClose,onLogout}){
+function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout}){
   const [vista,setVista]=useState('menu');
   const principal=[
     {t:'Editar perfil',to:'perfil'},
@@ -478,7 +502,7 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onN
           <button className="ad-btn ad-btn--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
-        {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs}/>}
+        {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs} onAplicar={onAplicarAlertas} numActivos={numActivos}/>}
         {vista==='faq'&&<FaqVista/>}
         {vista==='contacto'&&<ContactoVista usuario={usuario}/>}
         {vista==='legal'&&<LegalVista/>}
@@ -829,6 +853,7 @@ export default function App(){
   const [busqueda,setBusqueda]=useState('');
   const [editId,setEditId]=useState(null);
   const [form,setForm]=useState({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''});
+  const [alertaManual,setAlertaManual]=useState(false);
   const [guardando,setGuardando]=useState(false);
   const [correoEnviado,setCorreoEnviado]=useState(false);
   const [menuAbierto,setMenuAbierto]=useState(false);
@@ -1046,7 +1071,9 @@ export default function App(){
   });
   const maxMes=Math.max(1,...porMes.map(m=>Math.max(m.c,m.d)));
 
-  const abrirNuevo=(catInicial)=>{setEditId(null);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:prefs.alertaDefecto,precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const abrirNuevo=(catInicial)=>{setEditId(null);setAlertaManual(false);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:alertaDe(catInicial||'Lácteos',prefs),precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  // En un producto nuevo, la alerta sigue a la categoría mientras la persona no la cambie
+  const cambiarCategoria=(cat)=>setForm(f=>({...f,cat,alert:(editId||alertaManual)?f.alert:alertaDe(cat,prefs)}));
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
 
   const actualizarPrefs=(cambios)=>{
@@ -1091,7 +1118,7 @@ export default function App(){
   };
 
   const agregarEjemplo=(ej)=>{
-    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:7,precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
+    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:alertaDe(ej.cat,prefs),precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
   };
 
   const eliminar=()=>{
@@ -1100,6 +1127,15 @@ export default function App(){
   };
 
   // Eliminar un producto activo directamente desde la lista (sin abrir el formulario)
+  // Cambia la alerta de los productos activos según los valores de su categoría
+  const aplicarAlertas=()=>{
+    const cambios=activos.filter(p=>p.alert!==alertaDe(p.cat,prefs));
+    if(!cambios.length){avisar('Tus productos ya tienen esas alertas');return;}
+    if(!window.confirm(`¿Cambiar la alerta de ${cambios.length} producto${cambios.length!==1?'s':''} según su categoría?`))return;
+    cambios.forEach(p=>updateDoc(doc(db,"productos",p.id),{alert:alertaDe(p.cat,prefs)}).catch(e=>falla(e,'actualizar las alertas')));
+    avisar(`Alertas actualizadas en ${cambios.length} producto${cambios.length!==1?'s':''}`);
+  };
+
   const eliminarProducto=(id)=>{
     const p=products.find(x=>x.id===id);
     if(!p)return;
@@ -1135,7 +1171,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
+    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
   );
 
   if(pantalla==='form') return (
@@ -1156,7 +1192,7 @@ export default function App(){
               <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>Productos frecuentes</p>
               <div className="ad-chips">
                 {productosFrecuentes.map((p,i)=>(
-                  <button key={i} className="ad-chip" onClick={()=>setForm({...form,name:p.name,cat:p.cat})}>{p.name}</button>
+                  <button key={i} className="ad-chip" onClick={()=>{setForm(f=>({...f,name:p.name}));cambiarCategoria(p.cat);}}>{p.name}</button>
                 ))}
               </div>
             </div>
@@ -1169,7 +1205,7 @@ export default function App(){
               <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
             </label>
             <label className="ad-field"><span className="ad-field__label">Categoría</span>
-              <select value={form.cat} onChange={e=>setForm({...form,cat:e.target.value})}>{CATS.map(c=><option key={c}>{c}</option>)}</select>
+              <select value={form.cat} onChange={e=>cambiarCategoria(e.target.value)}>{CATS.map(c=><option key={c}>{c}</option>)}</select>
             </label>
             <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
               <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
@@ -1186,9 +1222,10 @@ export default function App(){
               <input type="number" value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/>
             </label>
             <label className="ad-field"><span className="ad-field__label">Alertar con anticipación</span>
-              <select value={form.alert} onChange={e=>setForm({...form,alert:parseInt(e.target.value)})}>
+              <select value={form.alert} onChange={e=>{setAlertaManual(true);setForm({...form,alert:parseInt(e.target.value)});}}>
                 <option value={3}>3 días antes</option><option value={7}>7 días antes</option><option value={14}>14 días antes</option><option value={30}>30 días antes</option>
               </select>
+              {!editId&&!alertaManual&&<span className="ad-muted" style={{fontSize:'.75rem'}}>Sugerido para {form.cat}. Puedes cambiarlo.</span>}
             </label>
           </div>
           <button className="ad-btn" style={{opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
