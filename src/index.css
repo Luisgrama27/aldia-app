@@ -1404,6 +1404,121 @@ html.vp-gap .ad-screen {
   letter-spacing: -0.03em;
 }
 
+/* ---------- Estadísticas, Historial y Cuenta ---------- */
+
+.ad-eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.ad-stats--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.ad-stack .ad-stats {
+  margin: 0;
+}
+
+.ad-stat__n--md {
+  font-size: 1.625rem;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+button.ad-stat {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ad-stat[aria-pressed="false"] {
+  opacity: 0.45;
+}
+
+.ad-donut {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.ad-donut__ring {
+  position: relative;
+  flex: none;
+  width: 132px;
+  height: 132px;
+}
+
+.ad-donut__pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ad-donut__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.ad-donut__legend > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ad-hgroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ad-hgroup__t {
+  margin: 6px 0 0;
+}
+
+.ad-card.ad-hrow {
+  padding: 14px 6px 14px 16px;
+  border-radius: 20px;
+}
+
+.ad-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ad-profile .ad-avatar {
+  width: 60px;
+  height: 60px;
+  font-size: 1.25rem;
+}
+
+.ad-profile__name {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.ad-card.ad-group {
+  margin-bottom: 12px;
+  padding: 0 14px;
+  border: 0;
+  background: var(--bg);
+}
+
+.ad-group .ad-sheet__row:first-child {
+  border-top: 0;
+}
+
 /* ---------- Aviso inferior con "Deshacer" ---------- */
 
 .ad-toast {
@@ -1442,7 +1557,7 @@ html.vp-gap .ad-screen {
 
 /* ---------- Compartir y vista compartida ---------- */
 
-.ad-stack {
+.ad-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;

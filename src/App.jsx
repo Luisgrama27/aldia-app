@@ -446,12 +446,12 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onN
       <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label={TITULOS[vista]||'Cuenta'}>
         <div className="ad-sheet__handle"/>
         {vista==='menu'?(
-          <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+          <div className="ad-profile">
             <div className="ad-avatar ad-avatar--solid">
               {foto?<img src={foto} alt="perfil"/>:iniciales}
             </div>
             <div style={{minWidth:0}}>
-              <div className="ad-item__name">{nombre}</div>
+              <div className="ad-profile__name">{nombre}</div>
               <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
             </div>
           </div>
@@ -461,14 +461,21 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onN
             <h2 className="ad-section" style={{margin:0}}>{TITULOS[vista]}</h2>
           </div>
         )}
-        {lista&&lista.map(f=>(
-          <button key={f.t} className="ad-sheet__row" onClick={()=>setVista(f.to)}>
-            {f.t}
-            <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>
-          </button>
-        ))}
+        {lista&&(
+          <>
+            <p className="ad-eyebrow">{vista==='menu'?'Cuenta':'Ayuda y legal'}</p>
+            <div className="ad-card ad-group">
+              {lista.map(f=>(
+                <button key={f.t} className="ad-sheet__row" onClick={()=>setVista(f.to)}>
+                  {f.t}
+                  <span style={{marginLeft:'auto',color:'var(--text2)',fontSize:'1.25rem'}}>›</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
         {vista==='menu'&&(
-          <button className="ad-sheet__row ad-sheet__row--danger" onClick={onLogout}>Cerrar sesión</button>
+          <button className="ad-btn ad-btn--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
         {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs}/>}
@@ -600,7 +607,7 @@ function CompartirModal({activos,uid,nombre,onClose}){
           <>
             <p className="ad-muted" style={{marginBottom:12}}>Tu enlace está listo. Quien lo abra verá tu lista y podrá descargar la app. Vence en 7 días.</p>
             <div className="ad-card ad-pad ad-sharelink">{url}</div>
-            <div className="ad-stack">
+            <div className="ad-actions">
               <button className="ad-btn" onClick={nativo}>Compartir enlace</button>
               <button className="ad-btn ad-btn--ghost" onClick={whatsapp}>WhatsApp</button>
               <button className="ad-btn ad-btn--ghost" onClick={correo}>Correo</button>
@@ -625,13 +632,13 @@ function SimpleCharts({descartados,consumidos,catStats}){
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <div style={{flex:1,display:'flex',height:14,borderRadius:8,overflow:'hidden',background:'var(--input)'}}>
             <div style={{width:`${Math.round((consumidos.length/total)*100)}%`,background:'var(--green)'}}/>
-            <div style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'#e4775a'}}/>
+            <div style={{width:`${Math.round((descartados.length/total)*100)}%`,background:'var(--danger)'}}/>
           </div>
           <span className="ad-muted" style={{minWidth:90,textAlign:'right'}}>{consumidos.length} ✓ / {descartados.length} ✗</span>
         </div>
         <div style={{display:'flex',gap:16,marginTop:10}}>
           <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos</span>
-          <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados</span>
+          <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--danger)'}}/>Descartados</span>
         </div>
       </div>
       {catStats.length>0&&(
@@ -665,24 +672,24 @@ function fechaCorta(iso){
 
 function Donut({consumidos,descartados}){
   const total=consumidos+descartados;
-  const r=70;
+  const r=52;
   const c=2*Math.PI*r;
   const pct=total>0?consumidos/total:0;
   return (
     <div className="ad-card ad-pad">
-      <div style={{position:'relative',width:180,height:180,margin:'0 auto'}}>
-        <svg width="180" height="180" viewBox="0 0 180 180" role="img" aria-label={total>0?`Eficiencia ${Math.round(pct*100)} por ciento`:'Sin datos de eficiencia'}>
-          <circle cx="90" cy="90" r={r} fill="none" stroke={total>0?'#e4775a':'var(--green-soft)'} strokeWidth="22"/>
-          {total>0&&<circle cx="90" cy="90" r={r} fill="none" stroke="var(--green)" strokeWidth="22" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 90 90)"/>}
-        </svg>
-        <div style={{position:'absolute',inset:0,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center'}}>
-          <div className="ad-big" style={{fontSize:'2rem'}}>{total>0?`${Math.round(pct*100)}%`:'—'}</div>
-          <div className="ad-muted">Eficiencia</div>
+      <p className="ad-eyebrow">Eficiencia</p>
+      <div className="ad-donut">
+        <div className="ad-donut__ring">
+          <svg width="132" height="132" viewBox="0 0 132 132" role="img" aria-label={total>0?`Eficiencia ${Math.round(pct*100)} por ciento`:'Sin datos de eficiencia'}>
+            <circle cx="66" cy="66" r={r} fill="none" stroke={total>0?'var(--danger)':'var(--track)'} strokeWidth="16"/>
+            {total>0&&<circle cx="66" cy="66" r={r} fill="none" stroke="var(--green)" strokeWidth="16" strokeDasharray={`${c*pct} ${c}`} transform="rotate(-90 66 66)"/>}
+          </svg>
+          <div className="ad-donut__pct ad-big">{total>0?`${Math.round(pct*100)}%`:'—'}</div>
         </div>
-      </div>
-      <div style={{display:'flex',justifyContent:'center',gap:18,marginTop:12,flexWrap:'wrap'}}>
-        <span style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos ({consumidos})</span>
-        <span style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados ({descartados})</span>
+        <div className="ad-donut__legend">
+          <div><span className="ad-stat__n ad-stat__n--ok">{consumidos}</span><span className="ad-stat__l">Consumidos</span></div>
+          <div><span className="ad-stat__n ad-stat__n--danger">{descartados}</span><span className="ad-stat__l">Descartados</span></div>
+        </div>
       </div>
     </div>
   );
@@ -691,12 +698,12 @@ function Donut({consumidos,descartados}){
 function BarrasMensuales({datos,max,anio}){
   return (
     <div className="ad-card ad-pad">
-      <p className="ad-muted" style={{marginBottom:12}}>Productos por mes ({anio})</p>
+      <p className="ad-eyebrow">Productos por mes ({anio})</p>
       <div style={{display:'flex',alignItems:'flex-end',gap:4,height:120,borderBottom:'1px solid var(--border)'}}>
         {datos.map(m=>(
           <div key={m.lbl} style={{flex:1,height:'100%',display:'flex',alignItems:'flex-end',justifyContent:'center',gap:2}}>
             <div title={`${m.lbl}: ${m.c} consumidos`} style={{width:'44%',height:`${(m.c/max)*100}%`,minHeight:m.c?4:0,background:'var(--green)',borderRadius:'4px 4px 0 0'}}/>
-            <div title={`${m.lbl}: ${m.d} descartados`} style={{width:'44%',height:`${(m.d/max)*100}%`,minHeight:m.d?4:0,background:'#e4775a',borderRadius:'4px 4px 0 0'}}/>
+            <div title={`${m.lbl}: ${m.d} descartados`} style={{width:'44%',height:`${(m.d/max)*100}%`,minHeight:m.d?4:0,background:'var(--danger)',borderRadius:'4px 4px 0 0'}}/>
           </div>
         ))}
       </div>
@@ -705,7 +712,7 @@ function BarrasMensuales({datos,max,anio}){
       </div>
       <div style={{display:'flex',justifyContent:'center',gap:18,marginTop:10,flexWrap:'wrap'}}>
         <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--green)'}}/>Consumidos</span>
-        <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'#e4775a'}}/>Descartados</span>
+        <span className="ad-muted" style={{display:'flex',alignItems:'center',gap:6}}><span style={{width:12,height:12,borderRadius:3,background:'var(--danger)'}}/>Descartados</span>
       </div>
     </div>
   );
@@ -1020,6 +1027,14 @@ export default function App(){
     .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
     .filter(p=>!busquedaHist||p.name.toLowerCase().includes(busquedaHist.toLowerCase()))
     .sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado));
+  const gruposHist=histFiltrado.reduce((acc,p)=>{
+    const d=p.fechaEstado?new Date(p.fechaEstado):null;
+    const clave=d?`${d.getFullYear()}-${d.getMonth()}`:'sin';
+    const titulo=d?d.toLocaleDateString('es-CO',{month:'long',year:'numeric'}):'Sin fecha';
+    const g=acc.find(x=>x.clave===clave);
+    if(g)g.items.push(p);else acc.push({clave,titulo,items:[p]});
+    return acc;
+  },[]);
 
   const porMes=MESES_CORTOS.map(lbl=>({lbl,c:0,d:0}));
   historial.forEach(p=>{
@@ -1344,17 +1359,18 @@ export default function App(){
         {tab==='estadisticas'&&(
           <>
             <header className="ad-hero ad-hero--sm">
-              <div className="ad-hero-row"><h1 className="ad-title">Estadísticas</h1></div>
+              <p className="ad-hello">Tu impacto</p>
+              <h1 className="ad-title">Estadísticas</h1>
             </header>
             <div className="ad-overlap ad-stack">
               <Donut consumidos={consumidos.length} descartados={descartados.length}/>
-              <div className="ad-grid2">
-                <div className="ad-card ad-pad"><p className="ad-muted">Dinero salvado</p><div className="ad-big" style={{fontSize:'1.375rem',color:'var(--green)'}}>${Math.round(ahorro).toLocaleString('es-CO')}</div></div>
-                <div className="ad-card ad-pad"><p className="ad-muted">Dinero perdido</p><div className="ad-big" style={{fontSize:'1.375rem',color:'var(--danger)'}}>${Math.round(perdida).toLocaleString('es-CO')}</div></div>
+              <div className="ad-stats ad-stats--2">
+                <div className="ad-stat"><span className="ad-stat__l">Dinero salvado</span><span className="ad-stat__n ad-stat__n--md ad-stat__n--ok">${Math.round(ahorro).toLocaleString('es-CO')}</span></div>
+                <div className="ad-stat"><span className="ad-stat__l">Dinero perdido</span><span className="ad-stat__n ad-stat__n--md ad-stat__n--danger">${Math.round(perdida).toLocaleString('es-CO')}</span></div>
               </div>
               <div className="ad-card ad-pad">
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                  <p className="ad-muted">Tu meta de desperdicio</p>
+                  <p className="ad-eyebrow" style={{margin:0}}>Tu meta de desperdicio</p>
                   <button className="ad-link" onClick={()=>{setEditandoMeta(!editandoMeta);setValorMeta(meta?meta.toString():'');}}>{editandoMeta?'Cancelar':'Editar'}</button>
                 </div>
                 {!editandoMeta?(
@@ -1371,7 +1387,7 @@ export default function App(){
                 )}
               </div>
               <div className="ad-card ad-pad">
-                <p className="ad-muted" style={{marginBottom:6}}>Comparativa mes a mes</p>
+                <p className="ad-eyebrow">Comparativa mes a mes</p>
                 <div className="ad-big" style={{color:cambioMesAMes<=0?'var(--green)':'var(--danger)'}}>{cambioMesAMes>0?'+':''}{cambioMesAMes}%</div>
                 <p className="ad-muted" style={{marginTop:8}}>Este mes: ${Math.round(pérdidaActual).toLocaleString('es-CO')} | Mes anterior: ${Math.round(pérdidaAnterior).toLocaleString('es-CO')}</p>
                 <p className="ad-muted" style={{marginTop:4}}>{cambioMesAMes<0?'✓ ¡Mejorando! Desperdiciaste menos':cambioMesAMes>0?'⚠ Aumentó el desperdicio':'→ Igual que el mes anterior'}</p>
@@ -1379,7 +1395,7 @@ export default function App(){
               <BarrasMensuales datos={porMes} max={maxMes} anio={añoActual}/>
               {catStats.length>0&&(
                 <div className="ad-card ad-pad">
-                  <p className="ad-muted" style={{marginBottom:12}}>Categorías con más desperdicios</p>
+                  <p className="ad-eyebrow">Categorías con más desperdicios</p>
                   {catStats.map(c=>(
                     <div key={c.cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
@@ -1396,7 +1412,7 @@ export default function App(){
               )}
               {historial.length>0&&(
                 <div className="ad-card ad-pad">
-                  <p className="ad-muted" style={{marginBottom:10}}>Recomendaciones inteligentes</p>
+                  <p className="ad-eyebrow">Recomendaciones inteligentes</p>
                   <div style={{display:'flex',flexDirection:'column',gap:8}}>
                     {catStats.length>0&&catStats[0].pctDesperdicio>50&&<div className="ad-note ad-note--danger">⚠ {catStats[0].cat}: {catStats[0].pctDesperdicio}% de desperdicio.</div>}
                     {consumidos.length>descartados.length&&<div className="ad-note">✓ Mejorando: consumes más de lo que descartas. ¡Sigue así!</div>}
@@ -1413,30 +1429,45 @@ export default function App(){
         {tab==='historial'&&(
           <>
             <header className="ad-hero ad-hero--sm">
-              <div className="ad-hero-row"><h1 className="ad-title">Historial</h1></div>
+              <p className="ad-hello">Tu registro</p>
+              <h1 className="ad-title">Historial</h1>
             </header>
             <div className="ad-overlap ad-stack">
-              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="Buscar en historial..."/>
-              <div className="ad-filters" style={{paddingBottom:0,alignItems:'center'}}>
-                <button className="ad-chip" aria-pressed={verConsumidos} onClick={()=>setVerConsumidos(!verConsumidos)}>✓ Consumidos</button>
-                <button className="ad-chip ad-chip--danger" aria-pressed={verDescartados} onClick={()=>setVerDescartados(!verDescartados)}>✕ Descartados</button>
-                {historial.length>0&&<button className="ad-link ad-link--danger" style={{marginLeft:'auto'}} onClick={eliminarTodoHistorial}>Borrar todo</button>}
+              <div className="ad-stats ad-stats--2">
+                <button className="ad-stat" aria-pressed={verConsumidos} onClick={()=>setVerConsumidos(!verConsumidos)}>
+                  <span className="ad-stat__n ad-stat__n--ok">{consumidos.length}</span><span className="ad-stat__l">Consumidos</span>
+                </button>
+                <button className="ad-stat" aria-pressed={verDescartados} onClick={()=>setVerDescartados(!verDescartados)}>
+                  <span className="ad-stat__n ad-stat__n--danger">{descartados.length}</span><span className="ad-stat__l">Descartados</span>
+                </button>
               </div>
+              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="Buscar en historial..."/>
+              {historial.length>0&&(
+                <div className="ad-sechead">
+                  <p className="ad-eyebrow" style={{margin:0}}>{histFiltrado.length} producto{histFiltrado.length!==1?'s':''}</p>
+                  <button className="ad-link ad-link--danger" onClick={eliminarTodoHistorial}>Borrar todo</button>
+                </div>
+              )}
               {historial.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>No hay productos en el historial aún.</div>}
               {historial.length>0&&histFiltrado.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
-              {histFiltrado.map(p=>(
-                <div key={p.id} className="ad-card ad-pad" style={{paddingRight:6}}>
-                  <div style={{display:'flex',alignItems:'center',gap:12}}>
-                    <div className="ad-item__body">
-                      <div className="ad-item__name">{p.name}</div>
-                      <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
+              {gruposHist.map(g=>(
+                <div key={g.clave} className="ad-hgroup">
+                  <p className="ad-eyebrow ad-hgroup__t">{g.titulo}</p>
+                  {g.items.map(p=>(
+                    <div key={p.id} className="ad-card ad-hrow">
+                      <div style={{display:'flex',alignItems:'center',gap:12}}>
+                        <div className="ad-item__body">
+                          <div className="ad-item__name">{p.name}</div>
+                          <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
+                        </div>
+                        <div style={{textAlign:'right',flex:'none'}}>
+                          <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--danger'}`}>{p.estado==='consumido'?'✓ Consumido':'✕ Descartado'}</span>
+                          <div className="ad-muted" style={{fontSize:'.75rem',marginTop:4}}>{fechaCorta(p.fechaEstado)}</div>
+                        </div>
+                        <button className="ad-kebab" aria-label={`Más opciones de ${p.name}`} onClick={()=>setAccionHist(p)}>⋮</button>
+                      </div>
                     </div>
-                    <div style={{textAlign:'right',flex:'none'}}>
-                      <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--danger'}`}>{p.estado==='consumido'?'✓ Consumido':'✕ Descartado'}</span>
-                      <div className="ad-muted" style={{fontSize:'.75rem',marginTop:4}}>{fechaCorta(p.fechaEstado)}</div>
-                    </div>
-                    <button className="ad-kebab" aria-label={`Más opciones de ${p.name}`} onClick={()=>setAccionHist(p)}>⋮</button>
-                  </div>
+                  ))}
                 </div>
               ))}
             </div>
