@@ -1404,6 +1404,42 @@ html.vp-gap .ad-screen {
   letter-spacing: -0.03em;
 }
 
+/* ---------- Aviso inferior con "Deshacer" ---------- */
+
+.ad-toast {
+  position: fixed;
+  right: 0;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: calc(100% - 32px);
+  max-width: 448px;
+  margin: 0 auto;
+  padding: 4px 8px 4px 18px;
+  border-radius: 20px;
+  background: var(--on-fill);
+  color: var(--on-ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.ad-toast button {
+  flex: none;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
 /* ---------- Compartir y vista compartida ---------- */
 
 .ad-stack {

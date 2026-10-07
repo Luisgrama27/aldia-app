@@ -16,7 +16,7 @@ const APP_VERSION = "1.0.0";
 // Cambia estos datos por los reales de tu soporte (el WhatsApp va con código de país, sin + ni espacios: 573001234567)
 const SOPORTE_EMAIL = "soporte@aldia.com";
 const SOPORTE_WHATSAPP = "";
-const FECHA_LEGAL = "1 de octubre de 2026";
+const FECHA_LEGAL = "6 de octubre de 2026";
 
 // Tema: "auto" sigue al teléfono; "claro" y "oscuro" lo fuerzan
 const TEMA_KEY = "tema_app";
@@ -33,9 +33,6 @@ const CATS = [
   'Bebidas','Medicamentos','Cuidado personal','Limpieza','Bebé','Mascotas','Otro'
 ];
 
-const today = new Date();
-today.setHours(0,0,0,0);
-
 function getSaludo(){
   const h = new Date().getHours();
   if(h<12) return 'Buenos días';
@@ -46,12 +43,23 @@ function getSaludo(){
 function daysUntil(dateStr){
   const d = new Date(dateStr+'T12:00:00');
   d.setHours(0,0,0,0);
-  return Math.round((d-today)/86400000);
+  const hoy = new Date();
+  hoy.setHours(0,0,0,0);
+  return Math.round((d-hoy)/86400000);
 }
 
 function fechaEn(n){
   const d = new Date();
   d.setDate(d.getDate()+n);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function fechaEnMeses(n){
+  const d = new Date();
+  const dia = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth()+n);
+  d.setDate(Math.min(dia, new Date(d.getFullYear(), d.getMonth()+1, 0).getDate()));
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
@@ -326,12 +334,12 @@ function LegalVista(){
       <p style={p}><strong>6. Cambios.</strong> Podemos actualizar estos términos y te avisaremos dentro de la app.</p>
 
       <h3 className="ad-section" style={h}>Política de privacidad</h3>
-      <p style={p}><strong>Qué datos guardamos.</strong> Tu nombre, tu correo, la foto de perfil de Google si inicias sesión con Google, y los productos que registras (nombre, categoría, fecha de vencimiento, cantidad, precio y estado).</p>
+      <p style={p}><strong>Qué datos guardamos.</strong> Tu nombre, tu correo, la foto de perfil de Google si inicias sesión con Google, y los productos que registras (nombre, categoría, fecha de vencimiento, cantidad, precio y estado). Si usas la opción Compartir, guardamos además una copia de solo lectura de tu lista (nombre, categoría, fecha y cantidad de cada producto, y tu nombre) durante 7 días.</p>
       <p style={p}><strong>Para qué los usamos.</strong> Para mostrar tu lista, enviarte avisos y calcular tus estadísticas.</p>
       <p style={p}><strong>Dónde se guardan.</strong> Usamos Firebase (Google) para el inicio de sesión y la base de datos, y EmailJS para enviar los correos de bienvenida y de aviso. Tu meta de desperdicio, tus preferencias y el tema se guardan solo en tu dispositivo.</p>
-      <p style={p}><strong>Con quién los compartimos.</strong> No vendemos tus datos. Solo los compartimos con los proveedores anteriores, que son necesarios para que la app funcione. La lista que compartes por WhatsApp o correo la decides tú.</p>
+      <p style={p}><strong>Con quién los compartimos.</strong> No vendemos tus datos. Solo los compartimos con los proveedores anteriores, que son necesarios para que la app funcione. La lista que compartes con el botón Compartir queda como una copia de solo lectura que cualquier persona con el enlace puede ver durante 7 días; puedes desactivarla cuando quieras. Lo que envías por WhatsApp o correo lo decides tú.</p>
       <p style={p}><strong>Tus derechos.</strong> Puedes pedir conocer, actualizar, corregir o eliminar tus datos personales, según la Ley 1581 de 2012 de Colombia. Escríbenos a {SOPORTE_EMAIL}.</p>
-      <p style={p}><strong>Seguridad.</strong> Cada cuenta solo puede acceder a sus propios productos.</p>
+      <p style={p}><strong>Seguridad.</strong> Cada cuenta solo puede acceder a sus propios productos. Las listas compartidas solo se abren con su enlace, que es único y difícil de adivinar.</p>
     </div>
   );
 }
@@ -834,6 +842,28 @@ export default function App(){
   const [accionProd,setAccionProd]=useState(null);
   const [avisos,setAvisos]=useState(false);
   const [selDest,setSelDest]=useState(null);
+  const [toast,setToast]=useState(null);
+  const toastTimer=useRef(null);
+  const [tick,setTick]=useState(0);
+
+  // Vuelve a calcular los días al volver a la app o al pasar la medianoche
+  useEffect(()=>{
+    const refrescar=()=>setTick(t=>t+1);
+    const alVolver=()=>{if(document.visibilityState==='visible')refrescar();};
+    document.addEventListener('visibilitychange',alVolver);
+    const ahora=new Date();
+    const medianoche=new Date(ahora);
+    medianoche.setHours(24,0,5,0);
+    const id=setTimeout(refrescar,medianoche-ahora);
+    return()=>{document.removeEventListener('visibilitychange',alVolver);clearTimeout(id);};
+  },[tick]);
+
+  // Aviso inferior con opción de deshacer
+  const avisar=(texto,deshacer)=>{
+    clearTimeout(toastTimer.current);
+    setToast({texto,deshacer});
+    toastTimer.current=setTimeout(()=>setToast(null),6000);
+  };
   const [recetaAbierta,setRecetaAbierta]=useState(null);
   const [prefs,setPrefs]=useState({alertaDefecto:7,correo:true});
   const correoEnviadoHoy=useRef(false);
@@ -868,13 +898,15 @@ export default function App(){
         const raw=localStorage.getItem(`prefs_${usuario.uid}`);
         if(raw&&JSON.parse(raw).correo===false)correoActivo=false;
       }catch(e){}
-      if(!correoEnviadoHoy.current&&correoActivo){
+      let yaEnviado=false;
+      try{yaEnviado=localStorage.getItem(`correo_${usuario.uid}`)===fechaEn(0);}catch{ /* sin almacenamiento */ }
+      if(!correoEnviadoHoy.current&&correoActivo&&!yaEnviado){
         const urgentes=prods.filter(p=>!p.estado&&(status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if(urgentes.length>0){
           correoEnviadoHoy.current=true;
           const lista=urgentes.map(p=>`• ${p.name} (${p.cat}) — ${daysLabel(daysUntil(p.exp))}`).join('\n');
           emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{to_email:usuario.email,nombre:usuario.displayName||usuario.email,lista_productos:lista},EMAILJS_KEY)
-            .then(()=>{setCorreoEnviado(true);setTimeout(()=>setCorreoEnviado(false),5000);})
+            .then(()=>{try{localStorage.setItem(`correo_${usuario.uid}`,fechaEn(0));}catch{ /* sin almacenamiento */ }setCorreoEnviado(true);setTimeout(()=>setCorreoEnviado(false),5000);})
             .catch(e=>console.error(e));
         }
       }
@@ -1032,13 +1064,15 @@ export default function App(){
   };
 
   const marcarEstado=(estado)=>{
-    updateDoc(doc(db,"productos",editId),{estado,fechaEstado:new Date().toISOString()}).catch(e=>falla(e,'actualizar el producto'));
+    marcarProducto(editId,estado);
     setTab('home');setPantalla('');
   };
 
   // Marcar un producto directamente desde la tarjeta de inicio ("Ya la usé" / "Botar")
   const marcarProducto=(id,estado)=>{
+    const p=products.find(x=>x.id===id);
     updateDoc(doc(db,"productos",id),{estado,fechaEstado:new Date().toISOString()}).catch(e=>falla(e,'actualizar el producto'));
+    if(p)avisar(`${p.name}: ${estado==='consumido'?'marcado como consumido':'marcado como descartado'}`,()=>updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null}).catch(e=>falla(e,'deshacer el cambio')));
   };
 
   const agregarEjemplo=(ej)=>{
@@ -1046,14 +1080,18 @@ export default function App(){
   };
 
   const eliminar=()=>{
-    deleteDoc(doc(db,"productos",editId)).catch(e=>falla(e,'eliminar el producto'));
+    eliminarProducto(editId);
     setTab('home');setPantalla('');
   };
 
   // Eliminar un producto activo directamente desde la lista (sin abrir el formulario)
   const eliminarProducto=(id)=>{
-    if(!window.confirm('¿Eliminar este producto?'))return;
+    const p=products.find(x=>x.id===id);
+    if(!p)return;
+    const datos={...p};
+    delete datos.id;
     deleteDoc(doc(db,"productos",id)).catch(e=>falla(e,'eliminar el producto'));
+    avisar(`${p.name} eliminado`,()=>setDoc(doc(db,"productos",id),datos).catch(e=>falla(e,'restaurar el producto')));
   };
 
   const eliminarDelHistorial=async(id)=>{
@@ -1121,6 +1159,11 @@ export default function App(){
             <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
               <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
             </label>
+            <div className="ad-filters" role="group" aria-label="Fechas rápidas">
+              {[['3 días',()=>fechaEn(3)],['1 semana',()=>fechaEn(7)],['2 semanas',()=>fechaEn(14)],['1 mes',()=>fechaEnMeses(1)],['3 meses',()=>fechaEnMeses(3)],['6 meses',()=>fechaEnMeses(6)],['1 año',()=>fechaEnMeses(12)]].map(([t,f])=>(
+                <button type="button" key={t} className="ad-chip" aria-pressed={form.exp===f()} onClick={()=>setForm({...form,exp:f()})}>{t}</button>
+              ))}
+            </div>
             <label className="ad-field"><span className="ad-field__label">Cantidad / notas</span>
               <input value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/>
             </label>
@@ -1151,6 +1194,12 @@ export default function App(){
     <>
       {compartir&&<CompartirModal activos={activos} uid={usuario.uid} nombre={nombreCorto} onClose={()=>setCompartir(false)}/>}
       {recetaAbierta&&<RecetaSheet sug={recetaAbierta} onClose={()=>setRecetaAbierta(null)}/>}
+      {toast&&(
+        <div className="ad-toast" role="status">
+          <span>{toast.texto}</span>
+          {toast.deshacer&&<button onClick={()=>{toast.deshacer();setToast(null);}}>Deshacer</button>}
+        </div>
+      )}
       {avisos&&(
         <div className="ad-overlay" onClick={()=>setAvisos(false)}>
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Avisos">
