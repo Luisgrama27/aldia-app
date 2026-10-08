@@ -5,6 +5,7 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
 import Scanner from "./Scanner";
+import { recordarProducto } from "./productos";
 import { sugerirReceta } from "./recetas";
 import "./index.css";
 
@@ -976,17 +977,23 @@ export default function App(){
     setEditandoMeta(false);setValorMeta('');
   };
 
-  const onScanResult=({nombre,cantidad,categoria,barcode,error})=>{
+  const onScanResult=({nombre,cantidad,categoria,categoriaSegura,barcode,error})=>{
     setScanner(false);
     if(nombre){
-      setForm(f=>({...f,name:nombre,qty:f.qty||cantidad||''}));
+      // El código queda guardado con el producto: la próxima vez se reconoce con tus datos
+      setForm(f=>({...f,name:nombre,qty:f.qty||cantidad||'',barcode}));
       if(categoria)cambiarCategoria(categoria);
-      const extras=[cantidad&&`cantidad ${cantidad}`,categoria&&`categoría ${categoria}`].filter(Boolean);
-      setScanMsg(`✓ Producto encontrado: ${nombre}${extras.length?` (${extras.join(', ')})`:''}`);
+      const partes=[];
+      if(cantidad)partes.push(`cantidad ${cantidad}`);
+      partes.push(categoria?(categoriaSegura?`categoría ${categoria}`:`categoría sugerida ${categoria}, revísala`):'elige la categoría');
+      setScanMsg(`✓ Producto encontrado: ${nombre} (${partes.join(', ')})`);
     }
     else if(error)setScanMsg('No se pudo consultar el producto. Revisa tu conexión o escribe el nombre.');
-    else setScanMsg(`Código ${barcode} no encontrado. Escribe el nombre.`);
-    setTimeout(()=>setScanMsg(''),6000);
+    else{
+      setForm(f=>({...f,barcode}));
+      setScanMsg(`Código ${barcode} no encontrado. Escribe el nombre: la próxima vez la app lo recordará.`);
+    }
+    setTimeout(()=>setScanMsg(''),7000);
   };
 
   if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
@@ -1079,7 +1086,7 @@ export default function App(){
 
   const abrirNuevo=(catInicial)=>{setEditId(null);setAlertaManual(false);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:alertaDe(catInicial||'Lácteos',prefs),precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
   // Abre el formulario con los datos de un producto del historial; solo falta la nueva fecha
-  const comprarDeNuevo=(p)=>{setEditId(null);setAlertaManual(false);setForm({name:p.name,cat:p.cat,exp:'',qty:p.qty||'',alert:alertaDe(p.cat,prefs),precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const comprarDeNuevo=(p)=>{setEditId(null);setAlertaManual(false);setForm({name:p.name,cat:p.cat,exp:'',qty:p.qty||'',alert:alertaDe(p.cat,prefs),precio:p.precio||'',...(p.barcode?{barcode:p.barcode}:{})});setScanMsg('');setErrorMsg('');setPantalla('form');};
   // En un producto nuevo, la alerta sigue a la categoría mientras la persona no la cambie
   const cambiarCategoria=(cat)=>setForm(f=>({...f,cat,alert:(editId||alertaManual)?f.alert:alertaDe(cat,prefs)}));
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
@@ -1105,6 +1112,7 @@ export default function App(){
     if(!form.exp){setErrorMsg('Elige la fecha de vencimiento.');return;}
     setErrorMsg('');
     const datos={...form,name:form.name.trim()};
+    if(datos.barcode)recordarProducto(datos.barcode,{nombre:datos.name,categoria:datos.cat,cantidad:datos.qty});
     const op=editId
       ?updateDoc(doc(db,"productos",editId),datos)
       :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
