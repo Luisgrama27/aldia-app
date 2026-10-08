@@ -99,7 +99,7 @@ function getBarWidth(days,alert){
 }
 
 const pillClass = st => st==='ok' ? 'ad-pill--ok' : st==='warn' ? 'ad-pill--warn' : 'ad-pill--danger';
-const pillIcon = st => st==='expired' ? '⚠️' : st==='danger' ? '⏰' : st==='warn' ? '⏳' : '✓';
+const pillIcon = st => (st==='ok' ? '✓' : '');
 const barClass = st => st==='ok' ? '' : st==='warn' ? 'ad-bar--warn' : 'ad-bar--danger';
 
 const svgProps = {width:24,height:24,viewBox:'0 0 24 24',fill:'none',stroke:'currentColor',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round','aria-hidden':true};
@@ -852,6 +852,8 @@ export default function App(){
   const [pantalla,setPantalla]=useState('');
   const [filtro,setFiltro]=useState('Todos');
   const [busqueda,setBusqueda]=useState('');
+  const [filtroEstado,setFiltroEstado]=useState(null); // null | vencidos | porvencer | aldia
+  const [orden,setOrden]=useState('fecha');
   const [editId,setEditId]=useState(null);
   const [form,setForm]=useState({name:'',cat:'Lácteos',exp:'',qty:'',alert:7,precio:''});
   const [alertaManual,setAlertaManual]=useState(false);
@@ -1037,7 +1039,19 @@ export default function App(){
   const warn=activos.filter(p=>status(p)==='warn').length;
   const ok=activos.filter(p=>status(p)==='ok').length;
   const cats=['Todos',...new Set(activos.map(p=>p.cat))];
-  const filtered=activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  const cumpleEstado=(p)=>{
+    if(!filtroEstado)return true;
+    const st=status(p);
+    return filtroEstado==='vencidos'?st==='expired':filtroEstado==='porvencer'?(st==='danger'||st==='warn'):st==='ok';
+  };
+  const comparar={
+    fecha:(x,y)=>daysUntil(x.exp)-daysUntil(y.exp),
+    nombre:(x,y)=>x.name.localeCompare(y.name,'es'),
+    categoria:(x,y)=>x.cat.localeCompare(y.cat,'es')||daysUntil(x.exp)-daysUntil(y.exp),
+    reciente:(x,y)=>String(y.fechaCreacion||'').localeCompare(String(x.fechaCreacion||'')),
+  }[orden];
+  const filtered=activos.filter(p=>(filtro==='Todos'||p.cat===filtro)&&cumpleEstado(p)&&(!busqueda||p.name.toLowerCase().includes(busqueda.toLowerCase()))).sort(comparar);
+  const nombreFiltroEstado={vencidos:'Vencidos',porvencer:'Por vencer',aldia:'Al día'}[filtroEstado];
 
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
@@ -1387,19 +1401,37 @@ export default function App(){
                       <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
                     </div>
                   )}
-                  <div className="ad-stats">
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--danger">{expired}</span><span className="ad-stat__l">Vencidos</span></div>
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--warn">{danger+warn}</span><span className="ad-stat__l">Por vencer</span></div>
-                    <div className="ad-stat"><span className="ad-stat__n ad-stat__n--ok">{ok}</span><span className="ad-stat__l">Al día</span></div>
+                  <div className={`ad-stats${filtroEstado?' ad-stats--hay':''}`}>
+                    {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(
+                      <button key={clave} className={`ad-stat${filtroEstado===clave?' is-activo':''}`} aria-pressed={filtroEstado===clave}
+                        aria-label={`${texto}: ${cantidad}. Toca para ${filtroEstado===clave?'quitar el filtro':'filtrar la lista'}`}
+                        onClick={()=>setFiltroEstado(filtroEstado===clave?null:clave)}>
+                        <span className={`ad-stat__n ad-stat__n--${color}`}>{cantidad}</span><span className="ad-stat__l">{texto}</span>
+                      </button>
+                    ))}
                   </div>
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
                   </div>
+                  {filtroEstado&&(
+                    <div className="ad-sechead" style={{marginBottom:8}}>
+                      <p className="ad-eyebrow" style={{margin:0}}>Mostrando: {nombreFiltroEstado}</p>
+                      <button className="ad-link" onClick={()=>setFiltroEstado(null)}>Quitar filtro</button>
+                    </div>
+                  )}
                   <div className="ad-filters">
                     {cats.map(c=><button key={c} className="ad-chip" aria-pressed={filtro===c} onClick={()=>setFiltro(c)}>{c}</button>)}
                   </div>
-                  <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
+                  <div className="ad-toolbar">
+                    <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
+                    <select className="ad-select-sm" aria-label="Ordenar productos" value={orden} onChange={e=>setOrden(e.target.value)}>
+                      <option value="fecha">Vence primero</option>
+                      <option value="nombre">Nombre</option>
+                      <option value="categoria">Categoría</option>
+                      <option value="reciente">Más recientes</option>
+                    </select>
+                  </div>
                   <div key={listKey} className="ad-grid">
                     {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
                     {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}

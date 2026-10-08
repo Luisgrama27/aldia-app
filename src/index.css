@@ -1455,8 +1455,34 @@ button.ad-stat {
   cursor: pointer;
 }
 
-.ad-stat[aria-pressed="false"] {
+.ad-stats--2 .ad-stat[aria-pressed="false"],
+.ad-stats--hay .ad-stat:not(.is-activo) {
   opacity: 0.45;
+}
+
+.ad-stat.is-activo {
+  border-color: var(--text);
+}
+
+.ad-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ad-toolbar .ad-search {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.ad-toolbar .ad-select-sm {
+  flex: none;
+  max-width: 132px;
+  min-height: 46px;
+  border-radius: var(--radius-pill);
+  padding: 0 12px;
 }
 
 .ad-donut {
