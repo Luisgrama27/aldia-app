@@ -1078,6 +1078,8 @@ export default function App(){
   const maxMes=Math.max(1,...porMes.map(m=>Math.max(m.c,m.d)));
 
   const abrirNuevo=(catInicial)=>{setEditId(null);setAlertaManual(false);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:alertaDe(catInicial||'Lácteos',prefs),precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  // Abre el formulario con los datos de un producto del historial; solo falta la nueva fecha
+  const comprarDeNuevo=(p)=>{setEditId(null);setAlertaManual(false);setForm({name:p.name,cat:p.cat,exp:'',qty:p.qty||'',alert:alertaDe(p.cat,prefs),precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
   // En un producto nuevo, la alerta sigue a la categoría mientras la persona no la cambie
   const cambiarCategoria=(cat)=>setForm(f=>({...f,cat,alert:(editId||alertaManual)?f.alert:alertaDe(cat,prefs)}));
   const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
@@ -1295,9 +1297,10 @@ export default function App(){
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
             <div className="ad-sheet__handle"/>
             <h2 className="ad-section" style={{margin:'0 0 8px'}}>{accionHist.name}</h2>
-            <button className="ad-sheet__row" onClick={()=>{restaurar(accionHist.id);setAccionHist(null);}}><span>↩</span>Restaurar a mi lista</button>
-            <button className="ad-sheet__row ad-sheet__row--danger" onClick={()=>{eliminarDelHistorial(accionHist.id);setAccionHist(null);}}><span>🗑</span>Eliminar del historial</button>
-            <button className="ad-sheet__row" onClick={()=>setAccionHist(null)}><span>✕</span>Cancelar</button>
+            <button className="ad-sheet__row" onClick={()=>{comprarDeNuevo(accionHist);setAccionHist(null);}}>Comprar de nuevo</button>
+            <button className="ad-sheet__row" onClick={()=>{restaurar(accionHist.id);setAccionHist(null);}}>Restaurar a mi lista</button>
+            <button className="ad-sheet__row ad-sheet__row--danger" onClick={()=>{eliminarDelHistorial(accionHist.id);setAccionHist(null);}}>Eliminar del historial</button>
+            <button className="ad-sheet__row" onClick={()=>setAccionHist(null)}>Cancelar</button>
           </div>
         </div>
       )}
