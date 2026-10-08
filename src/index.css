@@ -458,13 +458,13 @@ body {
   justify-content: center;
   gap: 2px;
   min-height: 48px;
-  padding: 6px 2px;
+  padding: 6px 0;
   border: 0;
   border-radius: 24px;
   background: none;
   color: var(--nav-muted);
   font: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   text-decoration: none;
   cursor: pointer;
 }
@@ -494,7 +494,7 @@ body {
   background: none;
   color: var(--nav-ink);
   font: inherit;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -618,6 +618,7 @@ body {
 }
 
 .ad-hero--sm {
+  padding-top: calc(38px + env(safe-area-inset-top, 0px));
   padding-bottom: 64px;
 }
 
