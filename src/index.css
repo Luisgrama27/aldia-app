@@ -156,8 +156,14 @@ html, body {
 
 /* El fondo de <html> solo se ve en la franja que iOS no deja usar al final de la pantalla:
    lo pintamos del color de la barra inferior para que parezca que la barra llega al borde. */
+/* El borde inferior del iPhone queda fuera de la app: se pinta del color de la pantalla
+   (o del color de la hoja cuando hay una abierta) para que no se note como una franja */
 html {
-  background: var(--card);
+  background: var(--bg);
+}
+
+html:has(.ad-sheet) {
+  background: var(--bg2);
 }
 
 body {
@@ -448,6 +454,18 @@ body {
   padding: 8px 6px;
   border-radius: 32px;
   background: var(--nav-bg);
+}
+
+/* Tapa lo que se asoma por debajo de la barra al hacer scroll */
+.ad-nav::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: -12px;
+  left: -12px;
+  z-index: -1;
+  height: calc(10px + min(env(safe-area-inset-bottom, 0px), 24px));
+  background: var(--bg);
 }
 
 .ad-nav__item {

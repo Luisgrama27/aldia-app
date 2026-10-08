@@ -976,11 +976,17 @@ export default function App(){
     setEditandoMeta(false);setValorMeta('');
   };
 
-  const onScanResult=({nombre,barcode})=>{
+  const onScanResult=({nombre,cantidad,categoria,barcode,error})=>{
     setScanner(false);
-    if(nombre){setForm(f=>({...f,name:nombre}));setScanMsg(`✓ Producto encontrado: ${nombre}`);}
+    if(nombre){
+      setForm(f=>({...f,name:nombre,qty:f.qty||cantidad||''}));
+      if(categoria)cambiarCategoria(categoria);
+      const extras=[cantidad&&`cantidad ${cantidad}`,categoria&&`categoría ${categoria}`].filter(Boolean);
+      setScanMsg(`✓ Producto encontrado: ${nombre}${extras.length?` (${extras.join(', ')})`:''}`);
+    }
+    else if(error)setScanMsg('No se pudo consultar el producto. Revisa tu conexión o escribe el nombre.');
     else setScanMsg(`Código ${barcode} no encontrado. Escribe el nombre.`);
-    setTimeout(()=>setScanMsg(''),4000);
+    setTimeout(()=>setScanMsg(''),6000);
   };
 
   if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
