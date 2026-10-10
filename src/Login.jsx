@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
+import { doc, setDoc } from "firebase/firestore";
+import LegalVista from "./Legal";
+import { listaPaises, nombrePais, PREFIJOS, COLOMBIA, CIUDADES, validarTelefono, telefonoCompleto } from "./lugares";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -34,6 +37,9 @@ if (!document.getElementById('ad-login-style')) {
     .ad-login-hint { margin-top:4px; font-size:0.8125rem; font-weight:700; }
     .ad-login-eye { flex:none; display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-8px; border:0; border-radius:50%; background:none; color:var(--text2); cursor:pointer; }
     .ad-login-eye[aria-pressed="true"] { color:var(--text); }
+    .ad-login-prefix { flex:none; font-weight:700; color:var(--text); }
+    .ad-login-full { width:100%; flex:none; }
+    .ad-login-inline { padding:0; border:0; background:none; color:var(--accent-text); font:inherit; text-decoration:underline; cursor:pointer; }
   `;
   document.head.appendChild(styleEl);
 }
@@ -52,6 +58,19 @@ function mensajeAuth(e, accion) {
   if (conocidos[codigo]) return conocidos[codigo];
   return `No se pudo ${accion}${codigo ? ` (${codigo})` : ''}. Inténtalo de nuevo.`;
 }
+
+const OTRA = '__otra';
+const PAISES = listaPaises();
+const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+// La fecha llega como AAAA-MM-DD
+const esMayorDeEdad = (iso) => {
+  const [a, m, d] = iso.split('-').map(Number);
+  const hoy = new Date();
+  let edad = hoy.getFullYear() - a;
+  if (hoy.getMonth() + 1 < m || (hoy.getMonth() + 1 === m && hoy.getDate() < d)) edad -= 1;
+  return edad >= 18;
+};
 
 const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
@@ -136,17 +155,19 @@ export default function Login() {
   const [nombre, setNombre] = useState("");
   const [telefono, setTelefono] = useState("");
   const [fechaNacimiento, setFechaNacimiento] = useState("");
-  const [pais, setPais] = useState("");
-  const [ciudad, setCiudad] = useState("");
+  const [paisCodigo, setPaisCodigo] = useState("");
+  const [departamento, setDepartamento] = useState("");
+  const [ciudadSel, setCiudadSel] = useState("");
+  const [ciudadOtra, setCiudadOtra] = useState("");
+  const [acepto, setAcepto] = useState(false);
+  const [verLegal, setVerLegal] = useState(false);
+  const [espera, setEspera] = useState(0);
   const [notificaciones, setNotificaciones] = useState(true);
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [cargando, setCargando] = useState(false);
   const [focusField, setFocusField] = useState(null);
-  const [emailValido, setEmailValido] = useState(null);
-  const [passwordFuerte, setPasswordFuerte] = useState(null);
   const [verPassword, setVerPassword] = useState(false);
-  const [telefonoValido, setTelefonoValido] = useState(null);
 
   const reset = () => { setError(""); setMensaje(""); };
 
@@ -159,27 +180,20 @@ export default function Login() {
     }
   }, [error, mensaje]);
 
-  useEffect(() => {
-    if (email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      setEmailValido(emailRegex.test(email));
-    } else { setEmailValido(null); }
-  }, [email]);
+  // Se calculan en cada pantalla, así siguen correctos al cambiar de modo
+  const emailValido = email ? REGEX_EMAIL.test(email) : null;
+  const passwordFuerte = password && modo === 'registro'
+    ? (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'fuerte' : password.length >= 6 ? 'medio' : 'debil')
+    : null;
+  const telefonoValido = validarTelefono(paisCodigo, telefono);
+  const esperaActiva = espera > 0;
 
+  // Cuenta regresiva para volver a pedir el enlace de recuperación
   useEffect(() => {
-    if (password && modo === 'registro') {
-      const fuerte = password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
-      const medio = password.length >= 6;
-      setPasswordFuerte(fuerte ? 'fuerte' : medio ? 'medio' : 'debil');
-    } else { setPasswordFuerte(null); }
-  }, [password, modo]);
-
-  useEffect(() => {
-    if (telefono) {
-      const telefonoRegex = /^[\+]?[0-9\s\-\(\)]{10,15}$/;
-      setTelefonoValido(telefonoRegex.test(telefono.replace(/\s/g, '')));
-    } else { setTelefonoValido(null); }
-  }, [telefono]);
+    if (espera <= 0) return undefined;
+    const id = setTimeout(() => setEspera(e => e - 1), 1000);
+    return () => clearTimeout(id);
+  }, [espera]);
 
   const handleLogin = async () => {
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
@@ -201,14 +215,32 @@ export default function Login() {
     if (!nombre.trim()) { setError("Ingresa tu nombre completo."); return; }
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
     if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
-    if (!telefonoValido) { setError("Ingresa un número de teléfono válido."); return; }
+    if (!paisCodigo) { setError("Selecciona tu país."); return; }
+    if (paisCodigo === 'CO' && !departamento) { setError("Selecciona tu departamento."); return; }
+    if (!ciudad) { setError("Selecciona tu ciudad."); return; }
+    if (telefono.trim() && telefonoValido === false) { setError("Revisa el número de teléfono o déjalo en blanco."); return; }
     if (!fechaNacimiento) { setError("Selecciona tu fecha de nacimiento completa."); return; }
-    if (!pais.trim()) { setError("Ingresa tu país."); return; }
-    if (!ciudad.trim()) { setError("Ingresa tu ciudad."); return; }
+    if (!esMayorDeEdad(fechaNacimiento)) { setError("Debes ser mayor de 18 años para crear una cuenta."); return; }
+    if (!acepto) { setError("Acepta los términos de uso y la política de privacidad para continuar."); return; }
 
     setCargando(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // El perfil se guarda sin frenar el registro si algo falla
+      const ahora = new Date().toISOString();
+      setDoc(doc(db, "perfiles", userCredential.user.uid), {
+        foto: '',
+        nombre: nombre.trim(),
+        pais: nombrePais(paisCodigo),
+        paisCodigo,
+        departamento: paisCodigo === 'CO' ? departamento : '',
+        ciudad,
+        telefono: telefonoCompleto(paisCodigo, telefono),
+        nacimiento: fechaNacimiento,
+        consejos: notificaciones,
+        aceptoTerminosEn: ahora,
+        creado: ahora,
+      }, { merge: true }).catch(e => console.error("No se pudo guardar el perfil:", e));
       try { await updateProfile(userCredential.user, { displayName: nombre.trim() }); } catch(e2) { console.error(e2); }
       try { await sendEmailVerification(userCredential.user); } catch(e3) { console.error(e3); }
       try {
@@ -223,13 +255,14 @@ export default function Login() {
       }
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo.");
+      if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo. Si te registraste con Google, usa «Continuar con Google».");
       else if (e.code === 'auth/weak-password') setError("La contraseña es muy débil.");
       else { console.error(e); setError(mensajeAuth(e, 'crear la cuenta')); }
     }
   };
 
   const handleGoogle = async () => {
+    if (modo === 'registro' && !acepto) { setError("Acepta los términos de uso y la política de privacidad para continuar con Google."); return; }
     setCargando(true);
     try {
       await signInWithPopup(auth, provider);
@@ -243,25 +276,36 @@ export default function Login() {
   };
 
   const handleRecuperar = async () => {
+    if (esperaActiva) return;
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
     setCargando(true);
     try {
       await sendPasswordResetEmail(auth, email);
-      setMensaje("¡Enlace enviado! Revisa tu bandeja de entrada y carpeta de spam.");
+      setMensaje(`Si ${email} tiene una cuenta, te enviamos un enlace para crear una contraseña nueva. Revisa tu bandeja de entrada y la carpeta de spam.`);
       setError("");
-      setCargando(false);
+      setEspera(60);
     } catch(e) {
-      setCargando(false);
       if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
-      else setError("Error al enviar el enlace. Inténtalo de nuevo.");
+      else { console.error(e); setError(mensajeAuth(e, 'enviar el enlace')); }
     }
+    setCargando(false);
   };
 
   const cambiarModo = (nuevoModo) => {
     setModo(nuevoModo); reset(); setFocusField(null);
-    setEmailValido(null); setPasswordFuerte(null); setTelefonoValido(null);
-    setTelefono(""); setFechaNacimiento(""); setPais(""); setCiudad(""); setNotificaciones(true);
+    setTelefono(""); setFechaNacimiento(""); setNotificaciones(true);
+    setPaisCodigo(""); setDepartamento(""); setCiudadSel(""); setCiudadOtra("");
+    setAcepto(false); setEspera(0);
   };
+
+  // País, departamento y ciudad se eligen de listas; si no hay lista, se escribe
+  const elegirPais = (codigo) => { setPaisCodigo(codigo); setDepartamento(""); setCiudadSel(""); setCiudadOtra(""); reset(); };
+  const elegirDepartamento = (valor) => { setDepartamento(valor); setCiudadSel(""); setCiudadOtra(""); reset(); };
+  const departamentos = Object.keys(COLOMBIA);
+  const listaCiudades = paisCodigo === 'CO' ? (COLOMBIA[departamento] || []) : (CIUDADES[paisCodigo] || null);
+  const ciudadLibre = Boolean(paisCodigo) && paisCodigo !== 'CO' && !listaCiudades;
+  const ciudad = ciudadLibre || ciudadSel === OTRA ? ciudadOtra.trim() : ciudadSel;
+  const prefijo = PREFIJOS[paisCodigo] || '';
 
   const strengthColor = passwordFuerte === 'fuerte' ? 'var(--green)' : passwordFuerte === 'medio' ? '#e0a92b' : '#e4775a';
   const strengthText = passwordFuerte === 'fuerte' ? 'Contraseña fuerte' : passwordFuerte === 'medio' ? 'Contraseña aceptable' : 'Contraseña débil';
@@ -275,6 +319,7 @@ export default function Login() {
   });
 
   return (
+    <>
     <div className="ad-screen" style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom, 0px))' }}>
       <header className="ad-hero" style={{ textAlign: 'center', paddingBottom: 88 }}>
         <div className="ad-logo" style={{ width: 76, height: 76, margin: '0 auto' }}>
@@ -294,35 +339,25 @@ export default function Login() {
       <div className="ad-overlap" style={{ marginTop: -60 }}>
         <div className="ad-card" style={{ maxWidth: 420, margin: '0 auto', padding: '20px 16px' }}>
 
+          {modo==='recuperar' && (
+            <p className="ad-muted" style={{ marginBottom: 14, lineHeight: 1.5 }}>
+              Escribe tu correo y te enviaremos un enlace para crear una contraseña nueva. Si te registraste con Google no necesitas contraseña: entra con «Continuar con Google».
+            </p>
+          )}
+
+          <form onSubmit={e => { e.preventDefault(); if (!cargando) onSubmit(); }} noValidate>
           <div className="ad-login-group">
             {modo==='registro' && (
               <>
                 <Row focused={focusField==='nombre'} iconPath={ICONS.user} label="Nombre completo">
-                  <input className="ad-login-input" value={nombre} onChange={e=>{setNombre(e.target.value);reset();}} {...field('nombre')} placeholder="Tu nombre completo" autoComplete="name"/>
+                  <input className="ad-login-input" value={nombre} onChange={e=>{setNombre(e.target.value);reset();}} {...field('nombre')} placeholder="Tu nombre completo" autoComplete="name" autoCapitalize="words"/>
                 </Row>
 
-                <Row focused={focusField==='telefono'} iconPath={ICONS.phone} label="Teléfono" iconColor={telefonoValido===false?'var(--danger)':telefonoValido===true?'var(--green)':undefined}>
-                  <input className="ad-login-input" type="tel" value={telefono} onChange={e=>{setTelefono(e.target.value);reset();}} {...field('telefono')} placeholder="+57 300 123 4567" autoComplete="tel"/>
-                  {telefono&&telefonoValido===false&&<div className="ad-login-hint" style={{color:'var(--danger)'}}>Número de teléfono inválido</div>}
-                  {telefono&&telefonoValido===true&&<div className="ad-login-hint" style={{color:'var(--green)'}}>✓ Teléfono válido</div>}
-                </Row>
-
-                <Row focused={false} iconPath={ICONS.cal} label="Fecha de nacimiento">
-                  <FechaNacimientoSelector value={fechaNacimiento} onChange={setFechaNacimiento}/>
-                </Row>
-
-                <Row focused={focusField==='pais'} iconPath={ICONS.pin} label="País">
-                  <input className="ad-login-input" value={pais} onChange={e=>{setPais(e.target.value);reset();}} {...field('pais')} placeholder="Colombia" autoComplete="country-name"/>
-                </Row>
-
-                <Row focused={focusField==='ciudad'} iconPath={ICONS.pin} label="Ciudad">
-                  <input className="ad-login-input" value={ciudad} onChange={e=>{setCiudad(e.target.value);reset();}} {...field('ciudad')} placeholder="Bogotá" autoComplete="address-level2"/>
-                </Row>
               </>
             )}
 
             <Row focused={focusField==='email'} iconPath={ICONS.mail} label="Correo electrónico" iconColor={emailValido===false?'var(--danger)':emailValido===true?'var(--green)':undefined}>
-              <input className="ad-login-input" type="email" value={email} onChange={e=>{setEmail(e.target.value);reset();}} {...field('email')} placeholder="tucorreo@email.com" autoComplete="email"/>
+              <input className="ad-login-input" type="email" value={email} onChange={e=>{setEmail(e.target.value);reset();}} {...field('email')} placeholder="tucorreo@email.com" autoComplete="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} inputMode="email"/>
               {email&&emailValido===false&&<div className="ad-login-hint" style={{color:'var(--danger)'}}>Correo electrónico inválido</div>}
               {email&&emailValido===true&&<div className="ad-login-hint" style={{color:'var(--green)'}}>✓ Correo válido</div>}
             </Row>
@@ -347,13 +382,84 @@ export default function Login() {
                 )}
               </Row>
             )}
+
+            {modo==='registro' && (
+              <>
+                <Row focused={false} iconPath={ICONS.pin} label="País">
+                  <select className="ad-login-select ad-login-full" aria-label="País" value={paisCodigo} autoComplete="country"
+                    onChange={e=>elegirPais(e.target.value)} style={{color: paisCodigo ? 'var(--text)' : 'var(--text2)'}}>
+                    <option value="">Selecciona tu país</option>
+                    <optgroup label="Frecuentes">
+                      {PAISES.frecuentes.map(p=><option key={p.codigo} value={p.codigo}>{p.nombre}</option>)}
+                    </optgroup>
+                    <optgroup label="Todos los países">
+                      {PAISES.otros.map(p=><option key={p.codigo} value={p.codigo}>{p.nombre}</option>)}
+                    </optgroup>
+                  </select>
+                </Row>
+
+                {paisCodigo==='CO' && (
+                  <Row focused={false} iconPath={ICONS.pin} label="Departamento">
+                    <select className="ad-login-select ad-login-full" aria-label="Departamento" value={departamento}
+                      onChange={e=>elegirDepartamento(e.target.value)} style={{color: departamento ? 'var(--text)' : 'var(--text2)'}}>
+                      <option value="">Selecciona tu departamento</option>
+                      {departamentos.map(d=><option key={d} value={d}>{d}</option>)}
+                    </select>
+                  </Row>
+                )}
+
+                {paisCodigo && (
+                  <Row focused={focusField==='ciudad'} iconPath={ICONS.pin} label="Ciudad">
+                    {ciudadLibre ? (
+                      <input className="ad-login-input" value={ciudadOtra} onChange={e=>{setCiudadOtra(e.target.value);reset();}} {...field('ciudad')}
+                        placeholder="Escribe tu ciudad" autoComplete="address-level2" autoCapitalize="words"/>
+                    ) : (
+                      <>
+                        <select className="ad-login-select ad-login-full" aria-label="Ciudad" value={ciudadSel}
+                          disabled={paisCodigo==='CO' && !departamento}
+                          onChange={e=>{setCiudadSel(e.target.value);setCiudadOtra('');reset();}} style={{color: ciudadSel ? 'var(--text)' : 'var(--text2)'}}>
+                          <option value="">{paisCodigo==='CO' && !departamento ? 'Primero elige el departamento' : 'Selecciona tu ciudad'}</option>
+                          {(listaCiudades||[]).map(c=><option key={c} value={c}>{c}</option>)}
+                          {(listaCiudades||[]).length>0 && <option value={OTRA}>Otra ciudad…</option>}
+                        </select>
+                        {ciudadSel===OTRA && (
+                          <input className="ad-login-input" style={{marginTop:6}} value={ciudadOtra} onChange={e=>{setCiudadOtra(e.target.value);reset();}} {...field('ciudad')}
+                            placeholder="Escribe tu ciudad" aria-label="Escribe tu ciudad" autoComplete="address-level2" autoCapitalize="words"/>
+                        )}
+                      </>
+                    )}
+                  </Row>
+                )}
+
+                <Row focused={focusField==='telefono'} iconPath={ICONS.phone} label="Teléfono (opcional)" iconColor={telefonoValido===false?'var(--danger)':telefonoValido===true?'var(--green)':undefined}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    {prefijo && <span className="ad-login-prefix">{prefijo}</span>}
+                    <input className="ad-login-input" type="tel" inputMode="tel" value={telefono} onChange={e=>{setTelefono(e.target.value);reset();}} {...field('telefono')}
+                      placeholder={prefijo ? (paisCodigo==='CO' ? '300 123 4567' : 'Número de teléfono') : '+34 600 000 000'} autoComplete="tel-national"/>
+                  </div>
+                  {telefono&&telefonoValido===false&&<div className="ad-login-hint" style={{color:'var(--danger)'}}>{prefijo ? 'Escribe solo el número, sin el prefijo' : 'Elige tu país o incluye el prefijo, por ejemplo +34'}</div>}
+                  {telefono&&telefonoValido===true&&<div className="ad-login-hint" style={{color:'var(--green)'}}>✓ Teléfono válido</div>}
+                </Row>
+
+                <Row focused={false} iconPath={ICONS.cal} label="Fecha de nacimiento">
+                  <FechaNacimientoSelector value={fechaNacimiento} onChange={setFechaNacimiento}/>
+                  <div className="ad-muted" style={{fontSize:'0.75rem',marginTop:6}}>Debes ser mayor de 18 años.</div>
+                </Row>
+              </>
+            )}
           </div>
 
           {modo==='registro' && (
-            <label className="ad-login-check">
-              <input type="checkbox" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)}/>
-              <span>Recibir notificaciones sobre consejos para reducir desperdicio</span>
-            </label>
+            <>
+              <label className="ad-login-check">
+                <input type="checkbox" checked={acepto} onChange={e=>{setAcepto(e.target.checked);reset();}}/>
+                <span>Acepto los <button type="button" className="ad-login-inline" onClick={e=>{e.preventDefault();setVerLegal(true);}}>términos de uso y la política de privacidad</button></span>
+              </label>
+              <label className="ad-login-check">
+                <input type="checkbox" checked={notificaciones} onChange={e=>setNotificaciones(e.target.checked)}/>
+                <span>Quiero recibir consejos para reducir el desperdicio (opcional)</span>
+              </label>
+            </>
           )}
 
           <div ref={avisoRef}>
@@ -361,13 +467,14 @@ export default function Login() {
             {mensaje && <div className="ad-note" style={{ marginBottom: 12 }}>✓ {mensaje}</div>}
           </div>
 
-          <button className="ad-btn" style={{ opacity: cargando ? 0.7 : 1, cursor: cargando ? 'not-allowed' : 'pointer' }} onClick={onSubmit} disabled={cargando}>
+          <button type="submit" className="ad-btn" style={{ opacity: (cargando || esperaActiva) ? 0.7 : 1, cursor: (cargando || esperaActiva) ? 'not-allowed' : 'pointer' }} disabled={cargando || esperaActiva}>
             {cargando?(
               <><span className="ad-spin"/>{modo==='login'&&'Iniciando sesión...'}{modo==='registro'&&'Creando cuenta...'}{modo==='recuperar'&&'Enviando enlace...'}</>
             ):(
-              <>{modo==='login'&&'Iniciar sesión'}{modo==='registro'&&'Crear cuenta'}{modo==='recuperar'&&'Enviar enlace de recuperación'}</>
+              <>{modo==='login'&&'Iniciar sesión'}{modo==='registro'&&'Crear cuenta'}{modo==='recuperar'&&(esperaActiva?`Reenviar en ${espera} s`:mensaje?'Reenviar enlace':'Enviar enlace de recuperación')}</>
             )}
           </button>
+          </form>
 
           {modo!=='recuperar'&&(
             <>
@@ -376,7 +483,7 @@ export default function Login() {
                 <span className="ad-muted" style={{fontWeight:700}}>o continúa con</span>
                 <div style={{flex:1,height:1,background:'var(--border)'}}/>
               </div>
-              <button className="ad-btn ad-btn--ghost" style={{color:'var(--text)',boxShadow:'inset 0 0 0 1.5px var(--border)',opacity:cargando?0.7:1}} onClick={handleGoogle} disabled={cargando}>
+              <button type="button" className="ad-btn ad-btn--ghost" style={{color:'var(--text)',boxShadow:'inset 0 0 0 1.5px var(--border)',opacity:cargando?0.7:1}} onClick={handleGoogle} disabled={cargando}>
                 <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true">
                   <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
                   <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
@@ -409,5 +516,18 @@ export default function Login() {
         </div>
       </div>
     </div>
+
+    {verLegal && (
+      <div className="ad-overlay" onClick={()=>setVerLegal(false)}>
+        <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Términos y privacidad">
+          <div className="ad-sheet__handle"/>
+          <h2 className="ad-section" style={{margin:'0 0 4px'}}>Términos y privacidad</h2>
+          <LegalVista/>
+          <button type="button" className="ad-btn" style={{marginTop:12}} onClick={()=>{setAcepto(true);setVerLegal(false);reset();}}>Entendido, aceptar</button>
+          <button type="button" className="ad-btn ad-btn--ghost" style={{marginTop:10}} onClick={()=>setVerLegal(false)}>Cerrar</button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
