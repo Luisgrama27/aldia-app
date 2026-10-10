@@ -306,7 +306,7 @@ const FAQ = [
   {q:'¿Cómo agrego un producto?',a:'Toca el botón verde "+" de la barra inferior. Escribe el nombre, elige la categoría y la fecha de vencimiento (son obligatorios) y toca Guardar. Si quieres, también puedes registrar cantidad, precio y con cuántos días de anticipación quieres la alerta.'},
   {q:'¿Qué significan los colores y etiquetas?',a:'Vencido y Urgente (3 días o menos) se muestran en rojo. Por vencer, que es cuando entra en el periodo de alerta que elegiste, va en amarillo. Al día, cuando aún falta tiempo, va en verde.'},
   {q:'¿Cuándo me avisa la app?',a:'La alerta depende de la categoría (por ejemplo, la carne avisa más cerca de la fecha y los enlatados con más tiempo) y puedes cambiarla en Cuenta, Preferencias, o en cada producto. Al abrir la app verás los avisos en la campanita y en cada producto. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
-  {q:'¿Cómo funcionan las recetas sugeridas?',a:'En Inicio, la tarjeta verde te propone una receta con los productos que están por vencer (que aún no han vencido). Si hay varios, buscamos la receta que use la mayor cantidad posible. Si nada está por vencer, te sugerimos una con lo que vence primero. Puedes tocar "Otra receta" para ver otra opción. No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
+  {q:'¿Cómo funcionan las recetas sugeridas?',a:'En Inicio, la tarjeta verde te propone una receta con los productos que están por vencer (que aún no han vencido). Si hay varios, buscamos la receta que use la mayor cantidad posible. Desliza la tarjeta para ver otras recetas. Si nada está por vencer, la tarjeta te muestra un mensaje. No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
   {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
   {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
   {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
@@ -1036,13 +1036,20 @@ export default function App(){
     .sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
   const comidaAlerta=comida.filter(p=>status(p)!=='ok');
   const hayAlertaComida=comidaAlerta.length>0;
-  const sugerencias=sugerirRecetas(hayAlertaComida?comidaAlerta:comida.slice(0,8),6);
+  const sugerencias=hayAlertaComida?sugerirRecetas(comidaAlerta,6):[];
   const idxReceta=Math.min(recetaIdx,Math.max(0,sugerencias.length-1));
 
+  const FRASES=activos.length===0
+    ?[{t:'Empecemos',s:'Registra tu primer producto y lleva el control de lo que tienes en casa.'}]
+    :[{t:'Todo en orden',s:'Tu despensa está al día. Sigue así.'},
+      {t:'Buen trabajo',s:'Cada producto que aprovechas es dinero que ahorras.'},
+      {t:'Todo bajo control',s:'Cuando algo esté por vencer, aquí te propondré una receta.'},
+      {t:'Despensa al día',s:'Cocinar con lo que tienes es la mejor receta.'}];
+  const fraseDia=FRASES[Math.floor(Date.now()/86400000)%FRASES.length];
   const tarjetaVerde=sugerencias.length>0?(
                     <section className="ad-hero-card" aria-label="Recetas sugeridas">
                       <div className="ad-hero-card__top">
-                        <span className="ad-hero-card__eyebrow">{hayAlertaComida?'Recetas para aprovechar':'Con lo que tienes'}</span>
+                        <span className="ad-hero-card__eyebrow">Recetas para aprovechar</span>
                         {sugerencias.length>1&&<span className="ad-hero-card__pill">{idxReceta+1} de {sugerencias.length}</span>}
                       </div>
                       <div className="ad-hero-card__slides" ref={carruselRef}
@@ -1069,19 +1076,12 @@ export default function App(){
                       </div>
                     </section>
                   ):(
-                    <section className="ad-hero-card" aria-label="Tu despensa">
+                    <section className="ad-hero-card ad-hero-card--frase" aria-label="Tu despensa">
                       <div className="ad-hero-card__top">
                         <span className="ad-hero-card__eyebrow">Tu despensa</span>
                       </div>
-                      <div className="ad-hero-card__slides">
-                        <div className="ad-hero-card__slide">
-                          <h2 className="ad-hero-card__title">{activos.length===0?'Empecemos':'Todo en orden'}</h2>
-                          <p className="ad-hero-card__sub">{activos.length===0?'Registra tu primer producto y te sugeriremos recetas para aprovecharlo.':'Registra alimentos y aquí te propondremos recetas para no desperdiciarlos.'}</p>
-                        </div>
-                      </div>
-                      <div className="ad-hero-card__actions">
-                        <button className="ad-hero-card__btn" onClick={()=>abrirNuevo()}>Agregar producto</button>
-                      </div>
+                      <h2 className="ad-hero-card__title">{fraseDia.t}</h2>
+                      <p className="ad-hero-card__sub">{fraseDia.s}</p>
                     </section>
                   );
 
