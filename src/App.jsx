@@ -1039,6 +1039,52 @@ export default function App(){
   const sugerencias=sugerirRecetas(hayAlertaComida?comidaAlerta:comida.slice(0,8),6);
   const idxReceta=Math.min(recetaIdx,Math.max(0,sugerencias.length-1));
 
+  const tarjetaVerde=sugerencias.length>0?(
+                    <section className="ad-hero-card" aria-label="Recetas sugeridas">
+                      <div className="ad-hero-card__top">
+                        <span className="ad-hero-card__eyebrow">{hayAlertaComida?'Recetas para aprovechar':'Con lo que tienes'}</span>
+                        {sugerencias.length>1&&<span className="ad-hero-card__pill">{idxReceta+1} de {sugerencias.length}</span>}
+                      </div>
+                      <div className="ad-hero-card__slides" ref={carruselRef}
+                        onScroll={e=>{const el=e.currentTarget;const i=Math.round(el.scrollLeft/el.clientWidth);if(i!==recetaIdx)setRecetaIdx(i);}}>
+                        {sugerencias.map(sg=>(
+                          <div key={sg.receta.id} className="ad-hero-card__slide">
+                            <h2 className="ad-hero-card__title">{sg.receta.n}</h2>
+                            <p className="ad-hero-card__sub">
+                              {sg.productos.slice(0,3).map(p=>`${p.name.toLowerCase()} (${daysLabel(daysUntil(p.exp))})`).join(', ')}{sg.productos.length>3?` y ${sg.productos.length-3} más`:''} · {sg.receta.min} min
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="ad-hero-card__actions">
+                        <button className="ad-hero-card__btn" onClick={()=>setRecetaAbierta(sugerencias[idxReceta])}>Ver receta</button>
+                        {sugerencias.length>1&&(
+                          <div className="ad-hero-card__dots" role="group" aria-label="Elegir receta">
+                            {sugerencias.map((sg,i)=>(
+                              <button key={sg.receta.id} className={`ad-hero-card__dotbtn${i===idxReceta?' is-on':''}`} aria-label={`Receta ${i+1}: ${sg.receta.n}`}
+                                onClick={()=>{const el=carruselRef.current;if(el)el.scrollTo({left:i*el.clientWidth,behavior:'smooth'});}}/>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </section>
+                  ):(
+                    <section className="ad-hero-card" aria-label="Tu despensa">
+                      <div className="ad-hero-card__top">
+                        <span className="ad-hero-card__eyebrow">Tu despensa</span>
+                      </div>
+                      <div className="ad-hero-card__slides">
+                        <div className="ad-hero-card__slide">
+                          <h2 className="ad-hero-card__title">{activos.length===0?'Empecemos':'Todo en orden'}</h2>
+                          <p className="ad-hero-card__sub">{activos.length===0?'Registra tu primer producto y te sugeriremos recetas para aprovecharlo.':'Registra alimentos y aquí te propondremos recetas para no desperdiciarlos.'}</p>
+                        </div>
+                      </div>
+                      <div className="ad-hero-card__actions">
+                        <button className="ad-hero-card__btn" onClick={()=>abrirNuevo()}>Agregar producto</button>
+                      </div>
+                    </section>
+                  );
+
   const histFiltrado=[...historial]
     .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
     .filter(p=>!busquedaHist||p.name.toLowerCase().includes(busquedaHist.toLowerCase()))
@@ -1310,6 +1356,7 @@ export default function App(){
               <p className="ad-hello">{saludo}, {nombreCorto}</p>
             </header>
             <div className="ad-overlap">
+              {tarjetaVerde}
               {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}
               {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>Te enviamos un correo con los productos por vencer</div>}
               {activos.length===0?(
@@ -1318,36 +1365,6 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
-                  {sugerencias.length>0&&(
-                    <section className="ad-hero-card" aria-label="Recetas sugeridas">
-                      <div className="ad-hero-card__top">
-                        <span className="ad-hero-card__eyebrow">{hayAlertaComida?'Recetas para aprovechar':'Con lo que tienes'}</span>
-                        {sugerencias.length>1&&<span className="ad-hero-card__pill">{idxReceta+1} de {sugerencias.length}</span>}
-                      </div>
-                      <div className="ad-hero-card__slides" ref={carruselRef}
-                        onScroll={e=>{const el=e.currentTarget;const i=Math.round(el.scrollLeft/el.clientWidth);if(i!==recetaIdx)setRecetaIdx(i);}}>
-                        {sugerencias.map(sg=>(
-                          <div key={sg.receta.id} className="ad-hero-card__slide">
-                            <h2 className="ad-hero-card__title">{sg.receta.n}</h2>
-                            <p className="ad-hero-card__sub">
-                              {sg.productos.slice(0,3).map(p=>`${p.name.toLowerCase()} (${daysLabel(daysUntil(p.exp))})`).join(', ')}{sg.productos.length>3?` y ${sg.productos.length-3} más`:''} · {sg.receta.min} min
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="ad-hero-card__actions">
-                        <button className="ad-hero-card__btn" onClick={()=>setRecetaAbierta(sugerencias[idxReceta])}>Ver receta</button>
-                        {sugerencias.length>1&&(
-                          <div className="ad-hero-card__dots" role="group" aria-label="Elegir receta">
-                            {sugerencias.map((sg,i)=>(
-                              <button key={sg.receta.id} className={`ad-hero-card__dotbtn${i===idxReceta?' is-on':''}`} aria-label={`Receta ${i+1}: ${sg.receta.n}`}
-                                onClick={()=>{const el=carruselRef.current;if(el)el.scrollTo({left:i*el.clientWidth,behavior:'smooth'});}}/>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </section>
-                  )}
                   <div className={`ad-stats${filtroEstado?' ad-stats--hay':''}`}>
                     {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(
                       <button key={clave} className={`ad-stat${filtroEstado===clave?' is-activo':''}`} aria-pressed={filtroEstado===clave}
