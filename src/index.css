@@ -1392,10 +1392,80 @@ html.vp-gap .ad-screen {
   color: rgba(255, 255, 255, 0.85);
 }
 
+.ad-hero-card__slides {
+  display: flex;
+  margin-top: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+}
+
+.ad-hero-card__slides::-webkit-scrollbar {
+  display: none;
+}
+
+.ad-hero-card__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  height: 92px;
+  scroll-snap-align: start;
+}
+
+.ad-hero-card__slide .ad-hero-card__title {
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ad-hero-card__slide .ad-hero-card__sub {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
 .ad-hero-card__actions {
   display: flex;
-  gap: 10px;
-  margin-top: 18px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.ad-hero-card__dots {
+  display: flex;
+  align-items: center;
+}
+
+.ad-hero-card__dotbtn {
+  position: relative;
+  width: 22px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+.ad-hero-card__dotbtn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translate(-50%, -50%);
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.ad-hero-card__dotbtn.is-on::after {
+  width: 18px;
+  border-radius: 4px;
+  background: #ffffff;
 }
 
 .ad-hero-card__btn {

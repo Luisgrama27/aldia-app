@@ -198,3 +198,43 @@ export function sugerirReceta(productos, salto = 0) {
     tags: [...new Set(usados.flatMap((i) => i.tags))],
   };
 }
+
+// Varias recetas para mostrar en un carrusel: la mejor primero y, después, las que
+// aprovechan productos que las anteriores no usaron.
+export function sugerirRecetas(productos, max = 6) {
+  const items = productos
+    .map((p) => ({ p, tags: etiquetasDe(p.name) }))
+    .filter((i) => i.tags.length > 0);
+  if (items.length === 0) return [];
+  const disponibles = new Set(items.flatMap((i) => i.tags));
+
+  const cand = [];
+  RECETAS.forEach((r) => {
+    const usadas = r.clave.filter((t) => disponibles.has(t));
+    if (usadas.length === 0) return;
+    const usados = items.filter((i) => i.tags.some((t) => r.clave.includes(t)));
+    const urgencia = usados.reduce((suma, i) => suma + 1 / (1 + Math.max(0, diasHasta(i.p.exp))), 0);
+    const puntos = usadas.length * 10 + urgencia * 3 - (r.clave.length - usadas.length) * 2;
+    cand.push({ r, usados, puntos });
+  });
+
+  const elegidas = [];
+  const cubiertos = new Set();
+  while (elegidas.length < max && cand.length > 0) {
+    let mejor = 0;
+    let mejorPts = -Infinity;
+    cand.forEach((c, i) => {
+      const nuevos = c.usados.filter((u) => !cubiertos.has(u.p.id || u.p.name)).length;
+      const pts = c.puntos + nuevos * 6;
+      if (pts > mejorPts) { mejorPts = pts; mejor = i; }
+    });
+    const [c] = cand.splice(mejor, 1);
+    c.usados.forEach((u) => cubiertos.add(u.p.id || u.p.name));
+    elegidas.push({
+      receta: c.r,
+      productos: c.usados.map((u) => u.p),
+      tags: [...new Set(c.usados.flatMap((u) => u.tags))],
+    });
+  }
+  return elegidas;
+}
