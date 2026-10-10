@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
-import { resumenDespensa } from "./resumen";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
@@ -306,8 +305,8 @@ function PrefsVista({prefs,onPrefs,onAplicar,numActivos}){
 const FAQ = [
   {q:'¿Cómo agrego un producto?',a:'Toca el botón verde "+" de la barra inferior. Escribe el nombre, elige la categoría y la fecha de vencimiento (son obligatorios) y toca Guardar. Si quieres, también puedes registrar cantidad, precio y con cuántos días de anticipación quieres la alerta.'},
   {q:'¿Qué significan los colores y etiquetas?',a:'Vencido y Urgente (3 días o menos) se muestran en rojo. Por vencer, que es cuando entra en el periodo de alerta que elegiste, va en amarillo. Al día, cuando aún falta tiempo, va en verde.'},
-  {q:'¿Cuándo me avisa la app?',a:'La alerta depende de la categoría (por ejemplo, la carne avisa más cerca de la fecha y los enlatados con más tiempo) y puedes cambiarla en Cuenta, Preferencias, o en cada producto. Al abrir la app, la tarjeta "Atención hoy" te muestra el producto más urgente. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
-  {q:'¿Cómo funcionan las recetas sugeridas?',a:'Cuando tienes productos por vencer (que aún no han vencido), en Inicio te proponemos una receta que los aproveche. Si hay varios, buscamos una receta que use la mayor cantidad posible. Si no hay nada por vencer, verás el mensaje "Todo al día". No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
+  {q:'¿Cuándo me avisa la app?',a:'La alerta depende de la categoría (por ejemplo, la carne avisa más cerca de la fecha y los enlatados con más tiempo) y puedes cambiarla en Cuenta, Preferencias, o en cada producto. Al abrir la app verás los avisos en la campanita y en cada producto. Si tienes activado el resumen por correo, también te enviamos la lista de productos vencidos o por vencer.'},
+  {q:'¿Cómo funcionan las recetas sugeridas?',a:'En Inicio, la tarjeta verde te propone una receta con los productos que están por vencer (que aún no han vencido). Si hay varios, buscamos la receta que use la mayor cantidad posible. Si nada está por vencer, te sugerimos una con lo que vence primero. Puedes tocar "Otra receta" para ver otra opción. No se sugieren recetas con productos ya vencidos, medicamentos ni productos de limpieza.'},
   {q:'¿Qué hacen "Ya la usé" y "Botar"?',a:'Mueven el producto al Historial como consumido o descartado. Con eso se calculan tus estadísticas.'},
   {q:'¿Cómo recupero un producto del historial?',a:'Entra a Historial y toca Restaurar en el producto. Vuelve a tu lista de Inicio.'},
   {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
@@ -729,16 +728,16 @@ function RecetaSheet({sug,onClose}){
             <p className="ad-muted">{r.min} min · {r.por} {r.por===1?'porción':'porciones'}</p>
           </div>
         </div>
-        <div className="ad-note ad-note--warn" style={{margin:'8px 0 4px'}}>Aprovecha lo que está por vencer: {productos.map(p=>p.name).join(', ')}</div>
+        <div className="ad-note" style={{margin:'8px 0 4px'}}>Usa tus productos: {productos.map(p=>p.name).join(', ')}</div>
         <h3 className="ad-section" style={{margin:'14px 0 6px'}}>Ingredientes</h3>
         <div>
           {r.ing.map(([txt,tag])=>{
             const porVencer=!!tag&&tags.includes(tag);
             return (
               <div key={txt} className="ad-ing">
-                <span>{porVencer?'✅':'•'}</span>
+                <span aria-hidden="true">•</span>
                 <span style={{flex:1}}>{txt}</span>
-                {porVencer&&<span className="ad-pill ad-pill--warn">Por vencer</span>}
+                {porVencer&&<span className="ad-pill ad-pill--ok">Lo tienes</span>}
               </div>
             );
           })}
@@ -850,7 +849,7 @@ export default function App(){
   const [accionHist,setAccionHist]=useState(null);
   const [accionProd,setAccionProd]=useState(null);
   const [avisos,setAvisos]=useState(false);
-  const [selDest,setSelDest]=useState(null);
+  const [recetaIdx,setRecetaIdx]=useState(0);
   const [toast,setToast]=useState(null);
   const toastTimer=useRef(null);
   const [tick,setTick]=useState(0);
@@ -1029,25 +1028,14 @@ export default function App(){
 
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
-  const dest=destacados[0];
-  const resumen=resumenDespensa(activos,daysUntil,status);
-  // Producto elegido en la tarjeta de atención (por defecto, el que vence primero)
-  const sel=destacados.find(p=>p.id===selDest)||dest;
-  const selD=sel?daysUntil(sel.exp):0;
-  const selSt=sel?status(sel):'ok';
-  const selTexto=!sel?'':selD<0?`Venció hace ${Math.abs(selD)} día${Math.abs(selD)>1?'s':''}`:selD===0?'Vence hoy':`Vence en ${selD} día${selD>1?'s':''}`;
-
-  // Receta con lo que está por vencer (sin vencer todavía, y solo comida)
+  // Receta del día: usa primero lo que está por vencer; si no hay nada en alerta, lo que vence antes
   const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas','Cuidado personal','Mascotas','Bebé'];
-  const candidatosReceta=activos
-    .filter(p=>daysUntil(p.exp)>=0&&status(p)!=='ok'&&!EXCLUIR_RECETA.includes(p.cat))
+  const comida=activos
+    .filter(p=>daysUntil(p.exp)>=0&&!EXCLUIR_RECETA.includes(p.cat))
     .sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
-  // Receta para el producto elegido: si otros productos también encajan, los aprovecha
-  const selEsCandidato=!!sel&&candidatosReceta.some(p=>p.id===sel.id);
-  const sugerenciaSel=!selEsCandidato?null:(()=>{
-    const r=sugerirReceta([sel,...candidatosReceta.filter(p=>p.id!==sel.id)]);
-    return r&&r.productos.some(p=>p.id===sel.id)?r:sugerirReceta([sel]);
-  })();
+  const comidaAlerta=comida.filter(p=>status(p)!=='ok');
+  const hayAlertaComida=comidaAlerta.length>0;
+  const sugerencia=sugerirReceta(hayAlertaComida?comidaAlerta:comida.slice(0,8),recetaIdx);
 
   const histFiltrado=[...historial]
     .filter(p=>p.estado==='consumido'?verConsumidos:verDescartados)
@@ -1328,58 +1316,21 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
-                  <section className={`ad-hero-card ad-hero-card--${resumen.estado}`} aria-label="Estado de tu despensa">
-                    <div className="ad-hero-card__top">
-                      <span className="ad-hero-card__eyebrow">Tu despensa</span>
-                      <span className="ad-hero-card__pill"><span className="ad-hero-card__dot" aria-hidden="true"/>{resumen.pill}</span>
-                    </div>
-                    <h2 className="ad-hero-card__title">{resumen.titulo}</h2>
-                    <p className="ad-hero-card__sub">{resumen.subtitulo}</p>
-                    <div className="ad-hero-card__bar" role="progressbar" aria-label="Productos al día" aria-valuemin={0} aria-valuemax={100} aria-valuenow={resumen.pct}>
-                      <span style={{width:`${resumen.pct}%`}}/>
-                    </div>
-                    <div className="ad-hero-card__foot">
-                      <span>{resumen.siguiente}</span>
-                      <strong>{resumen.pct}% al día</strong>
-                    </div>
-                  </section>
-                  {dest&&(
-                    <div className="ad-card ad-urgent">
-                      {destacados.length>1&&(
-                        <div className="ad-urgent__chips" role="group" aria-label="Productos por atender">
-                          {destacados.map(p=>(
-                            <button key={p.id} className="ad-urgent__chip" aria-pressed={p.id===sel.id} onClick={()=>setSelDest(p.id)}>
-                              <span className={`ad-dot ad-dot--${status(p)==='warn'?'warn':'danger'}`} aria-hidden="true"/>
-                              <span className="ad-urgent__chipname">{p.name}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                      <div className="ad-urgent__sel">
-                        <button className="ad-urgent__selmain" onClick={()=>setAccionProd(sel)}>
-                          <span className="ad-urgent__name">{sel.name}</span>
-                          <span className="ad-muted">{selTexto} · {sel.cat}</span>
-                        </button>
-                        <span className={`ad-pill ${pillClass(selSt)}`}>{pillIcon(selSt)} {daysLabel(selD)}</span>
+                  {sugerencia&&(
+                    <section className="ad-hero-card" aria-label="Receta sugerida">
+                      <div className="ad-hero-card__top">
+                        <span className="ad-hero-card__eyebrow">{hayAlertaComida?'Receta para aprovechar':'Con lo que tienes'}</span>
+                        <span className="ad-hero-card__pill">{sugerencia.receta.min} min</span>
                       </div>
-                      <div className="ad-btn-row">
-                        <button className="ad-btn ad-btn--sm" onClick={()=>marcarProducto(sel.id,'consumido')} disabled={guardando}>✓ Ya la usé</button>
-                        <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(sel.id,'descartado')} disabled={guardando}>Botar</button>
+                      <h2 className="ad-hero-card__title">{sugerencia.receta.n}</h2>
+                      <p className="ad-hero-card__sub">
+                        {hayAlertaComida?'Usa ':'Con '}{sugerencia.productos.slice(0,3).map(p=>`${p.name.toLowerCase()} (${daysLabel(daysUntil(p.exp))})`).join(', ')}{sugerencia.productos.length>3?` y ${sugerencia.productos.length-3} más`:''}
+                      </p>
+                      <div className="ad-hero-card__actions">
+                        <button className="ad-hero-card__btn" onClick={()=>setRecetaAbierta(sugerencia)}>Ver receta</button>
+                        <button className="ad-hero-card__btn ad-hero-card__btn--ghost" onClick={()=>setRecetaIdx(i=>i+1)}>Otra receta</button>
                       </div>
-                      {sugerenciaSel&&(
-                        <div className="ad-receta">
-                          <div className="ad-receta__top">Sugerencia de receta</div>
-                          <button className="ad-receta__main" onClick={()=>setRecetaAbierta(sugerenciaSel)}>
-                            <span style={{minWidth:0,flex:1}}>
-                              <span className="ad-receta__name">{sugerenciaSel.receta.n}</span>
-                              <span className="ad-muted" style={{display:'block'}}>Usa: {sugerenciaSel.productos.map(p=>`${p.name} (${daysLabel(daysUntil(p.exp))})`).join(', ')}</span>
-                            </span>
-                            <span className="ad-pill ad-pill--ok">{sugerenciaSel.receta.min} min</span>
-                          </button>
-                          <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerenciaSel)}>Ver receta</button>
-                        </div>
-                      )}
-                    </div>
+                    </section>
                   )}
                   <div className={`ad-stats${filtroEstado?' ad-stats--hay':''}`}>
                     {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(

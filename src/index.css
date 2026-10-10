@@ -1326,18 +1326,6 @@ html.vp-gap .ad-screen {
   color: #ffffff;
 }
 
-.ad-hero-card--warn {
-  --hc1: #c26a12;
-  --hc2: #a85509;
-  --hc3: #8f4504;
-}
-
-.ad-hero-card--danger {
-  --hc1: #d23a4b;
-  --hc2: #b52536;
-  --hc3: #9d1c2b;
-}
-
 /* Brillo suave en la esquina */
 .ad-hero-card::before {
   content: "";
@@ -1404,41 +1392,33 @@ html.vp-gap .ad-screen {
   color: rgba(255, 255, 255, 0.85);
 }
 
-.ad-hero-card__bar {
-  height: 6px;
-  margin: 18px 0 10px;
-  overflow: hidden;
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.28);
-}
-
-.ad-hero-card__bar > span {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: #ffffff;
-  transition: width 0.8s ease;
-}
-
-.ad-hero-card__foot {
+.ad-hero-card__actions {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.ad-hero-card__btn {
+  min-height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: #ffffff;
+  color: #25573f;
+  font: inherit;
   font-size: 0.875rem;
-  font-weight: 600;
-}
-
-.ad-hero-card__foot > span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.ad-hero-card__foot > strong {
-  flex: none;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.ad-hero-card__btn--ghost {
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.ad-hero-card__btn:active {
+  transform: scale(0.97);
 }
 
 /* ---------- Tarjeta de atención: selector de productos (tamaño fijo) ---------- */

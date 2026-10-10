@@ -162,7 +162,7 @@ function diasHasta(fecha) {
 
 // Recibe los productos que están por vencer (sin vencer todavía) y devuelve
 // { receta, productos, tags } con la receta que más de ellos aprovecha, o null.
-export function sugerirReceta(productos) {
+export function sugerirReceta(productos, salto = 0) {
   const items = productos
     .map((p) => ({ p, tags: etiquetasDe(p.name) }))
     .filter((i) => i.tags.length > 0);
@@ -187,7 +187,9 @@ export function sugerirReceta(productos) {
   // Entre las mejores empatadas, rota cada día para no repetir siempre la misma
   const mejores = puntuadas.filter((x) => x.puntos >= puntuadas[0].puntos - 0.5);
   const dia = Math.floor(Date.now() / 86400000);
-  const receta = mejores[dia % mejores.length].r;
+  const rot = dia % mejores.length;
+  const orden = [...mejores.slice(rot), ...mejores.slice(0, rot), ...puntuadas.slice(mejores.length)];
+  const receta = orden[salto % Math.min(orden.length, 5)].r;
 
   const usados = items.filter((i) => i.tags.some((t) => receta.clave.includes(t)));
   return {
