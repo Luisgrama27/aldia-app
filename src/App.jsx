@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
+import { resumenDespensa } from "./resumen";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
@@ -1029,7 +1030,7 @@ export default function App(){
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
   const dest=destacados[0];
-  const destSt=dest?status(dest):'ok';
+  const resumen=resumenDespensa(activos,daysUntil,status);
   // Producto elegido en la tarjeta de atención (por defecto, el que vence primero)
   const sel=destacados.find(p=>p.id===selDest)||dest;
   const selD=sel?daysUntil(sel.exp):0;
@@ -1327,12 +1328,23 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
-                  {dest?(
+                  <section className={`ad-hero-card ad-hero-card--${resumen.estado}`} aria-label="Estado de tu despensa">
+                    <div className="ad-hero-card__top">
+                      <span className="ad-hero-card__eyebrow">Tu despensa</span>
+                      <span className="ad-hero-card__pill"><span className="ad-hero-card__dot" aria-hidden="true"/>{resumen.pill}</span>
+                    </div>
+                    <h2 className="ad-hero-card__title">{resumen.titulo}</h2>
+                    <p className="ad-hero-card__sub">{resumen.subtitulo}</p>
+                    <div className="ad-hero-card__bar" role="progressbar" aria-label="Productos al día" aria-valuemin={0} aria-valuemax={100} aria-valuenow={resumen.pct}>
+                      <span style={{width:`${resumen.pct}%`}}/>
+                    </div>
+                    <div className="ad-hero-card__foot">
+                      <span>{resumen.siguiente}</span>
+                      <strong>{resumen.pct}% al día</strong>
+                    </div>
+                  </section>
+                  {dest&&(
                     <div className="ad-card ad-urgent">
-                      <div className="ad-urgent__top">
-                        <span className="ad-muted" style={{fontWeight:700}}>{destSt==='warn'?'Próximo a vencer':'Atención hoy'}</span>
-                        <span className="ad-muted">{destacados.length} producto{destacados.length!==1?'s':''}</span>
-                      </div>
                       {destacados.length>1&&(
                         <div className="ad-urgent__chips" role="group" aria-label="Productos por atender">
                           {destacados.map(p=>(
@@ -1367,11 +1379,6 @@ export default function App(){
                           <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>setRecetaAbierta(sugerenciaSel)}>Ver receta</button>
                         </div>
                       )}
-                    </div>
-                  ):(
-                    <div className="ad-card ad-urgent ad-urgent--ok" style={{textAlign:'center'}}>
-                      <h2 className="ad-section" style={{margin:'6px 0 4px'}}>Todo al día</h2>
-                      <p className="ad-muted">Ningún producto está por vencer. ¡Buen trabajo!</p>
                     </div>
                   )}
                   <div className={`ad-stats${filtroEstado?' ad-stats--hay':''}`}>

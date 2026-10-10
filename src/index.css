@@ -770,26 +770,6 @@ body {
   border-radius: 28px;
 }
 
-.ad-card.ad-urgent--ok {
-  border-color: var(--green);
-  background: var(--green-soft);
-}
-
-.ad-urgent--ok .ad-section {
-  color: var(--green);
-}
-
-.ad-urgent--ok .ad-muted {
-  color: var(--text);
-}
-
-.ad-urgent__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
 .ad-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1331,12 +1311,142 @@ html.vp-gap .ad-screen {
   margin-top: 14px;
 }
 
+/* ---------- Tarjeta principal de Inicio: estado de la despensa ---------- */
+
+.ad-hero-card {
+  --hc1: #3a8a62;
+  --hc2: #2f6b4f;
+  --hc3: #25573f;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 12px;
+  padding: 20px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, var(--hc1) 0%, var(--hc2) 55%, var(--hc3) 100%);
+  color: #ffffff;
+}
+
+.ad-hero-card--warn {
+  --hc1: #c26a12;
+  --hc2: #a85509;
+  --hc3: #8f4504;
+}
+
+.ad-hero-card--danger {
+  --hc1: #d23a4b;
+  --hc2: #b52536;
+  --hc3: #9d1c2b;
+}
+
+/* Brillo suave en la esquina */
+.ad-hero-card::before {
+  content: "";
+  position: absolute;
+  top: -90px;
+  right: -70px;
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0) 65%);
+  pointer-events: none;
+}
+
+.ad-hero-card > * {
+  position: relative;
+}
+
+.ad-hero-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ad-hero-card__eyebrow {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.ad-hero-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+}
+
+.ad-hero-card__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.ad-hero-card__title {
+  margin: 10px 0 2px;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.ad-hero-card__sub {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.ad-hero-card__bar {
+  height: 6px;
+  margin: 18px 0 10px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.ad-hero-card__bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: #ffffff;
+  transition: width 0.8s ease;
+}
+
+.ad-hero-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.ad-hero-card__foot > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ad-hero-card__foot > strong {
+  flex: none;
+  font-weight: 700;
+}
+
 /* ---------- Tarjeta de atención: selector de productos (tamaño fijo) ---------- */
 
 .ad-urgent__chips {
   display: flex;
   gap: 8px;
-  margin: 12px -18px 0;
+  margin: 0 -18px;
   padding: 2px 18px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -1397,6 +1507,10 @@ html.vp-gap .ad-screen {
   justify-content: space-between;
   gap: 10px;
   margin: 12px 0;
+}
+
+.ad-urgent .ad-urgent__chips + .ad-urgent__sel {
+  margin-top: 14px;
 }
 
 .ad-urgent__selmain {
