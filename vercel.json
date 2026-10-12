@@ -4,6 +4,10 @@
       "source": "/(.*)",
       "headers": [
         {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'sha256-vaJ7oHcAma9Y1YcjsNi+KEyp+8BKRXgGby+lrQd8ohw=' 'sha256-e0QWc9LNvOavFa7rQYsssqtGm6jmbf9bDIf20FzTALA=' https://apis.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.googleusercontent.com https://www.google.com/images/; font-src 'self' data:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com https://api.emailjs.com https://world.openfoodfacts.org https://world.openbeautyfacts.org https://world.openpetfoodfacts.org https://world.openproductsfacts.org; frame-src https://freshcheck-7659a.firebaseapp.com https://accounts.google.com; media-src 'self' blob:; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
           "key": "Strict-Transport-Security",
           "value": "max-age=63072000; includeSubDomains"
         },
