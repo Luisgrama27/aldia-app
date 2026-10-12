@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
-import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc } from "firebase/firestore";
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc, Timestamp } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
 import Scanner from "./Scanner";
@@ -236,7 +236,7 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
       </div>
       <div className="ad-card" style={{overflow:'hidden',marginBottom:12}}>
         <label className="ad-field"><span className="ad-field__label">Nombre</span>
-          <input value={valor} onChange={e=>setValor(e.target.value)} placeholder="Tu nombre" autoComplete="name"/>
+          <input maxLength={80} value={valor} onChange={e=>setValor(e.target.value)} placeholder="Tu nombre" autoComplete="name"/>
         </label>
         <div className="ad-field"><span className="ad-field__label">Correo electrónico</span>
           <div style={{padding:'6px 0',color:'var(--text2)',wordBreak:'break-all'}}>{usuario.email}</div>
@@ -256,7 +256,7 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
   );
 }
 
-function PrefsVista({prefs,onPrefs,onAplicar,numActivos}){
+function PrefsVista({prefs,onPrefs,onAplicar,numActivos,verificado}){
   const [abierto,setAbierto]=useState(false);
   const [tema,setTema]=useState(()=>{try{return localStorage.getItem(TEMA_KEY)||'auto';}catch(e){return 'auto';}});
   const cambiarTema=(t)=>{setTema(t);aplicarTema(t);try{localStorage.setItem(TEMA_KEY,t);}catch(e){}};
@@ -289,6 +289,7 @@ function PrefsVista({prefs,onPrefs,onAplicar,numActivos}){
           <span>Resumen por correo</span>
           <button className="ad-toggle" role="switch" aria-checked={prefs.correo} aria-label="Resumen por correo" onClick={()=>onPrefs({correo:!prefs.correo})}/>
         </div>
+        {prefs.correo&&verificado===false&&<p className="ad-muted" style={{padding:'0 2px 8px',lineHeight:1.5}}>Para recibir el resumen, verifica tu correo con el enlace que te enviamos al registrarte.</p>}
       </div>
       <p className="ad-muted" style={{marginBottom:16,lineHeight:1.5}}>Cada categoría tiene sus días de alerta sugeridos: la carne avisa más cerca de la fecha y los enlatados con más tiempo. Se aplican a los productos nuevos. Si activas el resumen por correo, te enviamos la lista una vez al día al abrir la app con productos vencidos o por vencer.</p>
       <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Apariencia</h3>
@@ -476,7 +477,7 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onA
           <button className="ad-btn ad-btn--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
-        {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs} onAplicar={onAplicarAlertas} numActivos={numActivos}/>}
+        {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs} onAplicar={onAplicarAlertas} numActivos={numActivos} verificado={usuario.emailVerified}/>}
         {vista==='faq'&&<FaqVista/>}
         {vista==='contacto'&&<ContactoVista usuario={usuario}/>}
         {vista==='legal'&&<LegalVista/>}
@@ -576,8 +577,9 @@ function CompartirModal({activos,uid,nombre,onClose}){
     const ahora=Date.now();
     try{
       await conTiempo(setDoc(doc(db,'compartidos',t),{
-        uid,nombre:nombre||'',creadoMs:ahora,venceMs:ahora+7*86400000,
-        productos:[...activos].sort((x,y)=>daysUntil(x.exp)-daysUntil(y.exp)).map(p=>({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert??7})),
+        uid,nombre:String(nombre||'').slice(0,80),creadoMs:ahora,venceMs:ahora+7*86400000,
+        expira:Timestamp.fromMillis(ahora+7*86400000),
+        productos:[...activos].sort((x,y)=>daysUntil(x.exp)-daysUntil(y.exp)).slice(0,300).map(p=>({name:String(p.name).slice(0,120),cat:String(p.cat).slice(0,40),exp:p.exp,qty:String(p.qty||'').slice(0,60),alert:Number.isFinite(p.alert)?p.alert:7})),
       }),10000);
       setToken(t);setFase('listo');
     }catch(e){console.error(e);setFase('error');}
@@ -588,8 +590,8 @@ function CompartirModal({activos,uid,nombre,onClose}){
   };
   const copiar=async()=>{try{await navigator.clipboard.writeText(url);setCopiado(true);setTimeout(()=>setCopiado(false),2000);}catch(e){alert('No se pudo copiar.');}};
   const nativo=async()=>{if(navigator.share){try{await navigator.share({title:'Al Día',text:mensaje,url});}catch{ /* compartir cancelado */ }}else copiar();};
-  const whatsapp=()=>window.open(`https://wa.me/?text=${encodeURIComponent(`${mensaje} ${url}`)}`,'_blank');
-  const correo=()=>window.open(`mailto:?subject=${encodeURIComponent('Mi lista de vencimientos - Al Día')}&body=${encodeURIComponent(`${mensaje}\n\n${url}`)}`,'_blank');
+  const whatsapp=()=>window.open(`https://wa.me/?text=${encodeURIComponent(`${mensaje} ${url}`)}`,'_blank','noopener,noreferrer');
+  const correo=()=>window.open(`mailto:?subject=${encodeURIComponent('Mi lista de vencimientos - Al Día')}&body=${encodeURIComponent(`${mensaje}\n\n${url}`)}`,'_blank','noopener,noreferrer');
   return (
     <div className="ad-overlay" onClick={onClose}>
       <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Compartir lista">
@@ -884,7 +886,7 @@ export default function App(){
       }catch(e){}
       let yaEnviado=false;
       try{yaEnviado=localStorage.getItem(`correo_${usuario.uid}`)===fechaEn(0);}catch{ /* sin almacenamiento */ }
-      if(!correoEnviadoHoy.current&&correoActivo&&!yaEnviado){
+      if(!correoEnviadoHoy.current&&correoActivo&&!yaEnviado&&usuario.emailVerified&&usuario.email){
         const urgentes=prods.filter(p=>!p.estado&&(status(p)==='expired'||status(p)==='danger'||status(p)==='warn'));
         if(urgentes.length>0){
           correoEnviadoHoy.current=true;
@@ -900,15 +902,24 @@ export default function App(){
 
   useEffect(()=>{
     if(!usuario)return;
-    const m=localStorage.getItem(`meta_${usuario.uid}`);
-    if(m)setMeta(parseFloat(m));
+    try{
+      const m=parseFloat(localStorage.getItem(`meta_${usuario.uid}`));
+      if(Number.isFinite(m)&&m>0&&m<1e9)setMeta(m);
+    }catch{ /* sin almacenamiento */ }
   },[usuario]);
 
   useEffect(()=>{
     if(!usuario)return;
     try{
       const raw=localStorage.getItem(`prefs_${usuario.uid}`);
-      if(raw)setPrefs(p=>({...p,...JSON.parse(raw)}));
+      if(raw){
+        const g=JSON.parse(raw);
+        const limpio={};
+        if(Number.isFinite(g.alertaDefecto))limpio.alertaDefecto=g.alertaDefecto;
+        if(typeof g.correo==='boolean')limpio.correo=g.correo;
+        if(g.alertasCat&&typeof g.alertasCat==='object')limpio.alertasCat=g.alertasCat;
+        setPrefs(p=>({...p,...limpio}));
+      }
     }catch(e){}
   },[usuario]);
 
@@ -922,9 +933,9 @@ export default function App(){
   },[usuario]);
 
   const guardarMeta=()=>{
-    if(!valorMeta||isNaN(valorMeta))return;
     const valor=parseFloat(valorMeta);
-    setMeta(valor);localStorage.setItem(`meta_${usuario.uid}`,valor);
+    if(!Number.isFinite(valor)||valor<=0||valor>=1e9)return;
+    setMeta(valor);try{localStorage.setItem(`meta_${usuario.uid}`,valor);}catch{ /* sin almacenamiento */ }
     setEditandoMeta(false);setValorMeta('');
   };
 
@@ -1229,7 +1240,7 @@ export default function App(){
           {errorMsg&&<div className="ad-note ad-note--danger" role="alert">⚠️ {errorMsg}</div>}
           <div className="ad-card" style={{overflow:'hidden'}}>
             <label className="ad-field"><span className="ad-field__label">Nombre</span>
-              <input list="nombresSugeridos" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
+              <input list="nombresSugeridos" maxLength={120} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
               <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
             </label>
             <label className="ad-field"><span className="ad-field__label">Categoría</span>
@@ -1244,10 +1255,10 @@ export default function App(){
               ))}
             </div>
             <label className="ad-field"><span className="ad-field__label">Cantidad / notas</span>
-              <input value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/>
+              <input maxLength={60} value={form.qty} onChange={e=>setForm({...form,qty:e.target.value})} placeholder="Ej: 2 botellas"/>
             </label>
             <label className="ad-field"><span className="ad-field__label">Precio (opcional)</span>
-              <input type="number" value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/>
+              <input type="number" min="0" max="100000000" value={form.precio} onChange={e=>setForm({...form,precio:e.target.value})} placeholder="Ej: 4500"/>
             </label>
             <label className="ad-field"><span className="ad-field__label">Alertar con anticipación</span>
               <select value={form.alert} onChange={e=>{setAlertaManual(true);setForm({...form,alert:parseInt(e.target.value)});}}>

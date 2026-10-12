@@ -1,4 +1,6 @@
-const CACHE_NAME = 'aldia-v2';
+// Service worker de Al Día: guarda solo archivos propios de la app para poder abrirla sin conexión.
+// No guarda respuestas de otros sitios (Firebase, Open Food Facts, EmailJS...) ni datos de cuentas.
+const CACHE_NAME = 'aldia-v3';
 const urlsToCache = [
   '/',
   '/index.html',
@@ -14,6 +16,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
+// Al activarse, borra las cachés anteriores (que podían contener respuestas de otros sitios)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -24,14 +27,24 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  if(event.request.method !== 'GET') return;
+  const req = event.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  // Solo contenido de la propia app; lo demás pasa directo a la red
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/__/') || url.pathname.startsWith('/api/')) return;
+  // Las listas compartidas (?c=...) nunca se guardan
+  if (url.searchParams.has('c')) return;
+
   event.respondWith(
-    fetch(event.request)
+    fetch(req)
       .then(res => {
-        const clone = res.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        if (res.ok && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(req, clone));
+        }
         return res;
       })
-      .catch(() => caches.match(event.request).then(r => r || caches.match('/')))
+      .catch(() => caches.match(req).then(r => r || caches.match('/')))
   );
 });

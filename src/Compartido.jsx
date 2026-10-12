@@ -43,6 +43,8 @@ export default function Compartido({ token }) {
 
   useEffect(() => {
     let vivo = true;
+    // Solo se aceptan identificadores con el formato que genera la app
+    if (!/^[a-f0-9]{24}$/.test(token)) { setDatos(null); return undefined; }
     getDoc(doc(db, 'compartidos', token))
       .then(s => { if (vivo) setDatos(s.exists() ? s.data() : null); })
       .catch(() => { if (vivo) setDatos(null); });
@@ -68,7 +70,7 @@ export default function Compartido({ token }) {
     }
   };
 
-  const productos = datos ? [...datos.productos].sort((x, y) => dias(x.exp) - dias(y.exp)) : [];
+  const productos = datos && Array.isArray(datos.productos) ? [...datos.productos].filter(p => p && typeof p.exp === 'string').sort((x, y) => dias(x.exp) - dias(y.exp)) : [];
   const cuenta = { vencidos: 0, porVencer: 0, alDia: 0 };
   productos.forEach(p => {
     const st = estado(dias(p.exp), p.alert ?? 7);

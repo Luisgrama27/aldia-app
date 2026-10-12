@@ -6,10 +6,11 @@ import App from './App.jsx'
 import Compartido from './Compartido.jsx'
 
 // Un enlace con ?c=... abre la lista compartida (solo lectura, sin cuenta)
-const token = new URLSearchParams(window.location.search).get('c')
+const params = new URLSearchParams(window.location.search)
+const token = params.has('c') ? params.get('c') : null
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {token ? <Compartido token={token} /> : <App />}
+    {token !== null ? <Compartido token={token} /> : <App />}
   </StrictMode>,
 )

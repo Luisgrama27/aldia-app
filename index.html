@@ -4,10 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Al Día</title>
-    <script>
-      /* Aplica el tema guardado antes de pintar, para que la pantalla de carga ya salga con él */
-      try { var t = localStorage.getItem('tema_app'); if (t === 'claro' || t === 'oscuro') document.documentElement.dataset.tema = t; } catch (e) {}
-    </script>
+    <script src="/tema-init.js"></script>
     <meta name="description" content="Controla los vencimientos de tus productos del hogar" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Al Día" />
@@ -118,19 +115,6 @@
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-    <script>
-      document.addEventListener('gesturestart', e => e.preventDefault());
-      document.addEventListener('gesturechange', e => e.preventDefault());
-      document.addEventListener('gestureend', e => e.preventDefault());
-      window.__hideSplash = function() {
-        const s = document.getElementById('native-splash');
-        if (s) { s.classList.add('hidden'); setTimeout(() => s.remove(), 400); }
-      };
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(e => console.log('SW error:', e));
-        });
-      }
-    </script>
+    <script src="/app-init.js"></script>
   </body>
 </html>

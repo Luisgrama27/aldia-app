@@ -1,0 +1,68 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Productos: cada persona solo ve y modifica los suyos, con campos de tamaño razonable
+    function productoValido(d) {
+      return d.keys().size() <= 15
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 120
+        && d.cat is string && d.cat.size() <= 40
+        && d.exp is string && d.exp.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (!('qty' in d) || (d.qty is string && d.qty.size() <= 60))
+        && (!('alert' in d) || d.alert is number)
+        && (!('precio' in d) || (d.precio is number && d.precio >= 0 && d.precio < 1000000000)
+                             || (d.precio is string && d.precio.size() <= 15))
+        && (!('barcode' in d) || (d.barcode is string && d.barcode.size() <= 20))
+        && (!('estado' in d) || d.estado == null || d.estado in ['consumido', 'descartado']);
+    }
+
+    match /productos/{docId} {
+      allow read, delete: if request.auth != null
+                          && resource.data.uid == request.auth.uid;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && productoValido(request.resource.data);
+      allow update: if request.auth != null
+                    && resource.data.uid == request.auth.uid
+                    && request.resource.data.uid == request.auth.uid
+                    && productoValido(request.resource.data);
+    }
+
+    // Perfiles: solo la propia persona; foto pequeña y solo imagen JPEG
+    match /perfiles/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid
+                   && request.resource.data.keys().size() <= 20
+                   && request.resource.data.foto is string
+                   && request.resource.data.foto.size() < 300000
+                   && (request.resource.data.foto == ''
+                       || request.resource.data.foto.matches('^data:image/jpeg;base64,.*'))
+                   && (!('nombre' in request.resource.data) || request.resource.data.nombre.size() <= 120)
+                   && (!('telefono' in request.resource.data) || request.resource.data.telefono.size() <= 30)
+                   && (!('ciudad' in request.resource.data) || request.resource.data.ciudad.size() <= 120);
+    }
+
+    // Listas compartidas: se leen solo conociendo el enlace y mientras no hayan vencido
+    match /compartidos/{id} {
+      allow get: if resource.data.venceMs > request.time.toMillis();
+      allow create: if request.auth != null
+                    && id.matches('^[a-f0-9]{24}$')
+                    && request.resource.data.keys().hasOnly(['uid', 'nombre', 'creadoMs', 'venceMs', 'expira', 'productos'])
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.nombre is string
+                    && request.resource.data.nombre.size() <= 80
+                    && request.resource.data.productos is list
+                    && request.resource.data.productos.size() <= 300
+                    && request.resource.data.venceMs > request.time.toMillis()
+                    && request.resource.data.venceMs < request.time.toMillis() + 691200000;
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+      allow list, update: if false;
+    }
+
+    // Todo lo demás, cerrado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

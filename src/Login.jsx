@@ -183,7 +183,7 @@ export default function Login() {
   // Se calculan en cada pantalla, así siguen correctos al cambiar de modo
   const emailValido = email ? REGEX_EMAIL.test(email) : null;
   const passwordFuerte = password && modo === 'registro'
-    ? (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password) ? 'fuerte' : password.length >= 6 ? 'medio' : 'debil')
+    ? (password.length >= 12 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'fuerte' : password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'medio' : 'debil')
     : null;
   const telefonoValido = validarTelefono(paisCodigo, telefono);
   const esperaActiva = espera > 0;
@@ -203,9 +203,7 @@ export default function Login() {
       await signInWithEmailAndPassword(auth, email, password);
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
-      else if (e.code === 'auth/wrong-password') setError("Contraseña incorrecta.");
-      else if (e.code === 'auth/invalid-credential') setError("Correo o contraseña incorrectos.");
+      if (e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') setError("Correo o contraseña incorrectos.");
       else if (e.code === 'auth/too-many-requests') setError("Demasiados intentos. Espera unos minutos e inténtalo de nuevo.");
       else { console.error(e); setError(mensajeAuth(e, 'iniciar sesión')); }
     }
@@ -214,7 +212,7 @@ export default function Login() {
   const handleRegistro = async () => {
     if (!nombre.trim()) { setError("Ingresa tu nombre completo."); return; }
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
-    if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 6 caracteres."); return; }
+    if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 8 caracteres, con letras y números."); return; }
     if (!paisCodigo) { setError("Selecciona tu país."); return; }
     if (paisCodigo === 'CO' && !departamento) { setError("Selecciona tu departamento."); return; }
     if (!ciudad) { setError("Selecciona tu ciudad."); return; }
@@ -285,7 +283,8 @@ export default function Login() {
       setError("");
       setEspera(60);
     } catch(e) {
-      if (e.code === 'auth/user-not-found') setError("No existe una cuenta con este correo.");
+      // No se revela si el correo existe o no: se muestra el mismo aviso
+      if (e.code === 'auth/user-not-found') { setMensaje(`Si ${email} tiene una cuenta, te enviamos un enlace para crear una contraseña nueva. Revisa tu bandeja de entrada y la carpeta de spam.`); setError(""); setEspera(60); }
       else { console.error(e); setError(mensajeAuth(e, 'enviar el enlace')); }
     }
     setCargando(false);
