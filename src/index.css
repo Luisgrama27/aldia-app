@@ -1930,3 +1930,150 @@ button.ad-stat {
   padding: 0;
   font-size: 0.8125rem;
 }
+
+/* ---------- Capa "más vida" ----------
+   Misma paleta blanco y verde, con más profundidad: resplandor verde de fondo, tarjetas de vidrio,
+   gradientes suaves en botones, logo y títulos. No agrega colores nuevos. */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 460px at 108% -4%, rgba(58, 138, 98, 0.40), transparent 65%),
+    radial-gradient(480px 420px at -14% 38%, rgba(120, 196, 152, 0.30), transparent 65%),
+    radial-gradient(560px 400px at 55% 108%, rgba(47, 107, 79, 0.24), transparent 70%);
+}
+
+#root,
+.ad-screen,
+.ad-hero {
+  background: transparent;
+}
+
+.ad-screen,
+.ad-hero {
+  position: relative;
+  z-index: 1;
+}
+
+.ad-logo {
+  background: linear-gradient(145deg, #3f9669, #2f6b4f 55%, #25573f);
+  box-shadow: 0 8px 16px -6px rgba(47, 107, 79, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.ad-logo--login {
+  box-shadow:
+    0 16px 32px -10px rgba(47, 107, 79, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 9px rgba(47, 107, 79, 0.09),
+    0 0 0 16px rgba(47, 107, 79, 0.045);
+}
+
+.ad-title {
+  background: linear-gradient(120deg, #1f4a37, #3a8a62 75%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.ad-card:not(.ad-nav),
+.ad-search,
+.ad-stat {
+  background: rgba(255, 255, 255, 0.68);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 20px 44px -24px rgba(37, 87, 63, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.ad-card .ad-login-group {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.ad-btn:not(.ad-btn--ghost):not(.ad-btn--danger) {
+  background: linear-gradient(135deg, #3f9669 0%, #2f6b4f 55%, #25573f 100%);
+  box-shadow: 0 14px 26px -10px rgba(47, 107, 79, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.ad-btn.ad-btn--ghost {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.ad-bar:not(.ad-bar--danger):not(.ad-bar--warn) > span {
+  background: linear-gradient(90deg, #3f9669, #2f6b4f);
+}
+
+.ad-nav {
+  box-shadow: 0 18px 36px -12px rgba(19, 21, 23, 0.45);
+}
+
+/* Lo que se asoma bajo la barra se difumina en vez de taparse con un color plano */
+.ad-nav::after {
+  background: rgba(244, 245, 246, 0.75);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+.ad-nav__fab-btn {
+  background: linear-gradient(145deg, #3f9669, #2f6b4f 60%, #25573f);
+  border-color: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 24px -8px rgba(47, 107, 79, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.ad-hero-card {
+  box-shadow: 0 24px 46px -22px rgba(37, 87, 63, 0.7);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) body::before {
+    background:
+      radial-gradient(560px 460px at 108% -4%, rgba(70, 165, 120, 0.32), transparent 65%),
+      radial-gradient(480px 420px at -14% 38%, rgba(60, 140, 100, 0.24), transparent 65%),
+      radial-gradient(560px 400px at 55% 108%, rgba(47, 107, 79, 0.28), transparent 70%);
+  }
+  :root:not([data-tema="claro"]) .ad-title {
+    background: linear-gradient(120deg, #eaf6ef, #8fd0ac 85%);
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+  :root:not([data-tema="claro"]) .ad-card:not(.ad-nav),
+  :root:not([data-tema="claro"]) .ad-search,
+  :root:not([data-tema="claro"]) .ad-stat {
+    background: rgba(32, 35, 38, 0.62);
+    border-color: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 20px 44px -24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+  :root:not([data-tema="claro"]) .ad-card .ad-login-group { background: rgba(255, 255, 255, 0.05); }
+  :root:not([data-tema="claro"]) .ad-btn.ad-btn--ghost { background: rgba(255, 255, 255, 0.06); }
+  :root:not([data-tema="claro"]) .ad-nav::after { background: rgba(14, 15, 17, 0.75); }
+  :root:not([data-tema="claro"]) .ad-nav__fab-btn { border-color: rgba(14, 15, 17, 0.9); }
+}
+
+:root[data-tema="oscuro"] body::before {
+  background:
+    radial-gradient(560px 460px at 108% -4%, rgba(70, 165, 120, 0.32), transparent 65%),
+    radial-gradient(480px 420px at -14% 38%, rgba(60, 140, 100, 0.24), transparent 65%),
+    radial-gradient(560px 400px at 55% 108%, rgba(47, 107, 79, 0.28), transparent 70%);
+}
+
+:root[data-tema="oscuro"] .ad-title {
+  background: linear-gradient(120deg, #eaf6ef, #8fd0ac 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+:root[data-tema="oscuro"] .ad-card:not(.ad-nav),
+:root[data-tema="oscuro"] .ad-search,
+:root[data-tema="oscuro"] .ad-stat {
+  background: rgba(32, 35, 38, 0.62);
+  border-color: rgba(255, 255, 255, 0.09);
+  box-shadow: 0 20px 44px -24px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+:root[data-tema="oscuro"] .ad-card .ad-login-group { background: rgba(255, 255, 255, 0.05); }
+:root[data-tema="oscuro"] .ad-btn.ad-btn--ghost { background: rgba(255, 255, 255, 0.06); }
+:root[data-tema="oscuro"] .ad-nav::after { background: rgba(14, 15, 17, 0.75); }
+:root[data-tema="oscuro"] .ad-nav__fab-btn { border-color: rgba(14, 15, 17, 0.9); }

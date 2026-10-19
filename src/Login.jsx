@@ -8,6 +8,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
+  FacebookAuthProvider,
+  OAuthProvider,
   sendPasswordResetEmail,
   sendEmailVerification,
   updateProfile,
@@ -19,6 +21,11 @@ const EMAILJS_TEMPLATE_BIENVENIDA = "template_79jcsbv";
 const EMAILJS_KEY = "rt3CGRFqu1i6H69tO";
 
 const provider = new GoogleAuthProvider();
+const providerFacebook = new FacebookAuthProvider();
+providerFacebook.addScope('email');
+const providerApple = new OAuthProvider('apple.com');
+providerApple.addScope('email');
+providerApple.addScope('name');
 
 // Estilos propios de esta pantalla (se inyectan una sola vez)
 if (!document.getElementById('ad-login-style')) {
@@ -52,11 +59,39 @@ function mensajeAuth(e, accion) {
     'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
     'auth/operation-not-allowed': 'El acceso con correo y contraseña no está habilitado en este momento.',
     'auth/admin-restricted-operation': 'El registro de nuevos usuarios está desactivado en este momento.',
-    'auth/unauthorized-domain': 'Este sitio no está autorizado para iniciar sesión con Google.',
-    'auth/popup-blocked': 'El navegador bloqueó la ventana de Google. Permite las ventanas emergentes e inténtalo de nuevo.',
+    'auth/unauthorized-domain': 'Este sitio no está autorizado para iniciar sesión con este método.',
+    'auth/account-exists-with-different-credential': 'Ya existe una cuenta con ese correo que usa otro método de acceso. Entra con el que usaste al registrarte: correo y contraseña, Google, Facebook o Apple.',
+    'auth/popup-blocked': 'El navegador bloqueó la ventana emergente. Permite las ventanas emergentes e inténtalo de nuevo.',
   };
   if (conocidos[codigo]) return conocidos[codigo];
   return `No se pudo ${accion}${codigo ? ` (${codigo})` : ''}. Inténtalo de nuevo.`;
+}
+
+const ICO_GOOGLE = (
+  <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true">
+    <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+    <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
+    <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+    <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+  </svg>
+);
+const ICO_FACEBOOK = (
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="#1877F2" d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036 26.805 26.805 0 0 0-.733-.009c-.707 0-1.259.096-1.675.309a1.686 1.686 0 0 0-.679.622c-.258.42-.374.995-.374 1.752v1.297h3.919l-.386 2.103-.287 1.564h-3.246v8.245C19.396 23.238 24 18.179 24 12.044c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.628 3.874 10.35 9.101 11.647Z"/>
+  </svg>
+);
+const ICO_APPLE = (
+  <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="currentColor" d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/>
+  </svg>
+);
+
+function BotonSocial({ icono, texto, onClick, disabled }) {
+  return (
+    <button type="button" className="ad-btn ad-btn--ghost" aria-label={texto} title={texto} style={{ margin: 0, color: 'var(--text)', boxShadow: 'inset 0 0 0 1.5px var(--border)', opacity: disabled ? 0.7 : 1 }} onClick={onClick} disabled={disabled}>
+      {icono}
+    </button>
+  );
 }
 
 const OTRA = '__otra';
@@ -253,22 +288,23 @@ export default function Login() {
       }
     } catch(e) {
       setCargando(false);
-      if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo. Si te registraste con Google, usa «Continuar con Google».");
+      if (e.code === 'auth/email-already-in-use') setError("Ya existe una cuenta con este correo. Si te registraste con Google, Facebook o Apple, usa el botón correspondiente.");
       else if (e.code === 'auth/weak-password') setError("La contraseña es muy débil.");
       else { console.error(e); setError(mensajeAuth(e, 'crear la cuenta')); }
     }
   };
 
-  const handleGoogle = async () => {
-    if (modo === 'registro' && !acepto) { setError("Acepta los términos de uso y la política de privacidad para continuar con Google."); return; }
+  const handleSocial = async (prov, nombre) => {
+    if (modo === 'registro' && !acepto) { setError(`Acepta los términos de uso y la política de privacidad para continuar con ${nombre}.`); return; }
     setCargando(true);
     try {
-      await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, prov);
     } catch(e) {
       setCargando(false);
       if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
         console.error(e);
-        setError(mensajeAuth(e, 'iniciar sesión con Google'));
+        if (e.code === 'auth/operation-not-allowed') setError(`El acceso con ${nombre} todavía no está habilitado.`);
+        else setError(mensajeAuth(e, `iniciar sesión con ${nombre}`));
       }
     }
   };
@@ -321,7 +357,7 @@ export default function Login() {
     <>
     <div className="ad-screen" style={{ paddingBottom: 'calc(28px + env(safe-area-inset-bottom, 0px))' }}>
       <header className="ad-hero" style={{ textAlign: 'center', paddingBottom: 88 }}>
-        <div className="ad-logo" style={{ width: 76, height: 76, margin: '0 auto' }}>
+        <div className="ad-logo ad-logo--login" style={{ width: 76, height: 76, margin: '0 auto' }}>
           <svg width="50" height="50" viewBox="0 0 80 80" aria-hidden="true">
             <path d="M40 14 C40 14 56 25 56 38 C56 50 48 58 40 61 C32 58 24 50 24 38 C24 25 40 14 40 14Z" fill="none" stroke="var(--green)" strokeWidth="4" strokeLinecap="round"/>
             <polyline points="32,38 38,44 49,31" fill="none" stroke="var(--green)" strokeWidth="4.2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -340,7 +376,7 @@ export default function Login() {
 
           {modo==='recuperar' && (
             <p className="ad-muted" style={{ marginBottom: 14, lineHeight: 1.5 }}>
-              Escribe tu correo y te enviaremos un enlace para crear una contraseña nueva. Si te registraste con Google no necesitas contraseña: entra con «Continuar con Google».
+              Escribe tu correo y te enviaremos un enlace para crear una contraseña nueva. Si te registraste con Google, Facebook o Apple no necesitas contraseña: entra con el botón correspondiente.
             </p>
           )}
 
@@ -482,15 +518,11 @@ export default function Login() {
                 <span className="ad-muted" style={{fontWeight:700}}>o continúa con</span>
                 <div style={{flex:1,height:1,background:'var(--border)'}}/>
               </div>
-              <button type="button" className="ad-btn ad-btn--ghost" style={{color:'var(--text)',boxShadow:'inset 0 0 0 1.5px var(--border)',opacity:cargando?0.7:1}} onClick={handleGoogle} disabled={cargando}>
-                <svg width="22" height="22" viewBox="0 0 18 18" aria-hidden="true">
-                  <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-                  <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z" fill="#34A853"/>
-                  <path d="M3.964 10.71A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-                  <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-                </svg>
-                Continuar con Google
-              </button>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(3, 1fr)',gap:10}}>
+                <BotonSocial icono={ICO_GOOGLE} texto="Continuar con Google" onClick={()=>handleSocial(provider,'Google')} disabled={cargando}/>
+                <BotonSocial icono={ICO_FACEBOOK} texto="Continuar con Facebook" onClick={()=>handleSocial(providerFacebook,'Facebook')} disabled={cargando}/>
+                <BotonSocial icono={ICO_APPLE} texto="Continuar con Apple" onClick={()=>handleSocial(providerApple,'Apple')} disabled={cargando}/>
+              </div>
             </>
           )}
         </div>

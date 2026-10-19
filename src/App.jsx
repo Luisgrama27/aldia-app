@@ -250,7 +250,7 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
           <button className="ad-btn ad-btn--ghost" onClick={enviarEnlace} disabled={guardando}>Enviar enlace para cambiarla</button>
         </>
       ):(
-        <p className="ad-muted" style={{lineHeight:1.5}}>Iniciaste sesión con Google, así que tu contraseña se gestiona desde tu cuenta de Google.</p>
+        <p className="ad-muted" style={{lineHeight:1.5}}>Iniciaste sesión con Google, Facebook o Apple, así que tu contraseña se gestiona desde esa cuenta.</p>
       )}
     </>
   );
@@ -313,7 +313,7 @@ const FAQ = [
   {q:'¿Cómo funciona la meta de desperdicio?',a:'En Estadísticas toca Editar en "Tu meta de desperdicio" y escribe cuánto dinero como máximo quieres perder cada mes. La app lo compara con el valor de los productos que descartaste ese mes, usando los precios que registraste.'},
   {q:'¿Puedo compartir mi lista?',a:'Sí. En Inicio toca Compartir y crea un enlace. Quien lo reciba verá tu lista dentro de Al Día sin necesitar cuenta y podrá descargar la app. El enlace vence a los 7 días y puedes desactivarlo cuando quieras.'},
   {q:'¿Mis datos son privados?',a:'Sí. Cada cuenta solo puede ver y modificar sus propios productos.'},
-  {q:'¿Cómo cambio mi contraseña?',a:'Entra a Cuenta, luego Editar perfil, y toca "Enviar enlace para cambiarla". Te llegará un correo con el enlace. Si iniciaste sesión con Google, la contraseña se cambia desde tu cuenta de Google.'},
+  {q:'¿Cómo cambio mi contraseña?',a:'Entra a Cuenta, luego Editar perfil, y toca "Enviar enlace para cambiarla". Te llegará un correo con el enlace. Si iniciaste sesión con Google, Facebook o Apple, la contraseña se cambia desde esa cuenta.'},
 ];
 
 function FaqVista(){
@@ -961,7 +961,7 @@ export default function App(){
   if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
   if(!usuario) return <Login/>;
 
-  const nombre=nombreExtra||usuario.displayName||usuario.email.split('@')[0];
+  const nombre=nombreExtra||usuario.displayName||(usuario.email||'').split('@')[0]||'Usuario';
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const saludo=getSaludo();
