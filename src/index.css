@@ -1941,6 +1941,10 @@ body::before {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+  /* Se desvanece en los bordes de arriba y abajo: en el iPhone instalado, la barra de estado y la
+     franja inferior las pinta iOS con el color plano de fondo, y así el resplandor se funde con ellas */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 120px, #000 calc(100% - 110px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 120px, #000 calc(100% - 110px), transparent 100%);
   background:
     radial-gradient(560px 460px at 108% -4%, rgba(58, 138, 98, 0.40), transparent 65%),
     radial-gradient(480px 420px at -14% 38%, rgba(120, 196, 152, 0.30), transparent 65%),
