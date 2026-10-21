@@ -756,7 +756,6 @@ function RecetaSheet({sug,onClose}){
 
 function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   const [visible,setVisible]=useState(false);
-  const [barW,setBarW]=useState(0);
   const d=daysUntil(p.exp);const st=status(p);
   // Deslizar: a la derecha deja ver "Consumido", a la izquierda "Eliminar" (se confirma tocando el botón)
   const ANCHO=88;
@@ -789,8 +788,7 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   };
   useEffect(()=>{
     const t1=setTimeout(()=>setVisible(true),index*80);
-    const t2=setTimeout(()=>setBarW(getBarWidth(d,p.alert)),index*80+300);
-    return()=>{clearTimeout(t1);clearTimeout(t2);};
+    return()=>clearTimeout(t1);
   },[]);
   return (
     <div className="ad-swipe" style={{opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)',transition:'opacity 0.4s ease, transform 0.4s ease'}}>
@@ -804,15 +802,14 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
       onKeyDown={e=>{if(e.key==='Enter')onClick();}}
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
-      <div className="ad-product__row">
-        <span className="ad-product__cat">{p.cat}</span>
-        <div className="ad-item__body">
-          <div className="ad-item__name">{p.name}</div>
-          {(p.qty||p.precio)&&<div className="ad-muted" style={{fontSize:'.8125rem'}}>{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
+      <div className="ad-prow">
+        <span className="ad-tile" aria-hidden="true"><IcoCat cat={p.cat}/></span>
+        <div className="ad-prow__body">
+          <div className="ad-prow__name">{p.name}</div>
+          <div className="ad-prow__sub">{[p.cat,p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>
         </div>
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
-      <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
     </div>
     </div>
   );
@@ -1066,6 +1063,10 @@ export default function App(){
 
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
+  // "Para usar primero" solo aparece sin filtros ni búsqueda; en ese caso la lista de abajo no repite esos productos
+  const mostrarTira=destacados.length>0&&!busqueda&&filtro==='Todos'&&!filtroEstado;
+  const enTira=new Set(destacados.slice(0,8).map(p=>p.id));
+  const listaPrincipal=mostrarTira?filtered.filter(p=>!enTira.has(p.id)):filtered;
   // Receta del día: usa primero lo que está por vencer; si no hay nada en alerta, lo que vence antes
   const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas','Cuidado personal','Mascotas','Bebé'];
   const comida=activos
@@ -1114,9 +1115,9 @@ export default function App(){
                       </div>
                     </section>
                   ):(
-                    <section className="ad-hero-card ad-hero-card--frase" aria-label="Tu despensa">
+                    <section className="ad-hero-card ad-hero-card--frase" aria-label="Mensaje del día">
                       <div className="ad-hero-card__top">
-                        <span className="ad-hero-card__eyebrow">Tu despensa</span>
+                        <span className="ad-hero-card__eyebrow">Para hoy</span>
                       </div>
                       <h2 className="ad-hero-card__title">{fraseDia.t}</h2>
                       <p className="ad-hero-card__sub">{fraseDia.s}</p>
@@ -1402,9 +1403,6 @@ export default function App(){
             <header className="ad-hero ad-hero--home">
               <div className="ad-topbar">
                 <div className="ad-who">
-                  <button type="button" className="ad-who__av" onClick={()=>setMenuAbierto(true)} aria-label="Abrir tu cuenta">
-                    {foto?<img src={foto} alt=""/>:iniciales}
-                  </button>
                   <div className="ad-who__txt">
                     <p className="ad-who__date">{fechaHoy}</p>
                     <h1 className="ad-who__hi">{saludo}, {nombreCorto}</h1>
@@ -1449,7 +1447,7 @@ export default function App(){
                       ))}
                     </div>
                   </section>
-                  {destacados.length>0&&(
+                  {mostrarTira&&(
                     <>
                       <div className="ad-sechead"><h2 className="ad-section">Para usar primero</h2></div>
                       <div className="ad-hscroll">
@@ -1471,7 +1469,7 @@ export default function App(){
                     </>
                   )}
                   <div className="ad-sechead">
-                    <h2 className="ad-section">Mis productos</h2>
+                    <h2 className="ad-section">{mostrarTira?'Más productos':'Mis productos'}</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
                   </div>
                   {filtroEstado&&(
@@ -1493,8 +1491,8 @@ export default function App(){
                     </select>
                   </div>
                   <div key={listKey} className="ad-grid">
-                    {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
-                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
+                    {listaPrincipal.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>{mostrarTira?'Todo lo que tienes está arriba, en «Para usar primero».':'Sin resultados.'}</div>}
+                    {listaPrincipal.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
                   </div>
                 </>
               )}
