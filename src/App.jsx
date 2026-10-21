@@ -868,7 +868,9 @@ export default function App(){
   useEffect(()=>{
     const unsub=onAuthStateChanged(auth,(user)=>{
       setUsuario(user);setCargando(false);
-      setTimeout(()=>{if(window.__hideSplash)window.__hideSplash();},300);
+      // La pantalla de carga se muestra al menos ~1,2 s desde que abrió la app, para que se alcance a ver la animación
+      const espera=Math.max(300,1200-(typeof performance!=='undefined'?performance.now():0));
+      setTimeout(()=>{if(window.__hideSplash)window.__hideSplash();},espera);
     });
     return()=>unsub();
   },[]);
