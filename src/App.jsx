@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc, Timestamp } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
-import Scanner from "./Scanner";
+// El escáner (librería pesada) se descarga solo cuando se toca la cámara
+const Scanner = lazy(() => import("./Scanner"));
 import { recordarProducto } from "./productos";
 import { sugerirRecetas } from "./recetas";
 import "./index.css";
@@ -107,6 +108,7 @@ const Ico = {
   stats:(<svg {...svgProps}><path d="M5 21V12M12 21V4M19 21v-6"/></svg>),
   history:(<svg {...svgProps}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>),
   user:(<svg {...svgProps}><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>),
+  camera:(<svg {...svgProps}><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>),
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
 
@@ -224,7 +226,7 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
 
   return (
     <>
-      {err&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {err}</div>}
+      {err&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>{err}</div>}
       {msg&&<div className="ad-note" style={{marginBottom:10}}>✓ {msg}</div>}
       <div style={{textAlign:'center',marginBottom:14}}>
         {foto?<img className="ad-foto" src={foto} alt="Tu foto de perfil"/>:<div className="ad-foto">{iniciales}</div>}
@@ -527,8 +529,8 @@ function EmptyStateNuevo({onAgregar,onCategoria,onAgregarEjemplo}){
       <div style={{width:'100%'}}>
         <p className="ad-muted" style={{textAlign:'center',marginBottom:10}}>O empieza por categoría</p>
         <div className="ad-grid2">
-          {[{cat:'Lácteos',emoji:'🥛'},{cat:'Carnes',emoji:'🥩'},{cat:'Medicamentos',emoji:'💊'},{cat:'Bebidas',emoji:'🧃'}].map(c=>(
-            <button key={c.cat} className="ad-chip" style={{justifyContent:'center',gap:6}} onClick={()=>onCategoria(c.cat)}>{c.emoji} {c.cat}</button>
+          {[{cat:'Lácteos'},{cat:'Carnes'},{cat:'Medicamentos'},{cat:'Bebidas'}].map(c=>(
+            <button key={c.cat} className="ad-chip" style={{justifyContent:'center',gap:6}} onClick={()=>onCategoria(c.cat)}>{c.cat}</button>
           ))}
         </div>
       </div>
@@ -831,6 +833,15 @@ export default function App(){
   const [toast,setToast]=useState(null);
   const toastTimer=useRef(null);
   const [tick,setTick]=useState(0);
+  const [sinConexion,setSinConexion]=useState(()=>typeof navigator!=='undefined'&&navigator.onLine===false);
+
+  // Aviso cuando el dispositivo no tiene internet
+  useEffect(()=>{
+    const alCambiar=()=>setSinConexion(navigator.onLine===false);
+    window.addEventListener('online',alCambiar);
+    window.addEventListener('offline',alCambiar);
+    return()=>{window.removeEventListener('online',alCambiar);window.removeEventListener('offline',alCambiar);};
+  },[]);
 
   // Vuelve a calcular los días al volver a la app o al pasar la medianoche
   useEffect(()=>{
@@ -896,7 +907,7 @@ export default function App(){
             .catch(e=>console.error(e));
         }
       }
-    });
+    },(e)=>{console.error(e);avisar('No se pudieron cargar tus productos. Revisa tu conexión.');});
     return()=>unsub();
   },[usuario]);
 
@@ -1044,7 +1055,8 @@ export default function App(){
       {t:'Buen trabajo',s:'Cada producto que aprovechas es dinero que ahorras.'},
       {t:'Todo bajo control',s:'Cuando algo esté por vencer, aquí te propondré una receta.'},
       {t:'Despensa al día',s:'Cocinar con lo que tienes es la mejor receta.'}];
-  const fraseDia=FRASES[Math.floor(Date.now()/86400000)%FRASES.length];
+  const diaLocal=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);
+  const fraseDia=FRASES[diaLocal%FRASES.length];
   const tarjetaVerde=sugerencias.length>0?(
                     <section className="ad-hero-card" aria-label="Recetas sugeridas">
                       <div className="ad-hero-card__top">
@@ -1184,18 +1196,28 @@ export default function App(){
     avisar(`${p.name} eliminado`,()=>setDoc(doc(db,"productos",id),datos).catch(e=>falla(e,'restaurar el producto')));
   };
 
+  // Aviso visible cuando una operación del historial falla
+  const fallaAviso=(e,que)=>{console.error(e);avisar(`No se pudo ${que}. Revisa tu conexión e inténtalo de nuevo.`);};
+
   const eliminarDelHistorial=async(id)=>{
     if(!window.confirm('¿Eliminar este producto del historial?'))return;
-    try{await deleteDoc(doc(db,"productos",id));}catch(e){console.error(e);}
+    try{await deleteDoc(doc(db,"productos",id));}catch(e){fallaAviso(e,'eliminar el producto');}
   };
 
   const eliminarTodoHistorial=async()=>{
     if(!window.confirm(`¿Eliminar todo el historial? (${historial.length} productos)`))return;
-    try{const batch=writeBatch(db);historial.forEach(p=>batch.delete(doc(db,"productos",p.id)));await batch.commit();}catch(e){console.error(e);}
+    try{
+      // Firestore acepta hasta 500 operaciones por lote: se borra por tandas
+      for(let i=0;i<historial.length;i+=400){
+        const batch=writeBatch(db);
+        historial.slice(i,i+400).forEach(p=>batch.delete(doc(db,"productos",p.id)));
+        await batch.commit();
+      }
+    }catch(e){fallaAviso(e,'borrar el historial');}
   };
 
   const restaurar=async(id)=>{
-    try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){console.error(e);}
+    try{await updateDoc(doc(db,"productos",id),{estado:null,fechaEstado:null});}catch(e){fallaAviso(e,'restaurar el producto');}
   };
 
   const navbar=(
@@ -1215,14 +1237,14 @@ export default function App(){
 
   if(pantalla==='form') return (
     <>
-      {scanner&&<Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/>}
+      {scanner&&<Suspense fallback={null}><Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/></Suspense>}
       {cuentaSheet}
       <div className="ad-screen">
         <header className="ad-hero ad-hero--sm">
           <div className="ad-hero-row">
             <button className="ad-hero-btn" onClick={()=>setPantalla('')} aria-label="Volver">←</button>
             <h1 className="ad-title" style={{fontSize:'1.375rem'}}>{editId?'Editar producto':'Nuevo producto'}</h1>
-            {!editId&&<button className="ad-hero-btn" style={{marginLeft:'auto'}} onClick={()=>setScanner(true)} aria-label="Escanear código de barras">📷</button>}
+            {!editId&&<button className="ad-hero-btn" style={{marginLeft:'auto'}} onClick={()=>setScanner(true)} aria-label="Escanear código de barras">{Ico.camera}</button>}
           </div>
         </header>
         <div className="ad-overlap ad-stack">
@@ -1237,7 +1259,7 @@ export default function App(){
             </div>
           )}
           {scanMsg&&<div className={`ad-note${scanMsg.startsWith('✓')?'':' ad-note--warn'}`}>{scanMsg}</div>}
-          {errorMsg&&<div className="ad-note ad-note--danger" role="alert">⚠️ {errorMsg}</div>}
+          {errorMsg&&<div className="ad-note ad-note--danger" role="alert">{errorMsg}</div>}
           <div className="ad-card" style={{overflow:'hidden'}}>
             <label className="ad-field"><span className="ad-field__label">Nombre</span>
               <input list="nombresSugeridos" maxLength={120} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
@@ -1366,7 +1388,8 @@ export default function App(){
             </header>
             <div className="ad-overlap">
               {tarjetaVerde}
-              {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>⚠️ {errorMsg}</div>}
+              {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>{errorMsg}</div>}
+              {sinConexion&&<div className="ad-note ad-note--warn" role="status" style={{marginBottom:10}}>Sin conexión. Ves tus datos guardados y los cambios se sincronizarán cuando vuelvas a tener internet.</div>}
               {correoEnviado&&<div className="ad-note" style={{marginBottom:10}}>Te enviamos un correo con los productos por vencer</div>}
               {activos.length===0?(
                 esUsuarioNuevo

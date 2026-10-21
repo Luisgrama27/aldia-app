@@ -498,7 +498,7 @@ export default function Login() {
           )}
 
           <div ref={avisoRef}>
-            {error && <div className="ad-note ad-note--danger" role="alert" style={{ marginBottom: 12 }}>⚠️ {error}</div>}
+            {error && <div className="ad-note ad-note--danger" role="alert" style={{ marginBottom: 12 }}>{error}</div>}
             {mensaje && <div className="ad-note" style={{ marginBottom: 12 }}>✓ {mensaje}</div>}
           </div>
 

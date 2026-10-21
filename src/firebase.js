@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDb6OW3Vo_rH3oFQZBOQIC-ZZBhihLwHhM",
@@ -13,4 +13,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
-export const db = getFirestore(app);
+
+// Caché en el dispositivo: la app abre con tus datos sin conexión y guarda los cambios hechos sin internet.
+// Si el navegador no lo permite (por ejemplo, ventana privada), usa la memoria como antes.
+let baseDatos;
+try {
+  baseDatos = initializeFirestore(app, {
+    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
+  });
+} catch {
+  baseDatos = getFirestore(app);
+}
+export const db = baseDatos;
