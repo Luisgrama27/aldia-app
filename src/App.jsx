@@ -112,6 +112,30 @@ const Ico = {
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
 
+// Ícono de línea por categoría (se usa en las tarjetas de "Para usar primero")
+const CAT_ICO={
+  'Lácteos':<><path d="M8 3h8l1 4v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7z"/><path d="M7 7h10M10 12h4"/></>,
+  'Carnes':<><path d="M5 12c0-4 3-7 8-7s6 3 6 6-2 8-8 8-6-3-6-7z"/><circle cx="10" cy="12" r="1.6"/></>,
+  'Pescados y mariscos':<><path d="M3 12c3-4.5 8-5.5 12-3l6-2.5v11L15 15c-4 2.5-9 1.5-12-3z"/><path d="M7.5 11.5h.01"/></>,
+  'Frutas y verduras':<><path d="M12 7c-3-2-7 0-7 5 0 4 3 8 5 8 1 0 1-.6 2-.6s1 .6 2 .6c2 0 5-4 5-8 0-5-4-7-7-5z"/><path d="M12 7c0-2 1-3 3-4"/></>,
+  'Granos y cereales':<path d="M12 21V9M12 9c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 9c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 14c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 14c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 19c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 19c2 0 3-1.5 3-3-2 0-3 1.2-3 3z"/>,
+  'Panadería y repostería':<><path d="M5 11c-1-3 1-6 4-6h6c3 0 5 3 4 6v8H5z"/><path d="M9 12v3M12 12v3M15 12v3"/></>,
+  'Congelados':<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/>,
+  'Enlatados':<path d="M6 6c0-1.7 2.7-3 6-3s6 1.3 6 3-2.7 3-6 3-6-1.3-6-3zM6 6v12c0 1.7 2.7 3 6 3s6-1.3 6-3V6M6 12c0 1.7 2.7 3 6 3s6-1.3 6-3"/>,
+  'Salsas y condimentos':<path d="M10 3h4v3l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3zM8 13h8"/>,
+  'Snacks y dulces':<><rect x="8" y="8" width="8" height="8" rx="2"/><path d="M8 10L4 7v10l4-3M16 10l4-3v10l-4-3"/></>,
+  'Bebidas':<path d="M6 4h12l-1.5 16h-9zM7 9h10"/>,
+  'Medicamentos':<path d="M4.5 13.5l7-7a4 4 0 0 1 6 6l-7 7a4 4 0 0 1-6-6zM8 10l6 6"/>,
+  'Cuidado personal':<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>,
+  'Limpieza':<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>,
+  'Bebé':<><path d="M10 3h4v3h-4z"/><path d="M8 8h8l1 3v9a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-9z"/><path d="M7 14h10"/></>,
+  'Mascotas':<><circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="17.5" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3-5 5.5 0 1.7 1.3 2.5 3 2.5 1 0 1.4-.4 2-.4s1 .4 2 .4c1.7 0 3-.8 3-2.5 0-2.5-2-5.5-5-5.5z"/></>,
+  'Otro':<><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></>,
+};
+const IcoCat=({cat,size=22})=>(
+  <svg {...svgProps} width={size} height={size}>{CAT_ICO[cat]||CAT_ICO['Otro']}</svg>
+);
+
 const BellIcon=()=>(
   <svg {...svgProps} width="22" height="22"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
 );
@@ -978,6 +1002,7 @@ export default function App(){
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const saludo=getSaludo();
+  const fechaHoy=(()=>{const f=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}).replace(',','');return f.charAt(0).toUpperCase()+f.slice(1);})();
   const foto=fotoPerfil||usuario.photoURL||'';
 
   const activos=products.filter(p=>!p.estado);
@@ -1374,11 +1399,16 @@ export default function App(){
 
         {tab==='home'&&(
           <>
-            <header className="ad-hero">
+            <header className="ad-hero ad-hero--home">
               <div className="ad-topbar">
-                <div className="ad-brand">
-                  <LOGO/>
-                  <h1 className="ad-wordmark">al día</h1>
+                <div className="ad-who">
+                  <button type="button" className="ad-who__av" onClick={()=>setMenuAbierto(true)} aria-label="Abrir tu cuenta">
+                    {foto?<img src={foto} alt=""/>:iniciales}
+                  </button>
+                  <div className="ad-who__txt">
+                    <p className="ad-who__date">{fechaHoy}</p>
+                    <h1 className="ad-who__hi">{saludo}, {nombreCorto}</h1>
+                  </div>
                 </div>
                 <button className="ad-hero-btn ad-bell" onClick={()=>setAvisos(true)}
                   aria-label={destacados.length?`Avisos: ${destacados.length} producto${destacados.length!==1?'s':''} por atender`:'Avisos'}>
@@ -1386,7 +1416,6 @@ export default function App(){
                   {destacados.length>0&&<span className="ad-badge" aria-hidden="true">{destacados.length}</span>}
                 </button>
               </div>
-              <p className="ad-hello">{saludo}, {nombreCorto}</p>
             </header>
             <div className="ad-overlap">
               {tarjetaVerde}
@@ -1399,15 +1428,48 @@ export default function App(){
                   :<div className="ad-card ad-pad"><EmptyStateExistente onAgregar={()=>abrirNuevo()} catsUsadas={catsUsadas}/></div>
               ):(
                 <>
-                  <div className={`ad-stats${filtroEstado?' ad-stats--hay':''}`}>
-                    {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(
-                      <button key={clave} className={`ad-stat${filtroEstado===clave?' is-activo':''}`} aria-pressed={filtroEstado===clave}
-                        aria-label={`${texto}: ${cantidad}. Toca para ${filtroEstado===clave?'quitar el filtro':'filtrar la lista'}`}
-                        onClick={()=>setFiltroEstado(filtroEstado===clave?null:clave)}>
-                        <span className={`ad-stat__n ad-stat__n--${color}`}>{cantidad}</span><span className="ad-stat__l">{texto}</span>
-                      </button>
-                    ))}
-                  </div>
+                  <section className="ad-card ad-desp" aria-label="Estado de tu despensa">
+                    <div className="ad-desp__top">
+                      <h2>Tu despensa</h2>
+                      <span>{activos.length} producto{activos.length!==1?'s':''}</span>
+                    </div>
+                    <div className="ad-desp__bar" aria-hidden="true">
+                      {expired>0&&<i className="is-d" style={{flex:expired}}/>}
+                      {danger+warn>0&&<i className="is-w" style={{flex:danger+warn}}/>}
+                      {ok>0&&<i className="is-o" style={{flex:ok}}/>}
+                    </div>
+                    <div className={`ad-desp__cnt${filtroEstado?' ad-desp--hay':''}`}>
+                      {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(
+                        <button key={clave} type="button" className={`ad-desp__b${filtroEstado===clave?' is-activo':''}`} aria-pressed={filtroEstado===clave}
+                          aria-label={`${texto}: ${cantidad}. Toca para ${filtroEstado===clave?'quitar el filtro':'filtrar la lista'}`}
+                          onClick={()=>setFiltroEstado(filtroEstado===clave?null:clave)}>
+                          <span className={`ad-desp__n ad-stat__n--${color}`}>{cantidad}</span>
+                          <span className="ad-desp__l"><i className={`ad-desp__dot ad-desp__dot--${color}`}/>{texto}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                  {destacados.length>0&&(
+                    <>
+                      <div className="ad-sechead"><h2 className="ad-section">Para usar primero</h2></div>
+                      <div className="ad-hscroll">
+                        {destacados.slice(0,8).map(p=>{
+                          const d=daysUntil(p.exp);const st=status(p);
+                          return (
+                            <button key={p.id} type="button" className="ad-card ad-pc" onClick={()=>setAccionProd(p)}>
+                              <div className="ad-pc__top">
+                                <span className="ad-tile"><IcoCat cat={p.cat}/></span>
+                                <span className={`ad-pill ${pillClass(st)}`}>{daysLabel(d)}</span>
+                              </div>
+                              <div className="ad-pc__name">{p.name}</div>
+                              <div className="ad-pc__q">{p.qty||p.cat}</div>
+                              <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${getBarWidth(d,p.alert)}%`}}/></div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>

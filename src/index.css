@@ -2081,3 +2081,95 @@ body::before {
 :root[data-tema="oscuro"] .ad-btn.ad-btn--ghost { background: rgba(255, 255, 255, 0.06); }
 :root[data-tema="oscuro"] .ad-nav::after { background: rgba(14, 15, 17, 0.75); }
 :root[data-tema="oscuro"] .ad-nav__fab-btn { border-color: rgba(14, 15, 17, 0.9); }
+
+
+/* ---------- Inicio: encabezado con avatar, tarjeta "Tu despensa" y "Para usar primero" ---------- */
+
+.ad-hero--home { padding-bottom: 70px; }
+.ad-hero--home .ad-topbar { margin-bottom: 0; }
+
+.ad-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.ad-who__av {
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%;
+  background: linear-gradient(145deg, #4aa475, #2f6b4f);
+  color: #fff; font: inherit; font-size: 0.9375rem; font-weight: 800; cursor: pointer;
+  box-shadow: 0 6px 14px -6px rgba(47, 107, 79, 0.7);
+}
+
+.ad-who__av img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
+.ad-who__txt { min-width: 0; }
+
+.ad-who__date { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; color: var(--text2); }
+
+.ad-who__hi {
+  margin-top: 1px; font-size: 1.1875rem; font-weight: 800; letter-spacing: -0.025em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.ad-desp { margin-top: 14px; padding: 16px 18px; }
+
+.ad-desp__top { display: flex; align-items: baseline; justify-content: space-between; }
+.ad-desp__top h2 { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; }
+.ad-desp__top span { font-size: 0.8125rem; font-weight: 600; color: var(--text2); }
+
+.ad-desp__bar { display: flex; gap: 4px; height: 10px; margin-top: 12px; }
+.ad-desp__bar i { display: block; min-width: 8px; border-radius: 6px; }
+.ad-desp__bar .is-d { background: var(--danger); }
+.ad-desp__bar .is-w { background: var(--warn); }
+.ad-desp__bar .is-o { background: linear-gradient(90deg, #46a073, var(--green)); }
+
+.ad-desp__cnt { display: flex; gap: 4px; margin: 10px -8px -8px; }
+
+.ad-desp__b {
+  flex: 1; min-width: 0; padding: 8px; border: 0; border-radius: 14px;
+  background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+}
+
+.ad-desp__b.is-activo { background: var(--green-soft); }
+.ad-desp--hay .ad-desp__b:not(.is-activo) { opacity: 0.55; }
+
+.ad-desp__n { display: block; font-size: 1.375rem; font-weight: 800; line-height: 1; letter-spacing: -0.03em; }
+
+.ad-desp__l {
+  display: flex; align-items: center; gap: 6px; margin-top: 5px;
+  font-size: 0.75rem; font-weight: 600; color: var(--text2);
+}
+
+.ad-desp__dot { width: 7px; height: 7px; flex: none; border-radius: 50%; }
+.ad-desp__dot--danger { background: var(--danger); }
+.ad-desp__dot--warn { background: var(--warn); }
+.ad-desp__dot--ok { background: var(--green); }
+
+.ad-hscroll {
+  display: flex; gap: 10px; margin: 0 -16px 4px; padding: 2px 16px 6px;
+  overflow-x: auto; scroll-snap-type: x proximity; scroll-padding: 0 16px; -webkit-overflow-scrolling: touch;
+}
+
+.ad-tile {
+  display: flex; align-items: center; justify-content: center; flex: none;
+  width: 42px; height: 42px; border-radius: 14px;
+  background: var(--green-soft); color: var(--green);
+}
+
+.ad-pc {
+  display: block; flex: none; width: 158px; padding: 14px; border-radius: 22px;
+  color: inherit; font: inherit; text-align: left; cursor: pointer; scroll-snap-align: start;
+}
+
+.ad-pc__top { display: flex; align-items: flex-start; justify-content: space-between; }
+
+.ad-pc__name {
+  margin-top: 12px; font-size: 1rem; font-weight: 800; letter-spacing: -0.02em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.ad-pc__q {
+  margin-top: 2px; font-size: 0.78rem; font-weight: 600; color: var(--text2);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.ad-pc .ad-bar { height: 5px; margin-top: 12px; }
