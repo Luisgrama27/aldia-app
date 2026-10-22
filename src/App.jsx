@@ -999,7 +999,6 @@ export default function App(){
   const nombreCorto=nombre.split(' ')[0];
   const iniciales=nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase().slice(0,2);
   const saludo=getSaludo();
-  const fechaHoy=(()=>{const f=new Date().toLocaleDateString('es-CO',{weekday:'long',day:'numeric',month:'long'}).replace(',','');return f.charAt(0).toUpperCase()+f.slice(1);})();
   const foto=fotoPerfil||usuario.photoURL||'';
 
   const activos=products.filter(p=>!p.estado);
@@ -1403,8 +1402,8 @@ export default function App(){
             <header className="ad-hero ad-hero--home">
               <div className="ad-topbar">
                 <div className="ad-who">
+                  <LOGO/>
                   <div className="ad-who__txt">
-                    <p className="ad-who__date">{fechaHoy}</p>
                     <h1 className="ad-who__hi">{saludo}, {nombreCorto}</h1>
                   </div>
                 </div>

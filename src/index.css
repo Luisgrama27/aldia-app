@@ -2031,14 +2031,12 @@ body::before {
 .ad-hero--home { padding-bottom: 70px; }
 .ad-hero--home .ad-topbar { margin-bottom: 0; }
 
-.ad-who { display: flex; align-items: center; min-width: 0; }
+.ad-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
 
 .ad-who__txt { min-width: 0; }
 
-.ad-who__date { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; color: var(--text2); }
-
 .ad-who__hi {
-  margin-top: 2px; font-size: 1.375rem; font-weight: 800; letter-spacing: -0.025em;
+  font-size: 1.375rem; font-weight: 800; letter-spacing: -0.025em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
