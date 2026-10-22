@@ -301,7 +301,14 @@ function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
 function PrefsVista({prefs,onPrefs,onAplicar,numActivos,verificado}){
   const [abierto,setAbierto]=useState(false);
   const [tema,setTema]=useState(()=>{try{return localStorage.getItem(TEMA_KEY)||'auto';}catch(e){return 'auto';}});
-  const cambiarTema=(t)=>{setTema(t);aplicarTema(t);try{localStorage.setItem(TEMA_KEY,t);}catch(e){}};
+  const cambiarTema=(t)=>{
+    const oscuroAntes=document.documentElement.dataset.tema==='oscuro'||(!document.documentElement.dataset.tema&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setTema(t);aplicarTema(t);try{localStorage.setItem(TEMA_KEY,t);}catch(e){}
+    const oscuroDespues=t==='oscuro'||(t==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // En la app instalada (iPhone) la barra superior solo se repinta al volver a cargar: se recarga si cambió claro/oscuro
+    const instalada=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
+    if(instalada&&oscuroAntes!==oscuroDespues){setTimeout(()=>window.location.reload(),250);}
+  };
   return (
     <>
       <h3 className="ad-section" style={{margin:'4px 0 8px'}}>Avisos</h3>
