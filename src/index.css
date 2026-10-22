@@ -767,7 +767,7 @@ body {
 }
 
 .ad-card.ad-product {
-  border-radius: 22px;
+  border-radius: 28px;
 }
 
 .ad-tags {
@@ -831,6 +831,12 @@ body {
   border-radius: 20px;
   cursor: pointer;
   transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.ad-product__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .ad-overlay {
@@ -1195,7 +1201,7 @@ html.vp-gap .ad-screen {
 
 .ad-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
 }
 
@@ -1208,13 +1214,13 @@ html.vp-gap .ad-screen {
 }
 
 .ad-product {
-  padding: 12px 14px;
+  padding: 16px;
 }
 
 .ad-swipe {
   position: relative;
   overflow: hidden;
-  border-radius: 22px;
+  border-radius: 28px;
 }
 
 .ad-swipe .ad-card {
@@ -1253,6 +1259,56 @@ html.vp-gap .ad-screen {
   right: 0;
   background: var(--danger);
   color: var(--badge-ink);
+}
+
+.ad-product__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "icon pill" "body body";
+  align-items: start;
+  gap: 14px 8px;
+}
+
+.ad-product__cat {
+  grid-area: icon;
+  align-self: center;
+  min-width: 0;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: 0.083em;
+  text-transform: uppercase;
+  color: var(--text2);
+}
+
+.ad-product__row > .ad-pill {
+  grid-area: pill;
+  justify-self: end;
+  font-size: 0.75rem;
+  text-align: right;
+  white-space: normal;
+}
+
+.ad-product__row > .ad-item__body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.ad-product .ad-item__name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  font-size: 1.0625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.ad-product .ad-bar {
+  margin-top: 14px;
 }
 
 /* ---------- Tarjeta principal de Inicio: estado de la despensa ---------- */
@@ -2104,21 +2160,3 @@ body::before {
 }
 
 .ad-pc .ad-bar { height: 5px; margin-top: 12px; }
-
-/* Fila de producto en la lista de Inicio */
-
-.ad-prow { display: flex; align-items: center; gap: 12px; }
-.ad-prow .ad-tile { width: 44px; height: 44px; }
-.ad-prow__body { flex: 1; min-width: 0; }
-
-.ad-prow__name {
-  font-size: 1rem; font-weight: 800; letter-spacing: -0.02em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.ad-prow__sub {
-  margin-top: 1px; font-size: 0.78rem; font-weight: 600; color: var(--text2);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
-.ad-prow .ad-pill { flex: none; font-size: 0.75rem; }

@@ -756,6 +756,7 @@ function RecetaSheet({sug,onClose}){
 
 function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   const [visible,setVisible]=useState(false);
+  const [barW,setBarW]=useState(0);
   const d=daysUntil(p.exp);const st=status(p);
   // Deslizar: a la derecha deja ver "Consumido", a la izquierda "Eliminar" (se confirma tocando el botón)
   const ANCHO=88;
@@ -788,7 +789,8 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   };
   useEffect(()=>{
     const t1=setTimeout(()=>setVisible(true),index*80);
-    return()=>clearTimeout(t1);
+    const t2=setTimeout(()=>setBarW(getBarWidth(d,p.alert)),index*80+300);
+    return()=>{clearTimeout(t1);clearTimeout(t2);};
   },[]);
   return (
     <div className="ad-swipe" style={{opacity:visible?1:0,transform:visible?'translateY(0)':'translateY(14px)',transition:'opacity 0.4s ease, transform 0.4s ease'}}>
@@ -802,14 +804,15 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
       onKeyDown={e=>{if(e.key==='Enter')onClick();}}
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
-      <div className="ad-prow">
-        <span className="ad-tile" aria-hidden="true"><IcoCat cat={p.cat}/></span>
-        <div className="ad-prow__body">
-          <div className="ad-prow__name">{p.name}</div>
-          <div className="ad-prow__sub">{[p.cat,p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>
+      <div className="ad-product__row">
+        <span className="ad-product__cat">{p.cat}</span>
+        <div className="ad-item__body">
+          <div className="ad-item__name">{p.name}</div>
+          {(p.qty||p.precio)&&<div className="ad-muted" style={{fontSize:'.8125rem'}}>{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
         </div>
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
+      <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
     </div>
     </div>
   );
