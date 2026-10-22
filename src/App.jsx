@@ -307,7 +307,12 @@ function PrefsVista({prefs,onPrefs,onAplicar,numActivos,verificado}){
     const oscuroDespues=t==='oscuro'||(t==='auto'&&window.matchMedia('(prefers-color-scheme: dark)').matches);
     // En la app instalada (iPhone) la barra superior solo se repinta al volver a cargar: se recarga si cambió claro/oscuro
     const instalada=window.navigator.standalone===true||window.matchMedia('(display-mode: standalone)').matches;
-    if(instalada&&oscuroAntes!==oscuroDespues){setTimeout(()=>window.location.reload(),250);}
+    if(instalada&&oscuroAntes!==oscuroDespues){
+      try{sessionStorage.setItem('recarga_tema','1');}catch(e){}
+      // Desvanece la pantalla antes de recargar para que el cambio no se sienta brusco
+      document.body.style.transition='opacity 0.18s ease';document.body.style.opacity='0';
+      setTimeout(()=>window.location.reload(),200);
+    }
   };
   return (
     <>
@@ -916,7 +921,9 @@ export default function App(){
     const unsub=onAuthStateChanged(auth,(user)=>{
       setUsuario(user);setCargando(false);
       // La pantalla de carga se muestra al menos ~1,2 s desde que abrió la app, para que se alcance a ver la animación
-      const espera=Math.max(300,1200-(typeof performance!=='undefined'?performance.now():0));
+      let porTema=false;
+      try{porTema=sessionStorage.getItem('recarga_tema')==='1';sessionStorage.removeItem('recarga_tema');}catch(e){}
+      const espera=porTema?0:Math.max(300,1200-(typeof performance!=='undefined'?performance.now():0));
       setTimeout(()=>{if(window.__hideSplash)window.__hideSplash();},espera);
     });
     return()=>unsub();
