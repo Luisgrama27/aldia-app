@@ -2029,14 +2029,14 @@ body::before {
 /* ---------- Inicio: encabezado con avatar, tarjeta "Tu despensa" y "Para usar primero" ---------- */
 
 .ad-hero--home { padding-bottom: 70px; }
-.ad-hero--home .ad-topbar { margin-bottom: 0; }
+.ad-hero--home .ad-topbar { margin-bottom: 0; align-items: flex-start; }
 
-.ad-who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.ad-who { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
 
 .ad-who__txt { min-width: 0; }
 
 .ad-who__hi {
-  font-size: 1.375rem; font-weight: 800; letter-spacing: -0.025em;
+  font-size: 1.125rem; font-weight: 800; letter-spacing: -0.025em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
