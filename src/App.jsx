@@ -25,6 +25,22 @@ function aplicarTema(t){
   const el = document.documentElement;
   if(t==='claro'||t==='oscuro') el.dataset.tema = t;
   else delete el.dataset.tema;
+  // La barra superior del teléfono usa theme-color: se ajusta al tema elegido (en "auto" vuelve a seguir al teléfono)
+  try{
+    document.querySelectorAll('meta[name="theme-color"]').forEach(m=>{
+      if(m.dataset.fijo) m.remove();
+    });
+    if(t==='claro'||t==='oscuro'){
+      const m=document.createElement('meta');
+      m.name='theme-color'; m.content=t==='oscuro'?'#0e0f11':'#f4f5f6'; m.dataset.fijo='1';
+      document.head.appendChild(m);
+      document.querySelectorAll('meta[name="theme-color"]:not([data-fijo])').forEach(x=>x.setAttribute('media','not all'));
+    }else{
+      document.querySelectorAll('meta[name="theme-color"]').forEach((x,i)=>{
+        x.setAttribute('media',x.getAttribute('content')==='#0e0f11'?'(prefers-color-scheme: dark)':'(prefers-color-scheme: light)');
+      });
+    }
+  }catch(e){}
 }
 try{ aplicarTema(localStorage.getItem(TEMA_KEY)||'auto'); }catch(e){}
 
