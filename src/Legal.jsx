@@ -1,7 +1,7 @@
 // Términos de uso y política de privacidad (se muestran en Cuenta y también antes de crear la cuenta)
 
 export const SOPORTE_EMAIL = "soporte@aldia.com";
-export const FECHA_LEGAL = "8 de octubre de 2026";
+export const FECHA_LEGAL = "23 de octubre de 2026";
 
 export default function LegalVista() {
   const h = { margin: '18px 0 6px' };
@@ -24,8 +24,24 @@ export default function LegalVista() {
       <p style={p}><strong>Para qué los usamos.</strong> Para mostrar tu lista, enviarte avisos y calcular tus estadísticas. Los datos de tu perfil sirven para administrar tu cuenta y, si lo aceptaste, para enviarte consejos para reducir el desperdicio.</p>
       <p style={p}><strong>Dónde se guardan.</strong> Usamos Firebase (Google) para el inicio de sesión (con correo, Google, Facebook o Apple) y la base de datos, y EmailJS para enviar los correos de bienvenida y de aviso. Tu meta de desperdicio, tus preferencias y el tema se guardan solo en tu dispositivo.</p>
       <p style={p}><strong>Con quién los compartimos.</strong> No vendemos tus datos. Solo los compartimos con los proveedores anteriores, que son necesarios para que la app funcione. La lista que compartes con el botón Compartir queda como una copia de solo lectura que cualquier persona con el enlace puede ver durante 7 días; puedes desactivarla cuando quieras. Lo que envías por WhatsApp o correo lo decides tú.</p>
-      <p style={p}><strong>Tus derechos.</strong> Puedes pedir conocer, actualizar, corregir o eliminar tus datos personales, según la Ley 1581 de 2012 de Colombia. Escríbenos a {SOPORTE_EMAIL}.</p>
+      <p style={p}><strong>Responsable del tratamiento.</strong> Al Día es responsable de tus datos personales. Contacto para cualquier consulta o reclamo: {SOPORTE_EMAIL}.</p>
+      <p style={p}><strong>Cuánto tiempo los guardamos.</strong> Mientras tengas tu cuenta. Si la eliminas, borramos tu perfil y todos tus productos. Las listas compartidas que ya hayas enviado dejan de abrirse cuando vencen (máximo 7 días).</p>
+      <p style={p}><strong>Tus derechos.</strong> Puedes conocer, actualizar, corregir o eliminar tus datos personales, según la Ley 1581 de 2012 de Colombia. Puedes eliminar tu cuenta y todos tus datos tú mismo desde Cuenta → Configuración → Eliminar cuenta, o escribirnos a {SOPORTE_EMAIL}.</p>
       <p style={p}><strong>Seguridad.</strong> Cada cuenta solo puede acceder a sus propios productos. Las listas compartidas solo se abren con su enlace, que es único y difícil de adivinar.</p>
+    </div>
+  );
+}
+
+// Página pública (sin cuenta): se abre con /?legal y es la dirección que piden Facebook, Apple y las tiendas de apps
+export function LegalPagina() {
+  return (
+    <div style={{ position: 'fixed', inset: 0, overflowY: 'auto', background: 'var(--bg)', color: 'var(--text)' }}>
+      <main style={{ maxWidth: 640, margin: '0 auto', padding: 'calc(28px + env(safe-area-inset-top, 0px)) 20px 48px' }}>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.025em', marginBottom: 4 }}>Al Día</h1>
+        <p className="ad-muted" style={{ marginBottom: 8 }}>Términos de uso y política de privacidad</p>
+        <LegalVista />
+        <p style={{ marginTop: 24 }}><a className="ad-link" href="/">Abrir Al Día</a></p>
+      </main>
     </div>
   );
 }

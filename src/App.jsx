@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
-import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "firebase/auth";
+import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc, Timestamp } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
 import Login from "./Login";
@@ -220,8 +220,8 @@ function redimensionarFoto(archivo,lado=256){
   });
 }
 
-const TITULOS = {perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',version:'Versión'};
-const PADRE = {perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',version:'config'};
+const TITULOS = {perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',eliminar:'Eliminar cuenta',version:'Versión'};
+const PADRE = {perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',eliminar:'config',version:'config'};
 
 function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
   const [valor,setValor]=useState(nombre);
@@ -468,6 +468,72 @@ function DiagnosticoPantalla(){
   );
 }
 
+function EliminarCuentaVista({usuario}){
+  const [texto,setTexto]=useState('');
+  const [clave,setClave]=useState('');
+  const [trabajando,setTrabajando]=useState(false);
+  const [error,setError]=useState('');
+  const proveedor=(usuario.providerData?.[0]?.providerId)||'password';
+  const conClave=proveedor==='password';
+  const listo=texto.trim().toUpperCase()==='ELIMINAR'&&(!conClave||clave.length>0)&&!trabajando;
+
+  const reautenticar=async()=>{
+    if(conClave){
+      await reauthenticateWithCredential(usuario,EmailAuthProvider.credential(usuario.email,clave));
+    }else{
+      const prov=proveedor==='google.com'?new GoogleAuthProvider():proveedor==='facebook.com'?new FacebookAuthProvider():new OAuthProvider(proveedor);
+      await reauthenticateWithPopup(usuario,prov);
+    }
+  };
+
+  const eliminar=async()=>{
+    setError('');setTrabajando(true);
+    try{
+      // 1) Confirmar identidad antes de borrar nada
+      await reautenticar();
+      // 2) Borrar productos (en tandas) y perfil
+      const snap=await getDocs(query(collection(db,'productos'),where('uid','==',usuario.uid)));
+      for(let i=0;i<snap.docs.length;i+=400){
+        const batch=writeBatch(db);
+        snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+        await batch.commit();
+      }
+      try{await deleteDoc(doc(db,'perfiles',usuario.uid));}catch(e){console.error(e);}
+      // 3) Borrar la cuenta de acceso
+      await deleteUser(usuario);
+      try{localStorage.clear();}catch(e){}
+    }catch(e){
+      console.error(e);
+      const c=e?.code||'';
+      setError(c==='auth/wrong-password'||c==='auth/invalid-credential'?'La contraseña no es correcta.'
+        :c==='auth/popup-closed-by-user'||c==='auth/cancelled-popup-request'?'Cancelaste la verificación. Inténtalo de nuevo.'
+        :c==='auth/network-request-failed'?'Sin conexión. Revisa tu internet e inténtalo de nuevo.'
+        :'No pudimos eliminar la cuenta. Inténtalo de nuevo o escríbenos a '+SOPORTE_EMAIL+'.');
+      setTrabajando(false);
+    }
+  };
+
+  return (
+    <div>
+      <p style={{color:'var(--text2)',lineHeight:1.55,marginBottom:12}}>Se eliminarán de forma definitiva tu cuenta, tu perfil y todos tus productos, incluido el historial. No se puede deshacer.</p>
+      <p style={{color:'var(--text2)',lineHeight:1.55,marginBottom:16}}>Las listas que hayas compartido dejan de ser válidas por sí solas cuando vencen (máximo 7 días).</p>
+      <div className="ad-card" style={{overflow:'hidden',marginBottom:12}}>
+      {conClave&&(
+        <label className="ad-field"><span className="ad-field__label">Tu contraseña</span>
+          <input type="password" autoComplete="current-password" value={clave} onChange={e=>setClave(e.target.value)}/>
+        </label>
+      )}
+      <label className="ad-field"><span className="ad-field__label">Escribe ELIMINAR para confirmar</span>
+        <input type="text" autoCapitalize="characters" autoComplete="off" value={texto} onChange={e=>setTexto(e.target.value)}/>
+      </label>
+      </div>
+      {!conClave&&<p className="ad-muted" style={{marginBottom:12}}>Te pediremos iniciar sesión de nuevo con tu cuenta para confirmar que eres tú.</p>}
+      {error&&<p role="alert" style={{color:'var(--danger)',marginBottom:12}}>{error}</p>}
+      <button className="ad-btn ad-btn--danger" disabled={!listo} onClick={eliminar}>{trabajando?'Eliminando…':'Eliminar mi cuenta'}</button>
+    </div>
+  );
+}
+
 function VersionVista(){
   const [actualizando,setActualizando]=useState(false);
   const actualizar=async()=>{
@@ -508,6 +574,7 @@ function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPr
     {t:'Ayuda y FAQ',to:'faq'},
     {t:'Contacto y soporte',to:'contacto'},
     {t:'Términos y privacidad',to:'legal'},
+    {t:'Eliminar cuenta',to:'eliminar'},
     {t:'Versión',to:'version'},
   ];
   const lista=vista==='menu'?principal:vista==='config'?config:null;
@@ -553,6 +620,7 @@ function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPr
         {vista==='faq'&&<FaqVista/>}
         {vista==='contacto'&&<ContactoVista usuario={usuario}/>}
         {vista==='legal'&&<LegalVista/>}
+        {vista==='eliminar'&&<EliminarCuentaVista usuario={usuario}/>}
         {vista==='version'&&<VersionVista/>}
       </div>
     </div>
