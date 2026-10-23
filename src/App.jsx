@@ -172,8 +172,18 @@ function Navbar({tab,cuenta,foto,onTab,onAdd,onCuenta}){
       <span>{lbl}</span>
     </button>
   );
+  // Con el teclado abierto (escribiendo en un campo) la barra se oculta, como en Instagram
+  const [tecladoAbierto,setTecladoAbierto]=useState(false);
+  useEffect(()=>{
+    const esCampo=(el)=>!!el&&((el.tagName==='INPUT'&&!['checkbox','radio','button','submit','file','range'].includes(el.type))||el.tagName==='TEXTAREA');
+    const alEnfocar=(e)=>{if(esCampo(e.target))setTecladoAbierto(true);};
+    const alSalir=()=>setTimeout(()=>setTecladoAbierto(esCampo(document.activeElement)),0);
+    document.addEventListener('focusin',alEnfocar);
+    document.addEventListener('focusout',alSalir);
+    return()=>{document.removeEventListener('focusin',alEnfocar);document.removeEventListener('focusout',alSalir);};
+  },[]);
   return (
-    <nav className="ad-card ad-nav" aria-label="Navegación principal">
+    <nav className="ad-card ad-nav" aria-label="Navegación principal" hidden={tecladoAbierto}>
       {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'))}
       {item('estadisticas','Estadísticas',Ico.stats,tab==='estadisticas'&&!cuenta,()=>onTab('estadisticas'))}
       <button className="ad-nav__fab" onClick={onAdd} aria-label="Agregar producto">

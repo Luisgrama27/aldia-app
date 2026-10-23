@@ -2160,3 +2160,6 @@ body::before {
 }
 
 .ad-pc .ad-bar { height: 5px; margin-top: 12px; }
+
+/* Barra inferior oculta mientras se escribe con el teclado */
+.ad-nav[hidden] { display: none; }
