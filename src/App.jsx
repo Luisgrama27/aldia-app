@@ -50,6 +50,13 @@ const CATS = [
   'Bebidas','Medicamentos','Cuidado personal','Limpieza','Bebé','Mascotas','Otro'
 ];
 
+// Muestra solo primer nombre y primer apellido: 4 o más palabras → 1.ª y 3.ª; 2 o 3 → 1.ª y 2.ª
+function nombreVisible(n){
+  const p=(n||'').trim().split(/\s+/).filter(Boolean);
+  if(p.length<=1)return p[0]||'';
+  return p.length>=4?`${p[0]} ${p[2]}`:`${p[0]} ${p[1]}`;
+}
+
 function getSaludo(){
   const h = new Date().getHours();
   if(h<12) return 'Buenos días';
@@ -515,7 +522,7 @@ function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPr
             </div>
             <div style={{minWidth:0}}>
               <div className="ad-profile__hi">{saludo}</div>
-              <div className="ad-profile__name">{nombre}</div>
+              <div className="ad-profile__name">{nombreVisible(nombre)}</div>
               <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
             </div>
           </div>
