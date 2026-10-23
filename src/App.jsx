@@ -490,7 +490,7 @@ function VersionVista(){
   );
 }
 
-function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout}){
+function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout}){
   const [vista,setVista]=useState('menu');
   const principal=[
     {t:'Editar perfil',to:'perfil'},
@@ -514,6 +514,7 @@ function CuentaSheet({usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onA
               {foto?<img src={foto} alt="perfil"/>:iniciales}
             </div>
             <div style={{minWidth:0}}>
+              <div className="ad-profile__hi">{saludo}</div>
               <div className="ad-profile__name">{nombre}</div>
               <div className="ad-muted" style={{wordBreak:'break-all'}}>{usuario.email}</div>
             </div>
@@ -1302,7 +1303,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
+    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
   );
 
   if(pantalla==='form') return (
@@ -1446,9 +1447,6 @@ export default function App(){
               <div className="ad-topbar">
                 <div className="ad-who">
                   <LOGO/>
-                  <div className="ad-who__txt">
-                    <h1 className="ad-who__hi">{saludo}, {nombreCorto}</h1>
-                  </div>
                 </div>
                 <button className="ad-hero-btn ad-bell" onClick={()=>setAvisos(true)}
                   aria-label={destacados.length?`Avisos: ${destacados.length} producto${destacados.length!==1?'s':''} por atender`:'Avisos'}>

@@ -2089,13 +2089,6 @@ body::before {
 
 .ad-who { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
 
-.ad-who__txt { min-width: 0; }
-
-.ad-who__hi {
-  font-size: 1.125rem; font-weight: 800; letter-spacing: -0.025em;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-}
-
 .ad-desp { margin-top: 14px; padding: 16px 18px; }
 
 .ad-desp__top { display: flex; align-items: baseline; justify-content: space-between; }
@@ -2163,3 +2156,5 @@ body::before {
 
 /* Barra inferior oculta mientras se escribe con el teclado */
 .ad-nav[hidden] { display: none; }
+
+.ad-profile__hi { font-size: 0.8125rem; font-weight: 600; color: var(--green); }
