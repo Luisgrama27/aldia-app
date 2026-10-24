@@ -2183,3 +2183,15 @@ body::before {
 .ad-product__row > .ad-item__body { order: 3; flex: 0 0 100%; margin-top: 6px; }
 
 .ad-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Productos urgentes: lista vertical, cada fila se desliza como las demás */
+.ad-lista { display: grid; gap: 10px; }
+
+.ad-prow { display: flex; align-items: center; gap: 12px; }
+.ad-prow .ad-tile { width: 44px; height: 44px; flex: none; }
+.ad-prow__body { flex: 1; min-width: 0; }
+.ad-prow__name { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-prow__sub { margin-top: 1px; font-size: 0.78rem; font-weight: 600; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-prow .ad-pill { flex: none; font-size: 0.75rem; }
+.ad-lista .ad-product .ad-bar { margin-top: 12px; }
+.ad-lista > .ad-swipe { display: block; }
