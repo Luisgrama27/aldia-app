@@ -868,9 +868,7 @@ function RecetaSheet({sug,onClose}){
   );
 }
 
-const MAX_URGENTES=3; // cuántos productos urgentes se muestran arriba, en "Para usar primero"
-
-function ProductCard({p,index,onClick,onConsumido,onEliminar,fila=false}){
+function ProductCard({p,index,onClick,onConsumido,onEliminar}){
   const [visible,setVisible]=useState(false);
   const [barW,setBarW]=useState(0);
   const d=daysUntil(p.exp);const st=status(p);
@@ -920,17 +918,6 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar,fila=false}){
       onKeyDown={e=>{if(e.key==='Enter')onClick();}}
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
-      {fila?(<>
-      <div className="ad-prow">
-        <span className="ad-tile" aria-hidden="true"><IcoCat cat={p.cat}/></span>
-        <div className="ad-prow__body">
-          <div className="ad-prow__name">{p.name}</div>
-          <div className="ad-prow__sub">{[p.cat,p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>
-        </div>
-        <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
-      </div>
-      <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
-      </>):(<>
       <div className="ad-product__row">
         <span className="ad-product__cat">{p.cat}</span>
         <div className="ad-item__body">
@@ -940,7 +927,6 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar,fila=false}){
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
       <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
-      </>)}
     </div>
     </div>
   );
@@ -1195,10 +1181,6 @@ export default function App(){
 
   // Producto más urgente (vencido, por vencer pronto o dentro de su alerta)
   const destacados=activos.filter(p=>status(p)!=='ok').sort((a,b)=>daysUntil(a.exp)-daysUntil(b.exp));
-  // "Para usar primero" solo aparece sin filtros ni búsqueda; en ese caso la lista de abajo no repite esos productos
-  const mostrarTira=destacados.length>0&&!busqueda&&filtro==='Todos'&&!filtroEstado;
-  const enTira=new Set(destacados.slice(0,MAX_URGENTES).map(p=>p.id));
-  const listaPrincipal=mostrarTira?filtered.filter(p=>!enTira.has(p.id)):filtered;
   // Receta del día: usa primero lo que está por vencer; si no hay nada en alerta, lo que vence antes
   const EXCLUIR_RECETA=['Medicamentos','Limpieza','Bebidas','Cuidado personal','Mascotas','Bebé'];
   const comida=activos
@@ -1576,18 +1558,8 @@ export default function App(){
                       ))}
                     </div>
                   </section>
-                  {mostrarTira&&(
-                    <>
-                      <div className="ad-sechead"><h2 className="ad-section">Para usar primero</h2></div>
-                      <div className="ad-lista">
-                        {destacados.slice(0,MAX_URGENTES).map((p,i)=>(
-                          <ProductCard key={p.id} fila p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>
-                        ))}
-                      </div>
-                    </>
-                  )}
                   <div className="ad-sechead">
-                    <h2 className="ad-section">{mostrarTira?'Más productos':'Mis productos'}</h2>
+                    <h2 className="ad-section">Mis productos</h2>
                     <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
                   </div>
                   {filtroEstado&&(
@@ -1609,8 +1581,8 @@ export default function App(){
                     </select>
                   </div>
                   <div key={listKey} className="ad-grid">
-                    {listaPrincipal.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>{mostrarTira?'Todo lo que tienes está arriba, en «Para usar primero».':'Sin resultados.'}</div>}
-                    {listaPrincipal.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
+                    {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
+                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
                   </div>
                 </>
               )}
