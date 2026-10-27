@@ -2300,3 +2300,12 @@ body::before {
 }
 .ad-freq__row::-webkit-scrollbar { display: none; }
 .ad-freq__row .ad-chip { flex: none; white-space: nowrap; }
+
+/* Historial: resumen de la semana y acciones por fila */
+.ad-sum { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; }
+.ad-sum span { display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text2); }
+.ad-sum b { font-size: 1.125rem; letter-spacing: -0.02em; }
+.ad-sum__r { text-align: right; }
+.ad-sum__r b { color: var(--green); }
+.ad-hrow__acts { display: flex; flex-wrap: wrap; align-items: center; gap: 0 16px; margin-top: 2px; }
+.ad-hrow__acts .ad-hrow__restaurar { margin-top: 0; padding: 0; min-height: 36px; }

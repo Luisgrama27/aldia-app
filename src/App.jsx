@@ -992,6 +992,8 @@ export default function App(){
   const [busquedaHist,setBusquedaHist]=useState('');
   const [filtroHist,setFiltroHist]=useState('todos');
   const [menuHist,setMenuHist]=useState(false);
+  const [periodoHist,setPeriodoHist]=useState('todo'); // hoy | semana | mes | todo
+  const [limiteHist,setLimiteHist]=useState(30);
   const [accionHist,setAccionHist]=useState(null);
   const [accionProd,setAccionProd]=useState(null);
   const [avisos,setAvisos]=useState(false);
@@ -1275,14 +1277,23 @@ export default function App(){
                     </section>
                   );
 
+  const hoy0=new Date();hoy0.setHours(0,0,0,0);
+  const diasAtras=(p)=>p.fechaEstado?Math.floor((hoy0-new Date(new Date(p.fechaEstado).setHours(0,0,0,0)))/86400000):9999;
+  const enPeriodo=(p)=>{const d=diasAtras(p);return periodoHist==='hoy'?d<=0:periodoHist==='semana'?d<=6:periodoHist==='mes'?d<=29:true;};
+  const semanaHist=historial.filter(p=>diasAtras(p)<=6);
+  const semanaOk=semanaHist.filter(p=>p.estado==='consumido');
+  const semanaSalvado=semanaOk.reduce((t,p)=>t+(parseFloat(p.precio)||0),0);
   const histFiltrado=[...historial]
+    .filter(enPeriodo)
     .filter(p=>filtroHist==='todos'||p.estado===filtroHist)
     .filter(p=>!busquedaHist||p.name.toLowerCase().includes(busquedaHist.toLowerCase()))
     .sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado));
-  const gruposHist=histFiltrado.reduce((acc,p)=>{
+  const histVisible=histFiltrado.slice(0,limiteHist);
+  const gruposHist=histVisible.reduce((acc,p)=>{
     const d=p.fechaEstado?new Date(p.fechaEstado):null;
-    const clave=d?`${d.getFullYear()}-${d.getMonth()}`:'sin';
-    const titulo=d?d.toLocaleDateString('es-CO',{month:'long',year:'numeric'}):'Sin fecha';
+    const dd=diasAtras(p);
+    const clave=!d?'sin':dd<=0?'hoy':dd===1?'ayer':dd<=6?'semana':`${d.getFullYear()}-${d.getMonth()}`;
+    const titulo=!d?'Sin fecha':dd<=0?'Hoy':dd===1?'Ayer':dd<=6?'Esta semana':d.toLocaleDateString('es-CO',{month:'long',year:'numeric'});
     const g=acc.find(x=>x.clave===clave);
     if(g)g.items.push(p);else acc.push({clave,titulo,items:[p]});
     return acc;
@@ -1743,12 +1754,25 @@ export default function App(){
               <h1 className="ad-title">Historial</h1>
             </header>
             <div className="ad-overlap ad-stack">
+              {semanaHist.length>0&&(
+                <section className="ad-card ad-sum" aria-label="Resumen de la semana">
+                  <div><span>Esta semana</span><b>Aprovechaste {semanaOk.length} de {semanaHist.length}</b></div>
+                  {semanaSalvado>0&&<div className="ad-sum__r"><span>Salvado</span><b>{dinero(semanaSalvado)}</b></div>}
+                </section>
+              )}
+              {historial.length>0&&(
+                <div className="ad-filters" role="group" aria-label="Período">
+                  {[['hoy','Hoy'],['semana','7 días'],['mes','Mes'],['todo','Todo']].map(([k,t])=>(
+                    <button key={k} type="button" className="ad-chip" aria-pressed={periodoHist===k} onClick={()=>{setPeriodoHist(k);setLimiteHist(30);}}>{t}</button>
+                  ))}
+                </div>
+              )}
               <div className="ad-seg" role="tablist" aria-label="Filtrar historial">
                 {[['todos','Todos',historial.length],['consumido','Consumidos',consumidos.length],['descartado','Descartados',descartados.length]].map(([k,t,n])=>(
-                  <button key={k} role="tab" aria-selected={filtroHist===k} className={`ad-seg__btn${filtroHist===k?' is-on':''}`} onClick={()=>setFiltroHist(k)}>{t} <span>{n}</span></button>
+                  <button key={k} role="tab" aria-selected={filtroHist===k} className={`ad-seg__btn${filtroHist===k?' is-on':''}`} onClick={()=>{setFiltroHist(k);setLimiteHist(30);}}>{t} <span>{n}</span></button>
                 ))}
               </div>
-              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>setBusquedaHist(e.target.value)} placeholder="Buscar en historial..."/>
+              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>{setBusquedaHist(e.target.value);setLimiteHist(30);}} placeholder="Buscar en historial..."/>
               {historial.length>0&&(
                 <div className="ad-sechead">
                   <p className="ad-eyebrow" style={{margin:0}}>{histFiltrado.length} producto{histFiltrado.length!==1?'s':''}</p>
@@ -1766,7 +1790,10 @@ export default function App(){
                         <div className="ad-item__body">
                           <div className="ad-item__name">{p.name}</div>
                           <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
-                          <button className="ad-link ad-hrow__restaurar" onClick={()=>restaurar(p.id)}>Restaurar</button>
+                          <div className="ad-hrow__acts">
+                            <button className="ad-link ad-hrow__restaurar" onClick={()=>restaurar(p.id)}>Restaurar</button>
+                            {p.estado==='consumido'&&<button className="ad-link ad-hrow__restaurar" onClick={()=>comprarDeNuevo(p)}>Agregar de nuevo</button>}
+                          </div>
                         </div>
                         <div style={{textAlign:'right',flex:'none'}}>
                           <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--danger'}`}>{p.estado==='consumido'?'Consumido':'Descartado'}</span>
@@ -1778,6 +1805,9 @@ export default function App(){
                   ))}
                 </div>
               ))}
+              {histFiltrado.length>limiteHist&&(
+                <button type="button" className="ad-btn ad-btn--ghost" onClick={()=>setLimiteHist(l=>l+30)}>Ver más ({histFiltrado.length-limiteHist})</button>
+              )}
             </div>
           </>
         )}
