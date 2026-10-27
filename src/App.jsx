@@ -159,6 +159,31 @@ const IcoCat=({cat,size=22})=>(
   <svg {...svgProps} width={size} height={size}>{CAT_ICO[cat]||CAT_ICO['Otro']}</svg>
 );
 
+// Color del recuadro ilustrado de cada categoría (mismo verde de la app, con matices cálidos y fríos suaves)
+const CAT_TONO={
+  'Lácteos':['#6fb4d8','#3f86ad'],'Carnes':['#d9786a','#b1473b'],'Pescados y mariscos':['#5bb0c4','#2f86a0'],
+  'Frutas y verduras':['#5fbf84','#2f8f5a'],'Granos y cereales':['#d9b45a','#b08a2c'],'Panadería y repostería':['#d99a5a','#b0702c'],
+  'Congelados':['#7fa8e0','#4e79b8'],'Enlatados':['#9aa3ad','#6b7480'],'Salsas y condimentos':['#d9825a','#b0562c'],
+  'Snacks y dulces':['#c98ad0','#9a58a3'],'Bebidas':['#5fb7a8','#2f8f80'],'Medicamentos':['#7aa5d9','#4a76ad'],
+  'Cuidado personal':['#8fbf7a','#5a9446'],'Limpieza':['#6fc0c9','#3f929b'],'Bebé':['#e0a0b8','#b86a89'],
+  'Mascotas':['#c9a07a','#9a704a'],'Otro':['#8fb5a0','#5f8a74'],
+};
+const CATS_RAPIDAS=['Lácteos','Carnes','Frutas y verduras','Panadería y repostería','Bebidas','Enlatados','Medicamentos'];
+// Vida útil típica (en días) para sugerir la fecha según la categoría
+const VIDA_UTIL={
+  'Lácteos':7,'Carnes':3,'Pescados y mariscos':2,'Frutas y verduras':7,'Granos y cereales':365,'Panadería y repostería':5,
+  'Congelados':90,'Enlatados':540,'Salsas y condimentos':180,'Snacks y dulces':120,'Bebidas':30,'Medicamentos':365,
+  'Cuidado personal':365,'Limpieza':365,'Bebé':180,'Mascotas':180,'Otro':30,
+};
+const textoVida=d=>d<14?`${d} días`:d<60?`${Math.round(d/7)} semanas`:d<700?`${Math.round(d/30)} meses`:'2 años';
+const TileCat=({cat,size=36})=>{
+  const [a,b]=CAT_TONO[cat]||CAT_TONO['Otro'];
+  return <span className="ad-tile" style={{width:size,height:size,background:`linear-gradient(145deg,${a},${b})`}}><IcoCat cat={cat} size={Math.round(size*0.56)}/></span>;
+};
+const IcoCompartir=()=>(
+  <svg {...svgProps} width="20" height="20"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
+);
+
 const BellIcon=()=>(
   <svg {...svgProps} width="22" height="22"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
 );
@@ -919,12 +944,13 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
       <div className="ad-product__row">
-        <span className="ad-product__cat">{p.cat}</span>
+        <TileCat cat={p.cat} size={36}/>
+        <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
         <div className="ad-item__body">
           <div className="ad-item__name">{p.name}</div>
-          {(p.qty||p.precio)&&<div className="ad-muted" style={{fontSize:'.8125rem'}}>{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
+          <div className="ad-product__cat">{p.cat}</div>
+          {(p.qty||p.precio)&&<div className="ad-product__qty">{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
         </div>
-        <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
       </div>
       <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
     </div>
@@ -957,6 +983,9 @@ export default function App(){
   const [scanner,setScanner]=useState(false);
   const [scanMsg,setScanMsg]=useState('');
   const [compartir,setCompartir]=useState(false);
+  const [pista,setPista]=useState(()=>{try{return localStorage.getItem('aldia_pista')!=='1';}catch{return true;}});
+  const [masCats,setMasCats]=useState(false);
+  const cerrarPista=()=>{setPista(false);try{localStorage.setItem('aldia_pista','1');}catch{ /* sin almacenamiento */ }};
   const [errorMsg,setErrorMsg]=useState('');
   const [nombreExtra,setNombreExtra]=useState('');
   const [fotoPerfil,setFotoPerfil]=useState('');
@@ -1201,6 +1230,14 @@ export default function App(){
   const fraseDia=FRASES[diaLocal%FRASES.length];
   const tarjetaVerde=sugerencias.length>0?(
                     <section className="ad-hero-card" aria-label="Recetas sugeridas">
+                      <svg className="ad-hero-card__plate" viewBox="0 0 64 64" aria-hidden="true">
+                        <circle cx="32" cy="34" r="27" fill="rgba(255,255,255,.16)"/>
+                        <circle cx="32" cy="34" r="21" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.55)" strokeWidth="1.5"/>
+                        <circle cx="32" cy="34" r="13" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.2"/>
+                        <path d="M26 36c0-6 4-10 11-10 0 6-4 10-11 10z" fill="rgba(255,255,255,.85)"/>
+                        <path d="M26 36l8-6" stroke="#2f6b4f" strokeWidth="1.2" strokeLinecap="round"/>
+                        <path d="M10 8v14M7 8v6a3 3 0 0 0 6 0V8M56 8c-3 2-4 6-4 10v4h4z" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
                       <div className="ad-hero-card__top">
                         <span className="ad-hero-card__eyebrow">Recetas para aprovechar</span>
                         {sugerencias.length>1&&<span className="ad-hero-card__pill">{idxReceta+1} de {sugerencias.length}</span>}
@@ -1407,12 +1444,28 @@ export default function App(){
               <input list="nombresSugeridos" maxLength={120} value={form.name} onChange={e=>setForm({...form,name:e.target.value})} placeholder="Ej: Leche entera"/>
               <datalist id="nombresSugeridos">{todosLosProductos.map((p,i)=><option key={i} value={p.name}/>)}</datalist>
             </label>
-            <label className="ad-field"><span className="ad-field__label">Categoría</span>
-              <select value={form.cat} onChange={e=>cambiarCategoria(e.target.value)}>{CATS.map(c=><option key={c}>{c}</option>)}</select>
-            </label>
+            <div className="ad-field"><span className="ad-field__label">Categoría</span>
+              <div className="ad-catgrid" role="radiogroup" aria-label="Categoría">
+                {(masCats||!CATS_RAPIDAS.includes(form.cat)?CATS:CATS_RAPIDAS).map(c=>(
+                  <button type="button" key={c} role="radio" aria-checked={form.cat===c} className={`ad-catopt${form.cat===c?' is-on':''}`} onClick={()=>cambiarCategoria(c)}>
+                    <TileCat cat={c} size={40}/><span>{c}</span>
+                  </button>
+                ))}
+                {!masCats&&CATS_RAPIDAS.includes(form.cat)&&(
+                  <button type="button" className="ad-catopt" onClick={()=>setMasCats(true)}>
+                    <span className="ad-tile ad-tile--mas" style={{width:40,height:40}}>+</span><span>Más</span>
+                  </button>
+                )}
+              </div>
+            </div>
             <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
               <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
             </label>
+            {!form.exp&&VIDA_UTIL[form.cat]&&(
+              <button type="button" className="ad-suggest" onClick={()=>setForm(f=>({...f,exp:fechaEn(VIDA_UTIL[f.cat])}))}>
+                Sugerido para {form.cat.toLowerCase()}: {textoVida(VIDA_UTIL[form.cat])} · <b>Usar</b>
+              </button>
+            )}
             <div className="ad-filters" role="group" aria-label="Fechas rápidas">
               {[['3 días',()=>fechaEn(3)],['1 semana',()=>fechaEn(7)],['2 semanas',()=>fechaEn(14)],['1 mes',()=>fechaEnMeses(1)],['3 meses',()=>fechaEnMeses(3)],['6 meses',()=>fechaEnMeses(6)],['1 año',()=>fechaEnMeses(12)]].map(([t,f])=>(
                 <button type="button" key={t} className="ad-chip" aria-pressed={form.exp===f()} onClick={()=>setForm({...form,exp:f()})}>{t}</button>
@@ -1560,7 +1613,7 @@ export default function App(){
                   </section>
                   <div className="ad-sechead">
                     <h2 className="ad-section">Mis productos</h2>
-                    <button className="ad-link" onClick={()=>setCompartir(true)}>Compartir</button>
+                    <button className="ad-sharebtn" aria-label="Compartir lista" onClick={()=>setCompartir(true)}><IcoCompartir/></button>
                   </div>
                   {filtroEstado&&(
                     <div className="ad-sechead" style={{marginBottom:8}}>
@@ -1580,6 +1633,12 @@ export default function App(){
                       <option value="reciente">Más recientes</option>
                     </select>
                   </div>
+                  {pista&&filtered.length>0&&(
+                    <div className="ad-hint" role="note">
+                      <span>Desliza una tarjeta: a la derecha para <b>Consumido</b>, a la izquierda para <b>Eliminar</b>.</span>
+                      <button type="button" onClick={cerrarPista}>Entendido</button>
+                    </div>
+                  )}
                   <div key={listKey} className="ad-grid">
                     {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
                     {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}

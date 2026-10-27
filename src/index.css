@@ -15,7 +15,7 @@
   --bg: #f4f5f6;
   --bg2: #ffffff;
   --text: #131517;
-  --text2: #5c5e60;
+  --text2: #4f5356;
   --border: #b3b5b7;
   --border2: rgba(19, 21, 23, 0.08);
   --card: #ffffff;
@@ -65,7 +65,7 @@
     --bg: #0e0f11;
     --bg2: #17191b;
     --text: #f4f5f6;
-    --text2: #a2a4a6;
+    --text2: #b4b6b8;
     --border: #3a3c3e;
     --border2: rgba(244, 245, 246, 0.09);
     --card: #17191b;
@@ -108,7 +108,7 @@
   --bg: #0e0f11;
   --bg2: #17191b;
   --text: #f4f5f6;
-  --text2: #a2a4a6;
+  --text2: #b4b6b8;
   --border: #3a3c3e;
   --border2: rgba(244, 245, 246, 0.09);
   --card: #17191b;
@@ -2184,14 +2184,105 @@ body::before {
 
 .ad-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* Productos urgentes: lista vertical, cada fila se desliza como las demás */
-.ad-lista { display: grid; gap: 10px; }
+.ad-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.ad-prow { display: flex; align-items: center; gap: 12px; }
-.ad-prow .ad-tile { width: 44px; height: 44px; flex: none; }
-.ad-prow__body { flex: 1; min-width: 0; }
-.ad-prow__name { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ad-prow__sub { margin-top: 1px; font-size: 0.78rem; font-weight: 600; color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ad-prow .ad-pill { flex: none; font-size: 0.75rem; }
-.ad-lista .ad-product .ad-bar { margin-top: 12px; }
-.ad-lista > .ad-swipe { display: block; }
+
+/* ---------- Capa "vidrio": aurora solo arriba, tarjetas ilustradas y barra de cristal ---------- */
+
+body::before {
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 70px, #000 calc(100% - 60px), transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 70px, #000 calc(100% - 60px), transparent 100%);
+  background:
+    radial-gradient(520px 330px at 88% 0, rgba(58, 138, 98, 0.38), transparent 68%),
+    radial-gradient(420px 280px at -6% 6%, rgba(120, 196, 152, 0.28), transparent 68%),
+    radial-gradient(380px 150px at 50% 98%, rgba(47, 107, 79, 0.20), transparent 70%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) body::before {
+    background:
+      radial-gradient(520px 330px at 88% 0, rgba(70, 165, 120, 0.30), transparent 68%),
+      radial-gradient(420px 280px at -6% 6%, rgba(60, 140, 100, 0.22), transparent 68%),
+      radial-gradient(380px 150px at 50% 98%, rgba(47, 107, 79, 0.26), transparent 70%);
+  }
+}
+:root[data-tema="oscuro"] body::before {
+  background:
+    radial-gradient(520px 330px at 88% 0, rgba(70, 165, 120, 0.30), transparent 68%),
+    radial-gradient(420px 280px at -6% 6%, rgba(60, 140, 100, 0.22), transparent 68%),
+    radial-gradient(380px 150px at 50% 98%, rgba(47, 107, 79, 0.26), transparent 70%);
+}
+
+/* Barra inferior de cristal (conserva el contraste para leer los íconos) */
+.ad-nav {
+  background: rgba(19, 21, 23, 0.90);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 16px 34px -18px rgba(20, 60, 42, 0.7);
+}
+.ad-nav__fab-btn { box-shadow: 0 10px 26px -6px rgba(58, 138, 98, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.3); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .ad-nav { background: rgba(38, 40, 43, 0.88); }
+}
+:root[data-tema="oscuro"] .ad-nav { background: rgba(38, 40, 43, 0.88); }
+
+/* Tarjeta de receta más compacta, con plato */
+.ad-hero-card { padding: 16px 18px; border-radius: 28px; }
+.ad-hero-card__slide { height: 72px; }
+.ad-hero-card__pill { white-space: nowrap; }
+.ad-hero-card__slide .ad-hero-card__title { font-size: 1.5rem; }
+.ad-hero-card__actions { margin-top: 10px; }
+.ad-hero-card > .ad-hero-card__plate { position: absolute; top: 12px; right: 14px; width: 60px; height: 60px; opacity: 0.95; }
+.ad-hero-card:has(.ad-hero-card__plate) .ad-hero-card__top { padding-right: 66px; }
+
+/* Recuadro ilustrado por categoría */
+.ad-tile {
+  display: inline-flex; flex: none; align-items: center; justify-content: center;
+  border-radius: 12px; color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 14px -8px rgba(0, 0, 0, 0.5);
+}
+.ad-tile svg { display: block; stroke-width: 2; }
+.ad-tile--mas { background: var(--green-soft); color: var(--green); font-size: 1.4rem; font-weight: 600; box-shadow: none; }
+.ad-product__row { align-items: flex-start; }
+.ad-product__row > .ad-tile { order: 1; }
+.ad-product__row > .ad-pill { order: 2; margin-left: auto; }
+.ad-product__row > .ad-item__body { order: 3; flex: 0 0 100%; margin-top: 4px; }
+.ad-product__cat {
+  margin-top: 2px; overflow: visible; font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.05em;
+  text-transform: uppercase; color: var(--text2); white-space: normal;
+}
+.ad-product__qty { margin-top: 2px; font-size: 0.875rem; color: var(--text2); }
+
+/* Botón único de compartir */
+.ad-sharebtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border: 1px solid var(--border2); border-radius: 14px;
+  background: var(--green-soft); color: var(--green); cursor: pointer;
+}
+.ad-sharebtn:active { transform: scale(0.94); }
+
+/* Pista de deslizar (una sola vez) */
+.ad-hint {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 10px 12px;
+  border: 1px solid var(--border2); border-radius: 16px; background: var(--green-soft);
+  color: var(--text); font-size: 0.8125rem; line-height: 1.4;
+}
+.ad-hint > span { flex: 1; }
+.ad-hint button {
+  flex: none; padding: 8px 12px; border: 0; border-radius: 12px; background: var(--green); color: #fff;
+  font: inherit; font-size: 0.8125rem; font-weight: 700; cursor: pointer;
+}
+
+/* Agregar: categorías con ícono y fecha sugerida */
+.ad-catgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 8px; }
+.ad-catopt {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; padding: 8px 2px;
+  border: 1.5px solid transparent; border-radius: 16px; background: transparent; color: var(--text);
+  font: inherit; font-size: 0.625rem; font-weight: 600; line-height: 1.15; text-align: center; cursor: pointer;
+}
+.ad-catopt span:last-child { max-width: 100%; overflow-wrap: normal; }
+.ad-catopt.is-on { border-color: var(--green); background: var(--green-soft); }
+.ad-suggest {
+  display: block; width: 100%; margin: 4px 0 8px; padding: 10px 12px; border: 1px dashed var(--green);
+  border-radius: 14px; background: var(--green-soft); color: var(--text); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer;
+}
+.ad-suggest b { color: var(--green); }
