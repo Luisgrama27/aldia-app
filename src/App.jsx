@@ -138,20 +138,20 @@ const Ico = {
 // Ícono de línea por categoría (se usa en las tarjetas de "Para usar primero")
 const CAT_ICO={
   'Lácteos':<><path d="M8 3h8l1 4v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7z"/><path d="M7 7h10M10 12h4"/></>,
-  'Carnes':<><path d="M5 12c0-4 3-7 8-7s6 3 6 6-2 8-8 8-6-3-6-7z"/><circle cx="10" cy="12" r="1.6"/></>,
+  'Carnes':<><ellipse cx="14.5" cy="9.5" rx="7" ry="5.2" transform="rotate(40 14.5 9.5)"/><path d="M9.8 13.8L5.5 18.1"/><circle cx="4.3" cy="17.8" r="1.5"/><circle cx="6.2" cy="19.7" r="1.5"/></>,
   'Pescados y mariscos':<><path d="M3 12c3-4.5 8-5.5 12-3l6-2.5v11L15 15c-4 2.5-9 1.5-12-3z"/><path d="M7.5 11.5h.01"/></>,
   'Frutas y verduras':<><path d="M12 7c-3-2-7 0-7 5 0 4 3 8 5 8 1 0 1-.6 2-.6s1 .6 2 .6c2 0 5-4 5-8 0-5-4-7-7-5z"/><path d="M12 7c0-2 1-3 3-4"/></>,
   'Granos y cereales':<path d="M12 21V9M12 9c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 9c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 14c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 14c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 19c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 19c2 0 3-1.5 3-3-2 0-3 1.2-3 3z"/>,
-  'Panadería y repostería':<><path d="M5 11c-1-3 1-6 4-6h6c3 0 5 3 4 6v8H5z"/><path d="M9 12v3M12 12v3M15 12v3"/></>,
+  'Panadería y repostería':<><path d="M5 10c-1.5-3 1-6 4-6h6c3 0 5.5 3 4 6v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 9l1.5 3M13 9l1.5 3"/></>,
   'Congelados':<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/>,
   'Enlatados':<path d="M6 6c0-1.7 2.7-3 6-3s6 1.3 6 3-2.7 3-6 3-6-1.3-6-3zM6 6v12c0 1.7 2.7 3 6 3s6-1.3 6-3V6M6 12c0 1.7 2.7 3 6 3s6-1.3 6-3"/>,
   'Salsas y condimentos':<path d="M10 3h4v3l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3zM8 13h8"/>,
   'Snacks y dulces':<><rect x="8" y="8" width="8" height="8" rx="2"/><path d="M8 10L4 7v10l4-3M16 10l4-3v10l-4-3"/></>,
-  'Bebidas':<path d="M6 4h12l-1.5 16h-9zM7 9h10"/>,
+  'Bebidas':<path d="M6 8h12l-1.5 12h-9zM12 8l2-5h3M7.2 13h9.6"/>,
   'Medicamentos':<path d="M4.5 13.5l7-7a4 4 0 0 1 6 6l-7 7a4 4 0 0 1-6-6zM8 10l6 6"/>,
   'Cuidado personal':<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>,
-  'Limpieza':<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>,
-  'Bebé':<><path d="M10 3h4v3h-4z"/><path d="M8 8h8l1 3v9a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1v-9z"/><path d="M7 14h10"/></>,
+  'Limpieza':<><path d="M8 21h8v-8l-2-2h-4l-2 2z"/><path d="M10 11V7h4M14 7h3M19 4.5l-2 1M19 8l-2-1"/></>,
+  'Bebé':<><path d="M10.5 3h3l.5 3h-4z"/><path d="M8.5 8.5h7a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1z"/><path d="M7.5 13h3M7.5 17h3"/></>,
   'Mascotas':<><circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="17.5" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3-5 5.5 0 1.7 1.3 2.5 3 2.5 1 0 1.4-.4 2-.4s1 .4 2 .4c1.7 0 3-.8 3-2.5 0-2.5-2-5.5-5-5.5z"/></>,
   'Otro':<><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></>,
 };
@@ -948,7 +948,6 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
         <div className="ad-item__body">
           <div className="ad-item__name">{p.name}</div>
-          <div className="ad-product__cat">{p.cat}</div>
           {(p.qty||p.precio)&&<div className="ad-product__qty">{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
         </div>
       </div>
@@ -1556,7 +1555,7 @@ export default function App(){
           <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Opciones del producto">
             <div className="ad-sheet__handle"/>
             <h2 className="ad-section" style={{margin:'0 0 8px'}}>{accionHist.name}</h2>
-            <button className="ad-sheet__row" onClick={()=>{comprarDeNuevo(accionHist);setAccionHist(null);}}>Comprar de nuevo</button>
+            <button className="ad-sheet__row" onClick={()=>{comprarDeNuevo(accionHist);setAccionHist(null);}}>Agregar de nuevo</button>
             <button className="ad-sheet__row" onClick={()=>{restaurar(accionHist.id);setAccionHist(null);}}>Restaurar a mi lista</button>
             <button className="ad-sheet__row ad-sheet__row--danger" onClick={()=>{eliminarDelHistorial(accionHist.id);setAccionHist(null);}}>Eliminar del historial</button>
             <button className="ad-sheet__row" onClick={()=>setAccionHist(null)}>Cancelar</button>
@@ -1760,19 +1759,20 @@ export default function App(){
                   {semanaSalvado>0&&<div className="ad-sum__r"><span>Salvado</span><b>{dinero(semanaSalvado)}</b></div>}
                 </section>
               )}
-              {historial.length>0&&(
-                <div className="ad-filters" role="group" aria-label="Período">
-                  {[['hoy','Hoy'],['semana','7 días'],['mes','Mes'],['todo','Todo']].map(([k,t])=>(
-                    <button key={k} type="button" className="ad-chip" aria-pressed={periodoHist===k} onClick={()=>{setPeriodoHist(k);setLimiteHist(30);}}>{t}</button>
-                  ))}
-                </div>
-              )}
               <div className="ad-seg" role="tablist" aria-label="Filtrar historial">
                 {[['todos','Todos',historial.length],['consumido','Consumidos',consumidos.length],['descartado','Descartados',descartados.length]].map(([k,t,n])=>(
                   <button key={k} role="tab" aria-selected={filtroHist===k} className={`ad-seg__btn${filtroHist===k?' is-on':''}`} onClick={()=>{setFiltroHist(k);setLimiteHist(30);}}>{t} <span>{n}</span></button>
                 ))}
               </div>
-              <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>{setBusquedaHist(e.target.value);setLimiteHist(30);}} placeholder="Buscar en historial..."/>
+              <div className="ad-toolbar">
+                <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>{setBusquedaHist(e.target.value);setLimiteHist(30);}} placeholder="Buscar en historial..."/>
+                <select className="ad-select-sm" aria-label="Período" value={periodoHist} onChange={e=>{setPeriodoHist(e.target.value);setLimiteHist(30);}}>
+                  <option value="todo">Todo</option>
+                  <option value="hoy">Hoy</option>
+                  <option value="semana">7 días</option>
+                  <option value="mes">30 días</option>
+                </select>
+              </div>
               {historial.length>0&&(
                 <div className="ad-sechead">
                   <p className="ad-eyebrow" style={{margin:0}}>{histFiltrado.length} producto{histFiltrado.length!==1?'s':''}</p>
@@ -1790,10 +1790,6 @@ export default function App(){
                         <div className="ad-item__body">
                           <div className="ad-item__name">{p.name}</div>
                           <div className="ad-muted" style={{fontSize:'.8125rem'}}>{p.cat}{p.precio?` • $${Number(p.precio).toLocaleString('es-CO')}`:''}</div>
-                          <div className="ad-hrow__acts">
-                            <button className="ad-link ad-hrow__restaurar" onClick={()=>restaurar(p.id)}>Restaurar</button>
-                            {p.estado==='consumido'&&<button className="ad-link ad-hrow__restaurar" onClick={()=>comprarDeNuevo(p)}>Agregar de nuevo</button>}
-                          </div>
                         </div>
                         <div style={{textAlign:'right',flex:'none'}}>
                           <span className={`ad-pill ${p.estado==='consumido'?'ad-pill--ok':'ad-pill--danger'}`}>{p.estado==='consumido'?'Consumido':'Descartado'}</span>
