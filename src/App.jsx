@@ -1661,11 +1661,15 @@ export default function App(){
                   <span className="ad-hero-card__eyebrow">Tu impacto</span>
                   {totalHist>0&&<span className="ad-hero-card__pill">{totalHist} producto{totalHist!==1?'s':''}</span>}
                 </div>
-                <h2 className="ad-hero-card__title">{totalHist>0?`${pctAprov}% aprovechado`:'Sin datos aún'}</h2>
-                <p className="ad-hero-card__sub">{totalHist>0?`Consumiste ${consumidos.length} de ${totalHist} productos`:'Cuando uses o botes productos, tu impacto aparece aquí.'}</p>
                 {totalHist>0&&(
-                  <div className="ad-hero-card__bar" role="progressbar" aria-label="Productos aprovechados" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pctAprov}><span style={{width:`${pctAprov}%`}}/></div>
+                  <svg className="ad-hero-card__ring" viewBox="0 0 84 84" role="img" aria-label={`${pctAprov}% aprovechado`}>
+                    <circle cx="42" cy="42" r="34" fill="none" stroke="rgba(255,255,255,.25)" strokeWidth="9"/>
+                    <circle cx="42" cy="42" r="34" fill="none" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeDasharray={`${(213.6*Math.min(100,pctAprov)/100).toFixed(1)} 213.6`} transform="rotate(-90 42 42)"/>
+                    <text x="42" y="48" textAnchor="middle" fill="#fff" fontSize="20" fontWeight="800">{pctAprov}%</text>
+                  </svg>
                 )}
+                <h2 className="ad-hero-card__title">{totalHist>0?'Aprovechado':'Sin datos aún'}</h2>
+                <p className="ad-hero-card__sub">{totalHist>0?`Consumiste ${consumidos.length} de ${totalHist} productos`:'Cuando uses o botes productos, tu impacto aparece aquí.'}</p>
                 <div className="ad-hero-card__metrics">
                   <div><span>Dinero salvado</span><strong>{dinero(ahorro)}</strong></div>
                   <div><span>Dinero perdido</span><strong>{dinero(perdida)}</strong></div>
@@ -1707,6 +1711,7 @@ export default function App(){
                   {catStats.map(c=>(
                     <div key={c.cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
+                        <TileCat cat={c.cat} size={36}/>
                         <div style={{flex:1}}>
                           <div style={{fontWeight:700}}>{c.cat}</div>
                           <div className="ad-muted" style={{fontSize:'.8125rem'}}>{c.descartados} descartados de {c.total} ({c.pctDesperdicio}%)</div>

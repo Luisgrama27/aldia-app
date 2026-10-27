@@ -2286,3 +2286,8 @@ body::before {
   border-radius: 14px; background: var(--green-soft); color: var(--text); font: inherit; font-size: 0.8125rem; text-align: left; cursor: pointer;
 }
 .ad-suggest b { color: var(--green); }
+
+/* Estadísticas: anillo de progreso en la tarjeta verde */
+.ad-hero-card > .ad-hero-card__ring { position: absolute; top: 46px; right: 20px; width: 72px; height: 72px; }
+.ad-hero-card:has(.ad-hero-card__ring) .ad-hero-card__title,
+.ad-hero-card:has(.ad-hero-card__ring) .ad-hero-card__sub { max-width: calc(100% - 92px); }
