@@ -1159,7 +1159,7 @@ export default function App(){
   const todosLosProductos=[...activos,...historial];
   const frecuentesCont={};
   todosLosProductos.forEach(p=>{const key=`${p.name}|||${p.cat}`;frecuentesCont[key]=(frecuentesCont[key]||0)+1;});
-  const productosFrecuentes=Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([key])=>{const[name,cat]=key.split('|||');return{name,cat};});
+  const productosFrecuentes=Object.entries(frecuentesCont).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([key])=>{const[name,cat]=key.split('|||');return{name,cat};});
   const catStats=CATS.map(cat=>{
     const dc=descartados.filter(p=>p.cat===cat);const cc=consumidos.filter(p=>p.cat===cat);
     const totalCat=dc.length+cc.length;const pctDesperdicio=totalCat>0?Math.round((dc.length/totalCat)*100):0;
@@ -1428,9 +1428,9 @@ export default function App(){
         </header>
         <div className="ad-overlap ad-stack">
           {!editId&&productosFrecuentes.length>0&&(
-            <div className="ad-card ad-pad">
-              <p className="ad-muted" style={{fontWeight:700,marginBottom:8}}>Productos frecuentes</p>
-              <div className="ad-chips">
+            <div className="ad-freq">
+              <p className="ad-eyebrow">Productos frecuentes</p>
+              <div className="ad-freq__row">
                 {productosFrecuentes.map((p,i)=>(
                   <button key={i} className="ad-chip" onClick={()=>{setForm(f=>({...f,name:p.name}));cambiarCategoria(p.cat);}}>{p.name}</button>
                 ))}

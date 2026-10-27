@@ -2291,3 +2291,12 @@ body::before {
 .ad-hero-card > .ad-hero-card__ring { position: absolute; top: 46px; right: 20px; width: 72px; height: 72px; }
 .ad-hero-card:has(.ad-hero-card__ring) .ad-hero-card__title,
 .ad-hero-card:has(.ad-hero-card__ring) .ad-hero-card__sub { max-width: calc(100% - 92px); }
+
+/* Productos frecuentes: una sola fila que se desliza, para que la pantalla no crezca */
+.ad-freq .ad-eyebrow { margin: 0 0 8px 4px; }
+.ad-freq__row {
+  display: flex; gap: 8px; margin: 0 -16px; padding: 0 16px 4px; overflow-x: auto;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.ad-freq__row::-webkit-scrollbar { display: none; }
+.ad-freq__row .ad-chip { flex: none; white-space: nowrap; }
