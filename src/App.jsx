@@ -1618,7 +1618,7 @@ export default function App(){
                     <div className="ad-catgrid2">
                       {resumenCats.map(r=>(
                         <button key={r.cat} type="button" className="ad-card ad-catcard" onClick={()=>setFiltro(r.cat)} aria-label={`${r.cat}: ${r.total} producto${r.total!==1?'s':''}`}>
-                          <ArtCat cat={r.cat} size={84} radius={18} className="ad-catcard__art"/>
+                          <ArtCat cat={r.cat} size={56} radius={16} className="ad-catcard__art"/>
                           <span className="ad-catcard__name">{r.cat}</span>
                           <span className="ad-catcard__n">{r.total} producto{r.total!==1?'s':''}</span>
                           <span className={`ad-catcard__st ${r.venc?'is-d':r.pronto?'is-w':'is-o'}`}>

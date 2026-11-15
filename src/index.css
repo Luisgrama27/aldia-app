@@ -2405,7 +2405,7 @@ body::before { display: none; }
   -webkit-tap-highlight-color: transparent;
 }
 .ad-catcard:active { transform: scale(0.98); }
-.ad-catcard__art.ad-art { width: 100% !important; height: 84px !important; margin-bottom: 8px; }
+.ad-catcard__art.ad-art { width: 100% !important; height: 60px !important; margin-bottom: 8px; }
 .ad-catcard__name { padding: 0 4px; font-size: 0.9375rem; font-weight: 800; line-height: 1.2; }
 .ad-catcard__n { padding: 0 4px; font-size: 0.8125rem; color: var(--text2); }
 .ad-catcard__st { padding: 0 4px; font-size: 0.8125rem; font-weight: 800; }
