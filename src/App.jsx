@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { auth, db } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
+import { ArtCat } from "./ilustraciones";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc, Timestamp } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
@@ -135,39 +136,6 @@ const Ico = {
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
 
-// Ícono de línea por categoría (se usa en las tarjetas de "Para usar primero")
-const CAT_ICO={
-  'Lácteos':<><path d="M8 3h8l1 4v13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V7z"/><path d="M7 7h10M10 12h4"/></>,
-  'Carnes':<><ellipse cx="14.5" cy="9.5" rx="7" ry="5.2" transform="rotate(40 14.5 9.5)"/><path d="M9.8 13.8L5.5 18.1"/><circle cx="4.3" cy="17.8" r="1.5"/><circle cx="6.2" cy="19.7" r="1.5"/></>,
-  'Pescados y mariscos':<><path d="M3 12c3-4.5 8-5.5 12-3l6-2.5v11L15 15c-4 2.5-9 1.5-12-3z"/><path d="M7.5 11.5h.01"/></>,
-  'Frutas y verduras':<><path d="M12 7c-3-2-7 0-7 5 0 4 3 8 5 8 1 0 1-.6 2-.6s1 .6 2 .6c2 0 5-4 5-8 0-5-4-7-7-5z"/><path d="M12 7c0-2 1-3 3-4"/></>,
-  'Granos y cereales':<path d="M12 21V9M12 9c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 9c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 14c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 14c2 0 3-1.5 3-3-2 0-3 1.2-3 3zM12 19c-2 0-3-1.5-3-3 2 0 3 1.2 3 3zM12 19c2 0 3-1.5 3-3-2 0-3 1.2-3 3z"/>,
-  'Panadería y repostería':<><path d="M5 10c-1.5-3 1-6 4-6h6c3 0 5.5 3 4 6v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z"/><path d="M9 9l1.5 3M13 9l1.5 3"/></>,
-  'Congelados':<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9"/>,
-  'Enlatados':<path d="M6 6c0-1.7 2.7-3 6-3s6 1.3 6 3-2.7 3-6 3-6-1.3-6-3zM6 6v12c0 1.7 2.7 3 6 3s6-1.3 6-3V6M6 12c0 1.7 2.7 3 6 3s6-1.3 6-3"/>,
-  'Salsas y condimentos':<path d="M10 3h4v3l2 3v11a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3zM8 13h8"/>,
-  'Snacks y dulces':<><rect x="8" y="8" width="8" height="8" rx="2"/><path d="M8 10L4 7v10l4-3M16 10l4-3v10l-4-3"/></>,
-  'Bebidas':<path d="M6 8h12l-1.5 12h-9zM12 8l2-5h3M7.2 13h9.6"/>,
-  'Medicamentos':<path d="M4.5 13.5l7-7a4 4 0 0 1 6 6l-7 7a4 4 0 0 1-6-6zM8 10l6 6"/>,
-  'Cuidado personal':<path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/>,
-  'Limpieza':<><path d="M8 21h8v-8l-2-2h-4l-2 2z"/><path d="M10 11V7h4M14 7h3M19 4.5l-2 1M19 8l-2-1"/></>,
-  'Bebé':<><path d="M10.5 3h3l.5 3h-4z"/><path d="M8.5 8.5h7a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1V9.5a1 1 0 0 1 1-1z"/><path d="M7.5 13h3M7.5 17h3"/></>,
-  'Mascotas':<><circle cx="6.5" cy="10" r="1.8"/><circle cx="10" cy="6" r="1.8"/><circle cx="14" cy="6" r="1.8"/><circle cx="17.5" cy="10" r="1.8"/><path d="M12 11c-3 0-5 3-5 5.5 0 1.7 1.3 2.5 3 2.5 1 0 1.4-.4 2-.4s1 .4 2 .4c1.7 0 3-.8 3-2.5 0-2.5-2-5.5-5-5.5z"/></>,
-  'Otro':<><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></>,
-};
-const IcoCat=({cat,size=22})=>(
-  <svg {...svgProps} width={size} height={size}>{CAT_ICO[cat]||CAT_ICO['Otro']}</svg>
-);
-
-// Color del recuadro ilustrado de cada categoría (mismo verde de la app, con matices cálidos y fríos suaves)
-const CAT_TONO={
-  'Lácteos':['#6fb4d8','#3f86ad'],'Carnes':['#d9786a','#b1473b'],'Pescados y mariscos':['#5bb0c4','#2f86a0'],
-  'Frutas y verduras':['#5fbf84','#2f8f5a'],'Granos y cereales':['#d9b45a','#b08a2c'],'Panadería y repostería':['#d99a5a','#b0702c'],
-  'Congelados':['#7fa8e0','#4e79b8'],'Enlatados':['#9aa3ad','#6b7480'],'Salsas y condimentos':['#d9825a','#b0562c'],
-  'Snacks y dulces':['#c98ad0','#9a58a3'],'Bebidas':['#5fb7a8','#2f8f80'],'Medicamentos':['#7aa5d9','#4a76ad'],
-  'Cuidado personal':['#8fbf7a','#5a9446'],'Limpieza':['#6fc0c9','#3f929b'],'Bebé':['#e0a0b8','#b86a89'],
-  'Mascotas':['#c9a07a','#9a704a'],'Otro':['#8fb5a0','#5f8a74'],
-};
 const CATS_RAPIDAS=['Lácteos','Carnes','Frutas y verduras','Panadería y repostería','Bebidas','Enlatados','Medicamentos'];
 // Vida útil típica (en días) para sugerir la fecha según la categoría
 const VIDA_UTIL={
@@ -176,10 +144,7 @@ const VIDA_UTIL={
   'Cuidado personal':365,'Limpieza':365,'Bebé':180,'Mascotas':180,'Otro':30,
 };
 const textoVida=d=>d<14?`${d} días`:d<60?`${Math.round(d/7)} semanas`:d<700?`${Math.round(d/30)} meses`:'2 años';
-const TileCat=({cat,size=36})=>{
-  const [a,b]=CAT_TONO[cat]||CAT_TONO['Otro'];
-  return <span className="ad-tile" style={{width:size,height:size,background:`linear-gradient(145deg,${a},${b})`}}><IcoCat cat={cat} size={Math.round(size*0.56)}/></span>;
-};
+const TileCat=({cat,size=36})=><ArtCat cat={cat} size={size}/>;
 const IcoCompartir=()=>(
   <svg {...svgProps} width="20" height="20"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
 );
@@ -984,6 +949,7 @@ export default function App(){
   const [compartir,setCompartir]=useState(false);
   const [pista,setPista]=useState(()=>{try{return localStorage.getItem('aldia_pista')!=='1';}catch{return true;}});
   const [masCats,setMasCats]=useState(false);
+  const [verTodos,setVerTodos]=useState(false);
   const cerrarPista=()=>{setPista(false);try{localStorage.setItem('aldia_pista','1');}catch{ /* sin almacenamiento */ }};
   const [errorMsg,setErrorMsg]=useState('');
   const [nombreExtra,setNombreExtra]=useState('');
@@ -1194,7 +1160,17 @@ export default function App(){
   const danger=activos.filter(p=>status(p)==='danger').length;
   const warn=activos.filter(p=>status(p)==='warn').length;
   const ok=activos.filter(p=>status(p)==='ok').length;
-  const cats=['Todos',...new Set(activos.map(p=>p.cat))];
+  const resumenCats=[...new Set(activos.map(p=>p.cat))].map(c=>{
+    const l=activos.filter(p=>p.cat===c);
+    return {
+      cat:c,total:l.length,
+      venc:l.filter(p=>status(p)==='expired').length,
+      pronto:l.filter(p=>status(p)==='danger'||status(p)==='warn').length,
+      min:Math.min(...l.map(p=>daysUntil(p.exp))),
+    };
+  }).sort((a,b)=>a.min-b.min||a.cat.localeCompare(b.cat,'es'));
+  const modoCategorias=filtro==='Todos'&&!filtroEstado&&!busqueda&&!verTodos;
+  const volverCategorias=()=>{setFiltro('Todos');setFiltroEstado(null);setBusqueda('');setVerTodos(false);};
   const cumpleEstado=(p)=>{
     if(!filtroEstado)return true;
     const st=status(p);
@@ -1341,7 +1317,7 @@ export default function App(){
       ?updateDoc(doc(db,"productos",editId),datos)
       :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
     op.catch(e=>falla(e,'guardar el producto'));
-    setFiltro('Todos');setBusqueda('');
+    setFiltro('Todos');setBusqueda('');setVerTodos(false);
     setTab('home');setPantalla('');
   };
 
@@ -1622,37 +1598,57 @@ export default function App(){
                     </div>
                   </section>
                   <div className="ad-sechead">
-                    <h2 className="ad-section">Mis productos</h2>
-                    <button className="ad-sharebtn" aria-label="Compartir lista" onClick={()=>setCompartir(true)}><IcoCompartir/></button>
-                  </div>
-                  {filtroEstado&&(
-                    <div className="ad-sechead" style={{marginBottom:8}}>
-                      <p className="ad-eyebrow" style={{margin:0}}>Mostrando: {nombreFiltroEstado}</p>
-                      <button className="ad-link" onClick={()=>setFiltroEstado(null)}>Quitar filtro</button>
+                    <h2 className="ad-section">{modoCategorias?'Categorías':'Mis productos'}</h2>
+                    <div className="ad-sechead__r">
+                      {modoCategorias&&<button className="ad-link" onClick={()=>setVerTodos(true)}>Ver todos</button>}
+                      <button className="ad-sharebtn" aria-label="Compartir lista" onClick={()=>setCompartir(true)}><IcoCompartir/></button>
                     </div>
-                  )}
-                  <div className="ad-filters">
-                    {cats.map(c=><button key={c} className="ad-chip" aria-pressed={filtro===c} onClick={()=>setFiltro(c)}>{c}</button>)}
                   </div>
                   <div className="ad-toolbar">
                     <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
-                    <select className="ad-select-sm" aria-label="Ordenar productos" value={orden} onChange={e=>setOrden(e.target.value)}>
-                      <option value="fecha">Vence primero</option>
-                      <option value="nombre">Nombre</option>
-                      <option value="categoria">Categoría</option>
-                      <option value="reciente">Más recientes</option>
-                    </select>
+                    {!modoCategorias&&(
+                      <select className="ad-select-sm" aria-label="Ordenar productos" value={orden} onChange={e=>setOrden(e.target.value)}>
+                        <option value="fecha">Vence primero</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="reciente">Más recientes</option>
+                      </select>
+                    )}
                   </div>
-                  {pista&&filtered.length>0&&(
-                    <div className="ad-hint" role="note">
-                      <span>Desliza una tarjeta: a la derecha para <b>Consumido</b>, a la izquierda para <b>Eliminar</b>.</span>
-                      <button type="button" onClick={cerrarPista}>Entendido</button>
+                  {modoCategorias?(
+                    <div className="ad-catgrid2">
+                      {resumenCats.map(r=>(
+                        <button key={r.cat} type="button" className="ad-card ad-catcard" onClick={()=>setFiltro(r.cat)} aria-label={`${r.cat}: ${r.total} producto${r.total!==1?'s':''}`}>
+                          <ArtCat cat={r.cat} size={84} radius={18} className="ad-catcard__art"/>
+                          <span className="ad-catcard__name">{r.cat}</span>
+                          <span className="ad-catcard__n">{r.total} producto{r.total!==1?'s':''}</span>
+                          <span className={`ad-catcard__st ${r.venc?'is-d':r.pronto?'is-w':'is-o'}`}>
+                            {r.venc?`${r.venc} vencido${r.venc!==1?'s':''}`:r.pronto?`${r.pronto} por vencer`:'Todo al día'}
+                          </span>
+                        </button>
+                      ))}
                     </div>
+                  ):(
+                    <>
+                      <div className="ad-listhead">
+                        <button type="button" className="ad-hero-btn ad-listhead__back" aria-label="Volver a categorías" onClick={volverCategorias}>←</button>
+                        {filtro!=='Todos'&&<ArtCat cat={filtro} size={48} radius={15}/>}
+                        <div>
+                          <h3>{filtro!=='Todos'?filtro:filtroEstado?nombreFiltroEstado:busqueda?'Resultados':'Todos los productos'}</h3>
+                          <span>{filtered.length} producto{filtered.length!==1?'s':''}</span>
+                        </div>
+                      </div>
+                      {pista&&filtered.length>0&&(
+                        <div className="ad-hint" role="note">
+                          <span>Desliza una tarjeta: a la derecha para <b>Consumido</b>, a la izquierda para <b>Eliminar</b>.</span>
+                          <button type="button" onClick={cerrarPista}>Entendido</button>
+                        </div>
+                      )}
+                      <div key={listKey} className="ad-grid">
+                        {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
+                        {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
+                      </div>
+                    </>
                   )}
-                  <div key={listKey} className="ad-grid">
-                    {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
-                    {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
-                  </div>
                 </>
               )}
             </div>
