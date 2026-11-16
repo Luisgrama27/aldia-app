@@ -2417,3 +2417,14 @@ body::before { display: none; }
 .ad-listhead h3 { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
 .ad-listhead span { font-size: 0.8125rem; color: var(--text2); font-weight: 600; }
 .ad-listhead__back { flex: none; }
+
+
+/* Instalar app + barra de categoría del historial */
+.ad-install { display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; margin-bottom: 10px; }
+.ad-install__ico { border-radius: 10px; flex: none; }
+.ad-install__t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ad-install__t b { font-size: .9375rem; }
+.ad-install__t span { font-size: .8125rem; color: var(--text2); line-height: 1.3; }
+.ad-install__x { flex: none; width: 28px; height: 28px; border: 0; background: transparent; color: var(--text2); font-size: 1.25rem; line-height: 1; cursor: pointer; border-radius: 50%; }
+.ad-histbar { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; }
+.ad-histbar .ad-select-sm { flex: 1; min-width: 0; }

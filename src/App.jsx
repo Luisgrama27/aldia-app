@@ -950,6 +950,25 @@ export default function App(){
   const [pista,setPista]=useState(()=>{try{return localStorage.getItem('aldia_pista')!=='1';}catch{return true;}});
   const [masCats,setMasCats]=useState(false);
   const [verTodos,setVerTodos]=useState(false);
+  const [instalarEv,setInstalarEv]=useState(null);
+  const [instalarOculto,setInstalarOculto]=useState(()=>{try{return localStorage.getItem('aldia_instalar')==='1';}catch{return false;}});
+  const yaInstalada=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+  const esIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  useEffect(()=>{
+    const alPreparar=e=>{e.preventDefault();setInstalarEv(e);};
+    const alInstalar=()=>setInstalarEv(null);
+    window.addEventListener('beforeinstallprompt',alPreparar);
+    window.addEventListener('appinstalled',alInstalar);
+    return()=>{window.removeEventListener('beforeinstallprompt',alPreparar);window.removeEventListener('appinstalled',alInstalar);};
+  },[]);
+  const mostrarInstalar=!yaInstalada&&!instalarOculto&&(!!instalarEv||esIOS);
+  const instalarApp=async()=>{
+    if(!instalarEv)return;
+    instalarEv.prompt();
+    try{await instalarEv.userChoice;}catch{ /* el usuario cerró el aviso */ }
+    setInstalarEv(null);
+  };
+  const ocultarInstalar=()=>{setInstalarOculto(true);try{localStorage.setItem('aldia_instalar','1');}catch{ /* sin almacenamiento */ }};
   const cerrarPista=()=>{setPista(false);try{localStorage.setItem('aldia_pista','1');}catch{ /* sin almacenamiento */ }};
   const [errorMsg,setErrorMsg]=useState('');
   const [nombreExtra,setNombreExtra]=useState('');
@@ -958,6 +977,7 @@ export default function App(){
   const [filtroHist,setFiltroHist]=useState('todos');
   const [menuHist,setMenuHist]=useState(false);
   const [periodoHist,setPeriodoHist]=useState('todo'); // hoy | semana | mes | todo
+  const [catHist,setCatHist]=useState('todas');
   const [limiteHist,setLimiteHist]=useState(30);
   const [accionHist,setAccionHist]=useState(null);
   const [accionProd,setAccionProd]=useState(null);
@@ -1261,9 +1281,20 @@ export default function App(){
   const histFiltrado=[...historial]
     .filter(enPeriodo)
     .filter(p=>filtroHist==='todos'||p.estado===filtroHist)
+    .filter(p=>catHist==='todas'||p.cat===catHist)
     .filter(p=>!busquedaHist||p.name.toLowerCase().includes(busquedaHist.toLowerCase()))
     .sort((a,b)=>new Date(b.fechaEstado)-new Date(a.fechaEstado));
   const histVisible=histFiltrado.slice(0,limiteHist);
+  const catsHist=[...new Set(historial.map(p=>p.cat))].sort((a,b)=>a.localeCompare(b,'es'));
+  const exportarHistorial=()=>{
+    // CSV que abre Excel y Hojas de cálculo; se neutralizan celdas que empiezan con = + - @
+    const celda=v=>{let t=String(v??'');if(/^[=+\-@]/.test(t))t="'"+t;return `"${t.replace(/"/g,'""')}"`;};
+    const filas=[['Producto','Categoría','Cantidad','Precio','Estado','Vencía','Fecha']].concat(histFiltrado.map(p=>[p.name,p.cat,p.qty||'',p.precio||'',p.estado==='consumido'?'Consumido':'Descartado',p.exp||'',p.fechaEstado?p.fechaEstado.slice(0,10):'']));
+    const csv='\ufeff'+filas.map(f=>f.map(celda).join(',')).join('\r\n');
+    const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+    const a=document.createElement('a');a.href=url;a.download=`historial-al-dia-${fechaEn(0)}.csv`;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  };
   const gruposHist=histVisible.reduce((acc,p)=>{
     const d=p.fechaEstado?new Date(p.fechaEstado):null;
     const dd=diasAtras(p);
@@ -1307,7 +1338,7 @@ export default function App(){
 
   // Las escrituras no esperan la respuesta del servidor: la pantalla vuelve al inicio
   // enseguida y Firestore sincroniza en segundo plano (también sin conexión).
-  const guardar=()=>{
+  const guardar=(otro=false)=>{
     if(!form.name.trim()){setErrorMsg('Escribe el nombre del producto.');return;}
     if(!form.exp){setErrorMsg('Elige la fecha de vencimiento.');return;}
     setErrorMsg('');
@@ -1317,6 +1348,14 @@ export default function App(){
       ?updateDoc(doc(db,"productos",editId),datos)
       :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
     op.catch(e=>falla(e,'guardar el producto'));
+    if(otro&&!editId){
+      // Se queda en el formulario con la misma categoría para registrar el siguiente
+      setForm({name:'',cat:datos.cat,exp:'',qty:'',alert:alertaDe(datos.cat,prefs),precio:''});
+      setAlertaManual(false);setScanMsg('');
+      avisar(`Guardado: ${datos.name}`);
+      try{window.scrollTo({top:0});document.querySelector('.ad-screen')?.scrollTo?.({top:0});}catch{ /* sin desplazamiento */ }
+      return;
+    }
     setFiltro('Todos');setBusqueda('');setVerTodos(false);
     setTab('home');setPantalla('');
   };
@@ -1404,6 +1443,11 @@ export default function App(){
     <>
       {scanner&&<Suspense fallback={null}><Scanner onResult={onScanResult} onClose={()=>setScanner(false)}/></Suspense>}
       {cuentaSheet}
+      {toast&&(
+        <div className="ad-toast" role="status">
+          <span>{toast.texto}</span>
+        </div>
+      )}
       <div className="ad-screen">
         <header className="ad-hero ad-hero--sm">
           <div className="ad-hero-row">
@@ -1470,7 +1514,8 @@ export default function App(){
               {!editId&&!alertaManual&&<span className="ad-muted" style={{fontSize:'.75rem'}}>Sugerido para {form.cat}. Puedes cambiarlo.</span>}
             </label>
           </div>
-          <button className="ad-btn" style={{opacity:guardando?0.6:1}} onClick={guardar} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
+          <button className="ad-btn" style={{opacity:guardando?0.6:1}} onClick={()=>guardar()} disabled={guardando}>{guardando?'Guardando...':'Guardar'}</button>
+          {!editId&&<button className="ad-btn ad-btn--ghost" onClick={()=>guardar(true)} disabled={guardando}>Guardar y agregar otro</button>}
           {editId&&(
             <div>
               <button className="ad-btn ad-btn--ghost" style={{opacity:guardando?0.6:1}} onClick={()=>marcarEstado('consumido')} disabled={guardando}>✓ Marcar como consumido</button>
@@ -1566,6 +1611,14 @@ export default function App(){
               </div>
             </header>
             <div className="ad-overlap">
+              {mostrarInstalar&&(
+                <div className="ad-card ad-install" role="region" aria-label="Instalar la app">
+                  <img src="/icon-192.png" width="40" height="40" alt="" className="ad-install__ico"/>
+                  <div className="ad-install__t"><b>Instala Al Día</b><span>{instalarEv?'Ábrela como una app, sin abrir el navegador':'Toca Compartir y luego "Agregar a pantalla de inicio"'}</span></div>
+                  {instalarEv&&<button className="ad-btn ad-btn--sm" style={{width:'auto'}} onClick={instalarApp}>Instalar</button>}
+                  <button className="ad-install__x" aria-label="Ocultar este aviso" onClick={ocultarInstalar}>×</button>
+                </div>
+              )}
               {tarjetaVerde}
               {errorMsg&&<div className="ad-note ad-note--danger" role="alert" style={{marginBottom:10}}>{errorMsg}</div>}
               {sinConexion&&<div className="ad-note ad-note--warn" role="status" style={{marginBottom:10}}>Sin conexión. Ves tus datos guardados y los cambios se sincronizarán cuando vuelvas a tener internet.</div>}
@@ -1769,6 +1822,15 @@ export default function App(){
                   <option value="mes">30 días</option>
                 </select>
               </div>
+              {historial.length>0&&(
+                <div className="ad-histbar">
+                  <select className="ad-select-sm" aria-label="Categoría" value={catHist} onChange={e=>{setCatHist(e.target.value);setLimiteHist(30);}}>
+                    <option value="todas">Todas las categorías</option>
+                    {catsHist.map(c=><option key={c} value={c}>{c}</option>)}
+                  </select>
+                  <button className="ad-btn ad-btn--ghost ad-btn--sm" style={{width:'auto'}} onClick={exportarHistorial} disabled={histFiltrado.length===0}>Exportar</button>
+                </div>
+              )}
               {historial.length>0&&(
                 <div className="ad-sechead">
                   <p className="ad-eyebrow" style={{margin:0}}>{histFiltrado.length} producto{histFiltrado.length!==1?'s':''}</p>
