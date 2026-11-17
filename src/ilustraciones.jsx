@@ -70,11 +70,11 @@ const ART={
     <path d="M32 32v26" stroke="#a37d48" strokeWidth="2.5"/><path d="M24 17l24 10v8l-6-2.500v-6.500L18 19.500z" fill="#fff" fillOpacity=".55"/></>],
 };
 
-export const ArtCat=({cat,size=40,radius,className=''})=>{
+export const ArtCat=({cat,size=40,radius,className='',libre=false})=>{
   const [bg,svg]=ART[cat]||ART['Otro'];
   const s=Math.round(size*0.9);
   return (
-    <span className={`ad-art ${className}`} style={{'--artbg':bg,width:size,height:size,borderRadius:radius??Math.round(size*0.3)}} aria-hidden="true">
+    <span className={`ad-art${libre?' ad-art--libre':''} ${className}`} style={{'--artbg':bg,width:size,height:size,borderRadius:radius??Math.round(size*0.3)}} aria-hidden="true">
       <svg viewBox="0 0 64 64" width={s} height={s}>{svg}</svg>
     </span>
   );

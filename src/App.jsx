@@ -144,7 +144,7 @@ const VIDA_UTIL={
   'Cuidado personal':365,'Limpieza':365,'Bebé':180,'Mascotas':180,'Otro':30,
 };
 const textoVida=d=>d<14?`${d} días`:d<60?`${Math.round(d/7)} semanas`:d<700?`${Math.round(d/30)} meses`:'2 años';
-const TileCat=({cat,size=36})=><ArtCat cat={cat} size={size}/>;
+const TileCat=({cat,size=36,libre=false})=><ArtCat cat={cat} size={size} libre={libre}/>;
 const IcoCompartir=()=>(
   <svg {...svgProps} width="20" height="20"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>
 );
@@ -925,7 +925,7 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
       onPointerDown={alBajar} onPointerMove={alMover} onPointerUp={alSoltar} onPointerCancel={alCancelar}
       style={{transform:`translateX(${dx}px)`,transition:arrastrando?'none':'transform 0.2s ease'}}>
       <div className="ad-product__row">
-        <TileCat cat={p.cat} size={36}/>
+        <TileCat cat={p.cat} size={40} libre/>
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
         <div className="ad-item__body">
           <div className="ad-item__name">{p.name}</div>
@@ -1728,7 +1728,7 @@ export default function App(){
                     <div className="ad-catgrid2">
                       {resumenCats.map(r=>(
                         <button key={r.cat} type="button" className="ad-card ad-catcard" onClick={()=>setFiltro(r.cat)} aria-label={`${r.cat}: ${r.total} producto${r.total!==1?'s':''}`}>
-                          <ArtCat cat={r.cat} size={56} radius={16} className="ad-catcard__art"/>
+                          <ArtCat cat={r.cat} size={68} libre className="ad-catcard__art"/>
                           <span className="ad-catcard__name">{r.cat}</span>
                           <span className="ad-catcard__n">{r.total} producto{r.total!==1?'s':''}</span>
                           <span className={`ad-catcard__st ${r.venc?'is-d':r.pronto?'is-w':'is-o'}`}>
@@ -1741,7 +1741,7 @@ export default function App(){
                     <>
                       <div className="ad-listhead">
                         <button type="button" className="ad-hero-btn ad-listhead__back" aria-label="Volver a categorías" onClick={volverCategorias}>←</button>
-                        {filtro!=='Todos'&&<ArtCat cat={filtro} size={48} radius={15}/>}
+                        {filtro!=='Todos'&&<ArtCat cat={filtro} size={52} libre/>}
                         <div>
                           <h3>{filtro!=='Todos'?filtro:filtroEstado?nombreFiltroEstado:busqueda?'Resultados':'Todos los productos'}</h3>
                           <span>{filtered.length} producto{filtered.length!==1?'s':''}</span>
