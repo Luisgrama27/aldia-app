@@ -1127,6 +1127,46 @@ export default function App(){
     setTimeout(()=>setScanMsg(''),7000);
   };
 
+  // Botón y gesto "atrás" del teléfono: cada pantalla u hoja abierta ocupa una entrada del historial,
+  // así "atrás" cierra la capa de arriba y solo sale de la app cuando no queda nada abierto.
+  const pilaRef=useRef(0);
+  const ignorarPop=useRef(0);
+  const cerrarCapaRef=useRef(()=>{});
+  const vistaCategoria=tab==='home'&&(filtro!=='Todos'||!!filtroEstado||!!busqueda||verTodos);
+  const nivelAtras=[scanner,compartir,!!recetaAbierta,!!accionHist,!!accionProd,menuHist,avisos,menuAbierto,pantalla==='form',vistaCategoria,tab!=='home'].filter(Boolean).length;
+  cerrarCapaRef.current=()=>{
+    if(scanner)setScanner(false);
+    else if(compartir)setCompartir(false);
+    else if(recetaAbierta)setRecetaAbierta(null);
+    else if(accionHist)setAccionHist(null);
+    else if(accionProd)setAccionProd(null);
+    else if(menuHist)setMenuHist(false);
+    else if(avisos)setAvisos(false);
+    else if(menuAbierto)setMenuAbierto(false);
+    else if(pantalla==='form')setPantalla('');
+    else if(vistaCategoria){setFiltro('Todos');setFiltroEstado(null);setBusqueda('');setVerTodos(false);}
+    else if(tab!=='home')setTab('home');
+  };
+  useEffect(()=>{
+    const dif=nivelAtras-pilaRef.current;
+    if(dif>0){
+      for(let i=1;i<=dif;i++)window.history.pushState({al:pilaRef.current+i},'');
+      pilaRef.current=nivelAtras;
+    }else if(dif<0){
+      ignorarPop.current+=1; // history.go(-n) dispara un solo popstate
+      pilaRef.current=nivelAtras;
+      window.history.go(dif);
+    }
+  },[nivelAtras]);
+  useEffect(()=>{
+    const alVolver=()=>{
+      if(ignorarPop.current>0){ignorarPop.current-=1;return;}
+      if(pilaRef.current>0){pilaRef.current-=1;cerrarCapaRef.current();}
+    };
+    window.addEventListener('popstate',alVolver);
+    return()=>window.removeEventListener('popstate',alVolver);
+  },[]);
+
   if(cargando||checkingNuevo) return <div style={{width:'100%',height:'100%',background:'var(--bg)'}}/>;
   if(!usuario) return <Login/>;
 
@@ -1346,7 +1386,7 @@ export default function App(){
     if(datos.barcode)recordarProducto(datos.barcode,{nombre:datos.name,categoria:datos.cat,cantidad:datos.qty});
     const op=editId
       ?updateDoc(doc(db,"productos",editId),datos)
-      :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
+      :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,hogarId:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
     op.catch(e=>falla(e,'guardar el producto'));
     if(otro&&!editId){
       // Se queda en el formulario con la misma categoría para registrar el siguiente
@@ -1373,7 +1413,7 @@ export default function App(){
   };
 
   const agregarEjemplo=(ej)=>{
-    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:alertaDe(ej.cat,prefs),precio:'',uid:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
+    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:alertaDe(ej.cat,prefs),precio:'',uid:usuario.uid,hogarId:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
   };
 
   const eliminar=()=>{
