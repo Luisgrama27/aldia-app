@@ -2428,3 +2428,13 @@ body::before { display: none; }
 .ad-install__x { flex: none; width: 28px; height: 28px; border: 0; background: transparent; color: var(--text2); font-size: 1.25rem; line-height: 1; cursor: pointer; border-radius: 50%; }
 .ad-histbar { display: flex; gap: 8px; align-items: center; margin: 0 0 10px; }
 .ad-histbar .ad-select-sm { flex: 1; min-width: 0; }
+
+/* Avisos: filas con acciones directas */
+.ad-avrow { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid var(--border2); }
+.ad-avrow__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; text-align: left; background: none; border: 0; padding: 0; color: inherit; font: inherit; cursor: pointer; }
+.ad-avrow__name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-avrow__sub { font-size: .8125rem; font-weight: 700; }
+.ad-avrow__sub--danger { color: var(--danger-ink); }
+.ad-avrow__sub--warn { color: var(--warn-ink); }
+.ad-avrow__sub--ok { color: var(--text2); }
+.ad-avrow .ad-btn { width: auto; margin: 0; padding: 0 13px; flex: none; }

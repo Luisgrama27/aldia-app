@@ -1586,13 +1586,14 @@ export default function App(){
             <h2 className="ad-section" style={{margin:'0 0 4px'}}>Avisos</h2>
             <p className="ad-muted" style={{marginBottom:12}}>{destacados.length===0?'Todo está al día. No tienes avisos.':`${destacados.length} producto${destacados.length!==1?'s':''} necesita${destacados.length!==1?'n':''} tu atención`}</p>
             {destacados.map(p=>{const st=status(p);const d=daysUntil(p.exp);return(
-              <button key={p.id} className="ad-sheet__row" onClick={()=>{setAvisos(false);setAccionProd(p);}}>
-                <span style={{minWidth:0}}>
-                  <span style={{display:'block',fontWeight:700}}>{p.name}</span>
-                  <span className="ad-muted" style={{display:'block',fontSize:'.8125rem'}}>{d<0?`Venció hace ${Math.abs(d)} día${Math.abs(d)>1?'s':''}`:d===0?'Vence hoy':`Vence en ${d} día${d>1?'s':''}`} · {p.cat}</span>
-                </span>
-                <span className={`ad-pill ${pillClass(st)}`} style={{marginLeft:'auto'}}>{pillIcon(st)} {daysLabel(d)}</span>
-              </button>
+              <div key={p.id} className="ad-avrow">
+                <button className="ad-avrow__main" onClick={()=>{setAvisos(false);setAccionProd(p);}} aria-label={`Opciones de ${p.name}`}>
+                  <span className="ad-avrow__name">{p.name}</span>
+                  <span className={`ad-avrow__sub ad-avrow__sub--${st==='ok'?'ok':st==='warn'?'warn':'danger'}`}>{d<0?`Venció hace ${Math.abs(d)} día${Math.abs(d)>1?'s':''}`:d===0?'Vence hoy':d===1?'Vence mañana':`Vence en ${d} días`}</span>
+                </button>
+                <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(p.id,'consumido')}>Usé</button>
+                <button className="ad-btn ad-btn--ghost ad-btn--sm" onClick={()=>marcarProducto(p.id,'descartado')}>Botar</button>
+              </div>
             );})}
             <button className="ad-btn ad-btn--ghost" style={{marginTop:12}} onClick={()=>setAvisos(false)}>Cerrar</button>
           </div>
