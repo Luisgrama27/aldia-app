@@ -166,9 +166,25 @@ function Navbar({tab,cuenta,foto,onTab,onAdd,onCuenta}){
   const item=(id,lbl,ico,active,onClick)=>(
     <button key={id} className={`ad-nav__item${active?' is-active':''}`} onClick={onClick} aria-current={active?'page':undefined}>
       <span style={{display:'flex'}}>{ico}</span>
-      <span>{lbl}</span>
+      <span className="ad-nav__lbl">{lbl}</span>
     </button>
   );
+  // Al bajar la pantalla la barra se compacta (solo íconos) y al subir vuelve a su tamaño, como en Instagram
+  const [compacta,setCompacta]=useState(false);
+  useEffect(()=>{
+    const previo=new WeakMap();
+    const alDesplazar=(e)=>{
+      const el=e.target===document?document.scrollingElement:e.target;
+      if(!el||typeof el.scrollTop!=='number'||(el.closest&&el.closest('.ad-overlay')))return;
+      const y=el.scrollTop;
+      const antes=previo.has(el)?previo.get(el):0;
+      if(y<=24){setCompacta(false);previo.set(el,y);return;}
+      if(y-antes>8){setCompacta(true);previo.set(el,y);}
+      else if(antes-y>8){setCompacta(false);previo.set(el,y);}
+    };
+    document.addEventListener('scroll',alDesplazar,true);
+    return()=>document.removeEventListener('scroll',alDesplazar,true);
+  },[]);
   // Con el teclado abierto (escribiendo en un campo) la barra se oculta, como en Instagram
   const [tecladoAbierto,setTecladoAbierto]=useState(false);
   useEffect(()=>{
@@ -180,11 +196,11 @@ function Navbar({tab,cuenta,foto,onTab,onAdd,onCuenta}){
     return()=>{document.removeEventListener('focusin',alEnfocar);document.removeEventListener('focusout',alSalir);};
   },[]);
   return (
-    <nav className="ad-card ad-nav" aria-label="Navegación principal" hidden={tecladoAbierto}>
+    <nav className={`ad-card ad-nav${compacta?' is-compact':''}`} aria-label="Navegación principal" hidden={tecladoAbierto}>
       {item('home','Inicio',Ico.home,tab==='home'&&!cuenta,()=>onTab('home'))}
       {item('estadisticas','Estadísticas',Ico.stats,tab==='estadisticas'&&!cuenta,()=>onTab('estadisticas'))}
       <button className="ad-nav__fab" onClick={onAdd} aria-label="Agregar producto">
-        <span className="ad-nav__fab-btn">{Ico.plus}</span>Agregar
+        <span className="ad-nav__fab-btn">{Ico.plus}</span><span className="ad-nav__lbl">Agregar</span>
       </button>
       {item('historial','Historial',Ico.history,tab==='historial'&&!cuenta,()=>onTab('historial'))}
       {item('cuenta','Cuenta',foto?<img className="ad-nav__foto" src={foto} alt=""/>:Ico.user,cuenta,onCuenta)}

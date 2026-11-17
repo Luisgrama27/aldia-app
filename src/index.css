@@ -2438,3 +2438,19 @@ body::before { display: none; }
 .ad-avrow__sub--warn { color: var(--warn-ink); }
 .ad-avrow__sub--ok { color: var(--text2); }
 .ad-avrow .ad-btn { width: auto; margin: 0; padding: 0 13px; flex: none; }
+
+/* Barra inferior: un poco más pequeña y compacta al desplazarse hacia abajo */
+.ad-nav { padding: 6px 6px; transition: left .22s ease, right .22s ease, padding .22s ease, border-radius .22s ease; }
+.ad-nav__item { min-height: 42px; padding: 4px 0; transition: min-height .22s ease, padding .22s ease, gap .22s ease; }
+.ad-nav__item svg, .ad-nav__icon { width: 22px; height: 22px; }
+.ad-nav__fab { margin-top: -24px; transition: margin-top .22s ease, gap .22s ease; }
+.ad-nav__fab-btn { width: 50px; height: 50px; border-width: 3px; transition: width .22s ease, height .22s ease; }
+.ad-nav__item, .ad-nav__fab { font-size: 0.5625rem; }
+.ad-nav__lbl { display: block; max-height: 14px; opacity: 1; transition: max-height .2s ease, opacity .15s ease; }
+.ad-nav.is-compact { left: 56px; right: 56px; padding: 5px 8px; border-radius: 28px; }
+.ad-nav.is-compact .ad-nav__item { min-height: 38px; padding: 3px 0; gap: 0; }
+.ad-nav.is-compact .ad-nav__lbl { max-height: 0; opacity: 0; }
+.ad-nav.is-compact .ad-nav__fab { margin-top: -18px; gap: 0; }
+.ad-nav.is-compact .ad-nav__fab-btn { width: 44px; height: 44px; }
+html.vp-gap .ad-nav.is-compact { left: 0; right: 0; border-radius: 0; padding: 6px 6px; }
+@media (prefers-reduced-motion: reduce) { .ad-nav, .ad-nav * { transition: none !important; } }
