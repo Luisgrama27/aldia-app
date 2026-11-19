@@ -2466,3 +2466,33 @@ html.vp-gap .ad-nav.is-compact { left: 0; right: 0; border-radius: 0; padding: 6
 }
 :root[data-tema="oscuro"] .ad-art--libre { background: transparent !important; --art-blanco: #fff; }
 :root[data-tema="oscuro"] .ad-art--libre svg { filter: none; }
+
+/* ---------- Barra inferior con glassmorfismo ---------- */
+.ad-nav {
+  background: rgba(255, 255, 255, 0.58);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8);
+  backdrop-filter: blur(22px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 10px 32px -8px rgba(20, 50, 36, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.85), inset 0 -1px 0 rgba(255, 255, 255, 0.25);
+}
+.ad-nav::after { background: transparent; }
+.ad-nav__fab-btn { border-color: rgba(255, 255, 255, 0.7); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .ad-nav {
+    background: rgba(38, 40, 43, 0.5);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 34px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+  :root:not([data-tema="claro"]) .ad-nav__fab-btn { border-color: rgba(255, 255, 255, 0.16); }
+}
+:root[data-tema="oscuro"] .ad-nav {
+  background: rgba(38, 40, 43, 0.5);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 34px -8px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.16);
+}
+:root[data-tema="oscuro"] .ad-nav__fab-btn { border-color: rgba(255, 255, 255, 0.16); }
+html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .ad-nav { background: rgba(255, 255, 255, 0.95); }
+  :root[data-tema="oscuro"] .ad-nav { background: rgba(38, 40, 43, 0.95); }
+}
