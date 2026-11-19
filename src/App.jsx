@@ -1534,7 +1534,7 @@ export default function App(){
               <div className="ad-catgrid" role="radiogroup" aria-label="Categoría">
                 {(masCats||!CATS_RAPIDAS.includes(form.cat)?CATS:CATS_RAPIDAS).map(c=>(
                   <button type="button" key={c} role="radio" aria-checked={form.cat===c} className={`ad-catopt${form.cat===c?' is-on':''}`} onClick={()=>cambiarCategoria(c)}>
-                    <TileCat cat={c} size={40}/><span>{c}</span>
+                    <TileCat cat={c} size={40} libre/><span>{c}</span>
                   </button>
                 ))}
                 {!masCats&&CATS_RAPIDAS.includes(form.cat)&&(
@@ -1827,7 +1827,7 @@ export default function App(){
                   {catStats.map(c=>(
                     <div key={c.cat} style={{marginBottom:14}}>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
-                        <TileCat cat={c.cat} size={36}/>
+                        <TileCat cat={c.cat} size={36} libre/>
                         <div style={{flex:1}}>
                           <div style={{fontWeight:700}}>{c.cat}</div>
                           <div className="ad-muted" style={{fontSize:'.8125rem'}}>{c.descartados} descartados de {c.total} ({c.pctDesperdicio}%)</div>
