@@ -79,3 +79,26 @@ export const ArtCat=({cat,size=40,radius,className='',libre=false})=>{
     </span>
   );
 };
+
+// Filtro SVG compartido: relieve y brillo de vidrio para los iconos "libres" (se monta una sola vez en main.jsx)
+export const DefsVidrio=()=>(
+  <svg width="0" height="0" style={{position:'absolute'}} aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="ad-vidrio" x="-25%" y="-25%" width="150%" height="160%" colorInterpolationFilters="sRGB">
+        <feGaussianBlur in="SourceAlpha" stdDeviation="1.8" result="b"/>
+        <feSpecularLighting in="b" surfaceScale="4" specularConstant=".85" specularExponent="20" lightingColor="#fff" result="s"><fePointLight x="-30" y="-50" z="90"/></feSpecularLighting>
+        <feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/>
+        <feOffset in="SourceAlpha" dx="2" dy="3" result="o1"/><feGaussianBlur in="o1" stdDeviation="2.2" result="o1b"/>
+        <feComposite in="SourceAlpha" in2="o1b" operator="out" result="edge1"/>
+        <feFlood floodColor="rgb(10,35,55)" floodOpacity=".4"/><feComposite in2="edge1" operator="in" result="innerdark"/>
+        <feOffset in="SourceAlpha" dx="-1.6" dy="-2.4" result="o2"/><feGaussianBlur in="o2" stdDeviation="1.6" result="o2b"/>
+        <feComposite in="SourceAlpha" in2="o2b" operator="out" result="edge2"/>
+        <feFlood floodColor="#fff" floodOpacity="1"/><feComposite in2="edge2" operator="in" result="innerlight"/>
+        <feMerge result="lit"><feMergeNode in="SourceGraphic"/><feMergeNode in="innerdark"/><feMergeNode in="innerlight"/><feMergeNode in="s2"/></feMerge>
+        <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="sb"/><feOffset in="sb" dy="4" result="so"/>
+        <feFlood floodColor="rgb(25,55,42)" floodOpacity=".28"/><feComposite in2="so" operator="in" result="shadow"/>
+        <feMerge><feMergeNode in="shadow"/><feMergeNode in="lit"/></feMerge>
+      </filter>
+    </defs>
+  </svg>
+);

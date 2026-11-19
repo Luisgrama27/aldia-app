@@ -2496,3 +2496,11 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
   .ad-nav { background: rgba(255, 255, 255, 0.95); }
   :root[data-tema="oscuro"] .ad-nav { background: rgba(38, 40, 43, 0.95); }
 }
+
+/* ---------- Iconos de categoría con relieve de vidrio (filtro #ad-vidrio, ver DefsVidrio) ---------- */
+.ad-art--libre svg { filter: url(#ad-vidrio) saturate(1.1); overflow: visible; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) .ad-art--libre svg { filter: url(#ad-vidrio) saturate(1.1); }
+}
+:root[data-tema="oscuro"] .ad-art--libre svg { filter: url(#ad-vidrio) saturate(1.1); }
+.ad-art--libre { overflow: visible; }
