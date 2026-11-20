@@ -2569,7 +2569,7 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
 .ad-catcard__name, .ad-catcard__n, .ad-catcard__st { grid-column: 2; padding: 0; min-width: 0; }
 .ad-catcard__name {
   font-size: 0.8125rem; font-weight: 750; letter-spacing: -0.01em; line-height: 1.2;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
 .ad-catcard__n { font-size: 0.6875rem; font-weight: 400; color: var(--text2); margin-top: 1px; }
 .ad-catcard__st { font-size: 0.6875rem; font-weight: 700; margin-top: 1px; }
