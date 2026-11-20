@@ -218,7 +218,7 @@ export default function Login() {
   // Se calculan en cada pantalla, así siguen correctos al cambiar de modo
   const emailValido = email ? REGEX_EMAIL.test(email) : null;
   const passwordFuerte = password && modo === 'registro'
-    ? (password.length >= 12 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'fuerte' : password.length >= 8 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'medio' : 'debil')
+    ? (password.length >= 14 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'fuerte' : password.length >= 10 && /[A-Za-z]/.test(password) && /[0-9]/.test(password) ? 'medio' : 'debil')
     : null;
   const telefonoValido = validarTelefono(paisCodigo, telefono);
   const esperaActiva = espera > 0;
@@ -247,7 +247,7 @@ export default function Login() {
   const handleRegistro = async () => {
     if (!nombre.trim()) { setError("Ingresa tu nombre completo."); return; }
     if (!emailValido) { setError("Ingresa un correo electrónico válido."); return; }
-    if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 8 caracteres, con letras y números."); return; }
+    if (passwordFuerte === 'debil' || !password) { setError("La contraseña debe tener al menos 10 caracteres, con letras y números."); return; }
     if (!paisCodigo) { setError("Selecciona tu país."); return; }
     if (paisCodigo === 'CO' && !departamento) { setError("Selecciona tu departamento."); return; }
     if (!ciudad) { setError("Selecciona tu ciudad."); return; }

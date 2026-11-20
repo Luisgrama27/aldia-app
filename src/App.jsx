@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
-import { auth, db } from "./firebase";
+import { auth, db, limpiarDatosLocales } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
 import { ArtCat } from "./ilustraciones";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
@@ -508,6 +508,7 @@ function EliminarCuentaVista({usuario}){
       // 3) Borrar la cuenta de acceso
       await deleteUser(usuario);
       try{localStorage.clear();}catch(e){}
+      await limpiarDatosLocales();
     }catch(e){
       console.error(e);
       const c=e?.code||'';
@@ -1492,7 +1493,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={()=>{signOut(auth);setMenuAbierto(false);}}/>
+    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={async()=>{setMenuAbierto(false);try{await signOut(auth);}catch(e){console.error(e);}await limpiarDatosLocales();window.location.reload();}}/>
   );
 
   if(pantalla==='form') return (

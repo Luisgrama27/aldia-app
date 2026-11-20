@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
+import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, waitForPendingWrites, terminate, clearIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDb6OW3Vo_rH3oFQZBOQIC-ZZBhihLwHhM",
@@ -25,3 +25,21 @@ try {
   baseDatos = getFirestore(app);
 }
 export const db = baseDatos;
+
+// Al cerrar sesión o borrar la cuenta: sincroniza lo pendiente (máx. 3 s) y borra del dispositivo
+// la caché de Firestore y los datos guardados por cuenta, para que nadie más los vea en un equipo compartido.
+// Conserva solo preferencias de la interfaz (tema, avisos ya vistos).
+export async function limpiarDatosLocales() {
+  try {
+    await Promise.race([waitForPendingWrites(baseDatos), new Promise((r) => setTimeout(r, 3000))]);
+  } catch { /* sin conexión: se limpia igual */ }
+  try {
+    Object.keys(localStorage)
+      .filter((k) => /^(prefs_|meta_|correo_)/.test(k) || k === 'aldia_codigos')
+      .forEach((k) => localStorage.removeItem(k));
+  } catch { /* sin almacenamiento */ }
+  try {
+    await terminate(baseDatos);
+    await clearIndexedDbPersistence(baseDatos);
+  } catch { /* si otra pestaña la usa, se limpiará la próxima vez */ }
+}
