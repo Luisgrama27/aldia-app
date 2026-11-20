@@ -2536,3 +2536,40 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
   :root:not([data-tema="claro"]) .ad-card.ad-desp { background: transparent; box-shadow: none; border: 0; }
 }
 :root[data-tema="oscuro"] .ad-card.ad-desp { background: transparent; box-shadow: none; border: 0; }
+
+/* ---------- Inicio compacto: saludo, tarjeta verde con anillo de estado y categorías en tarjetas horizontales ---------- */
+.ad-who { flex-direction: row; align-items: center; gap: 12px; }
+.ad-who__txt { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.ad-who__txt small { font-size: 0.75rem; font-weight: 500; color: var(--text2); }
+.ad-who__txt b { font-size: 1.0625rem; font-weight: 750; letter-spacing: -0.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ad-hero--home .ad-topbar { align-items: center; }
+
+.ad-hero-card { padding: 14px 18px 16px 20px; }
+.ad-hero-card__slide { height: 62px; padding-right: 96px; }
+.ad-hero-card:has(.ad-hero-card__salud) .ad-hero-card__top { padding-right: 96px; }
+.ad-hero-card--frase:has(.ad-hero-card__salud) .ad-hero-card__sub { max-width: calc(100% - 96px); }
+.ad-hero-card__actions { margin-top: 6px; }
+.ad-hero-card > .ad-hero-card__salud {
+  position: absolute; top: 50%; right: 16px; width: 80px; height: 80px; transform: translateY(-50%); z-index: 1;
+}
+.ad-hero-card__salud svg { width: 100%; height: 100%; display: block; }
+.ad-hero-card__salud-pista { fill: none; stroke: rgba(255, 255, 255, 0.2); stroke-width: 7; }
+.ad-hero-card__salud-arco { fill: none; stroke: #fff; stroke-width: 7; stroke-linecap: round; transition: stroke-dasharray 0.6s ease; }
+.ad-hero-card__salud > div { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
+.ad-hero-card__salud b { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em; }
+.ad-hero-card__salud span { margin-top: 3px; font-size: 0.5625rem; font-weight: 600; opacity: 0.85; }
+
+.ad-catgrid2 { gap: 10px; }
+.ad-catcard {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr); grid-template-rows: auto auto auto; column-gap: 10px; row-gap: 0;
+  align-content: center; align-items: center; padding: 12px 12px; border-radius: 22px; min-height: 76px;
+}
+.ad-catcard__art.ad-art { grid-column: 1; grid-row: 1 / 4; width: 46px !important; height: 46px !important; margin: 0; justify-content: center; }
+.ad-catcard__art svg { width: 46px; height: 46px; margin-left: 0; }
+.ad-catcard__name, .ad-catcard__n, .ad-catcard__st { grid-column: 2; padding: 0; min-width: 0; }
+.ad-catcard__name {
+  font-size: 0.8125rem; font-weight: 750; letter-spacing: -0.01em; line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ad-catcard__n { font-size: 0.6875rem; font-weight: 400; color: var(--text2); margin-top: 1px; }
+.ad-catcard__st { font-size: 0.6875rem; font-weight: 700; margin-top: 1px; }

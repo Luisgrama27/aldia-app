@@ -1282,20 +1282,24 @@ export default function App(){
       {t:'Despensa al día',s:'Cocinar con lo que tienes es la mejor receta.'}];
   const diaLocal=Math.floor((Date.now()-new Date().getTimezoneOffset()*60000)/86400000);
   const fraseDia=FRASES[diaLocal%FRASES.length];
+  // Estado general de la despensa: porcentaje de productos al día
+  const nAlDia=activos.filter(p=>status(p)==='ok').length;
+  const pctAlDia=activos.length?Math.round(nAlDia/activos.length*100):0;
+  const anilloSalud=activos.length>0?(
+    <div className="ad-hero-card__salud" role="img" aria-label={`${pctAlDia}% de tu despensa al día`}>
+      <svg viewBox="0 0 88 88" aria-hidden="true">
+        <circle cx="44" cy="44" r="36" className="ad-hero-card__salud-pista"/>
+        <circle cx="44" cy="44" r="36" className="ad-hero-card__salud-arco" strokeDasharray={`${(226.2*pctAlDia/100).toFixed(1)} 226.2`} transform="rotate(-90 44 44)"/>
+      </svg>
+      <div><b>{pctAlDia}%</b><span>al día</span></div>
+    </div>
+  ):null;
   const tarjetaVerde=sugerencias.length>0?(
                     <section className="ad-hero-card" aria-label="Recetas sugeridas">
-                      <svg className="ad-hero-card__plate" viewBox="0 0 64 64" aria-hidden="true">
-                        <circle cx="32" cy="34" r="27" fill="rgba(255,255,255,.16)"/>
-                        <circle cx="32" cy="34" r="21" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.55)" strokeWidth="1.5"/>
-                        <circle cx="32" cy="34" r="13" fill="none" stroke="rgba(255,255,255,.4)" strokeWidth="1.2"/>
-                        <path d="M26 36c0-6 4-10 11-10 0 6-4 10-11 10z" fill="rgba(255,255,255,.85)"/>
-                        <path d="M26 36l8-6" stroke="#2f6b4f" strokeWidth="1.2" strokeLinecap="round"/>
-                        <path d="M10 8v14M7 8v6a3 3 0 0 0 6 0V8M56 8c-3 2-4 6-4 10v4h4z" fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
+                      {anilloSalud}
                       <div className="ad-hero-card__top">
                         <span className="ad-hero-card__eyebrow">Recetas para aprovechar</span>
-                        {sugerencias.length>1&&<span className="ad-hero-card__pill">{idxReceta+1} de {sugerencias.length}</span>}
-                      </div>
+                                              </div>
                       <div className="ad-hero-card__slides" ref={carruselRef}
                         onScroll={e=>{const el=e.currentTarget;const i=Math.round(el.scrollLeft/el.clientWidth);if(i!==recetaIdx)setRecetaIdx(i);}}>
                         {sugerencias.map(sg=>(
@@ -1321,6 +1325,7 @@ export default function App(){
                     </section>
                   ):(
                     <section className="ad-hero-card ad-hero-card--frase" aria-label="Mensaje del día">
+                      {anilloSalud}
                       <div className="ad-hero-card__top">
                         <span className="ad-hero-card__eyebrow">Para hoy</span>
                       </div>
@@ -1660,6 +1665,7 @@ export default function App(){
               <div className="ad-topbar">
                 <div className="ad-who">
                   <LOGO/>
+                  <div className="ad-who__txt"><small>{saludo}</small><b>{nombreCorto}</b></div>
                 </div>
                 <button className="ad-hero-btn ad-bell" onClick={()=>setAvisos(true)}
                   aria-label={destacados.length?`Avisos: ${destacados.length} producto${destacados.length!==1?'s':''} por atender`:'Avisos'}>
