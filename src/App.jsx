@@ -132,6 +132,9 @@ const Ico = {
   stats:(<svg {...svgProps}><path d="M5 21V12M12 21V4M19 21v-6"/></svg>),
   history:(<svg {...svgProps}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>),
   user:(<svg {...svgProps}><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>),
+  search:(<svg {...svgProps}><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>),
+  filtros:(<svg {...svgProps}><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>),
+  exportar:(<svg {...svgProps}><path d="M12 4v11M8 8l4-4 4 4M5 14v5h14v-5"/></svg>),
   camera:(<svg {...svgProps}><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>),
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
@@ -993,6 +996,7 @@ export default function App(){
   const [busquedaHist,setBusquedaHist]=useState('');
   const [filtroHist,setFiltroHist]=useState('todos');
   const [menuHist,setMenuHist]=useState(false);
+  const [filtrosHist,setFiltrosHist]=useState(false);
   const [periodoHist,setPeriodoHist]=useState('todo'); // hoy | semana | mes | todo
   const [catHist,setCatHist]=useState('todas');
   const [limiteHist,setLimiteHist]=useState(30);
@@ -1150,7 +1154,7 @@ export default function App(){
   const ignorarPop=useRef(0);
   const cerrarCapaRef=useRef(()=>{});
   const vistaCategoria=tab==='home'&&(filtro!=='Todos'||!!filtroEstado||!!busqueda||verTodos);
-  const nivelAtras=[scanner,compartir,!!recetaAbierta,!!accionHist,!!accionProd,menuHist,avisos,menuAbierto,pantalla==='form',vistaCategoria,tab!=='home'].filter(Boolean).length;
+  const nivelAtras=[scanner,compartir,!!recetaAbierta,!!accionHist,!!accionProd,menuHist,filtrosHist,avisos,menuAbierto,pantalla==='form',vistaCategoria,tab!=='home'].filter(Boolean).length;
   cerrarCapaRef.current=()=>{
     if(scanner)setScanner(false);
     else if(compartir)setCompartir(false);
@@ -1158,6 +1162,7 @@ export default function App(){
     else if(accionHist)setAccionHist(null);
     else if(accionProd)setAccionProd(null);
     else if(menuHist)setMenuHist(false);
+    else if(filtrosHist)setFiltrosHist(false);
     else if(avisos)setAvisos(false);
     else if(menuAbierto)setMenuAbierto(false);
     else if(pantalla==='form')setPantalla('');
@@ -1656,6 +1661,30 @@ export default function App(){
           </div>
         </div>
       )}
+      {filtrosHist&&(
+        <div className="ad-overlay" onClick={()=>setFiltrosHist(false)}>
+          <div className="ad-sheet" onClick={e=>e.stopPropagation()} role="dialog" aria-label="Filtros del historial">
+            <div className="ad-sheet__handle"/>
+            <h2 className="ad-section" style={{margin:'0 0 12px'}}>Filtros</h2>
+            <p className="ad-eyebrow">Período</p>
+            <div className="ad-filopts" role="group" aria-label="Período">
+              {[['todo','Todo'],['hoy','Hoy'],['semana','7 días'],['mes','30 días']].map(([k,t])=>(
+                <button key={k} type="button" className="ad-chip" aria-pressed={periodoHist===k} onClick={()=>{setPeriodoHist(k);setLimiteHist(30);}}>{t}</button>
+              ))}
+            </div>
+            <p className="ad-eyebrow" style={{marginTop:16}}>Categoría</p>
+            <div className="ad-filopts" role="group" aria-label="Categoría">
+              {[['todas','Todas'],...catsHist.map(c=>[c,c])].map(([k,t])=>(
+                <button key={k} type="button" className="ad-chip" aria-pressed={catHist===k} onClick={()=>{setCatHist(k);setLimiteHist(30);}}>{t}</button>
+              ))}
+            </div>
+            <div className="ad-filacts">
+              <button className="ad-btn ad-btn--ghost" onClick={()=>{setPeriodoHist('todo');setCatHist('todas');setLimiteHist(30);}}>Limpiar</button>
+              <button className="ad-btn" onClick={()=>setFiltrosHist(false)}>Ver {histFiltrado.length} producto{histFiltrado.length!==1?'s':''}</button>
+            </div>
+          </div>
+        </div>
+      )}
       {cuentaSheet}
       <div className="ad-screen">
 
@@ -1713,7 +1742,7 @@ export default function App(){
                     </div>
                   </div>
                   <div className="ad-toolbar">
-                    <input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..."/>
+                    <label className="ad-searchbox">{Ico.search}<input className="ad-search" value={busqueda} onChange={e=>setBusqueda(e.target.value)} placeholder="Buscar producto..." aria-label="Buscar producto"/></label>
                     {!modoCategorias&&(
                       <select className="ad-select-sm" aria-label="Ordenar productos" value={orden} onChange={e=>setOrden(e.target.value)}>
                         <option value="fecha">Vence primero</option>
@@ -1868,22 +1897,18 @@ export default function App(){
                   <button key={k} role="tab" aria-selected={filtroHist===k} className={`ad-seg__btn${filtroHist===k?' is-on':''}`} onClick={()=>{setFiltroHist(k);setLimiteHist(30);}}>{t} <span>{n}</span></button>
                 ))}
               </div>
-              <div className="ad-toolbar">
-                <input className="ad-search" style={{marginBottom:0}} value={busquedaHist} onChange={e=>{setBusquedaHist(e.target.value);setLimiteHist(30);}} placeholder="Buscar en historial..."/>
-                <select className="ad-select-sm" aria-label="Período" value={periodoHist} onChange={e=>{setPeriodoHist(e.target.value);setLimiteHist(30);}}>
-                  <option value="todo">Todo</option>
-                  <option value="hoy">Hoy</option>
-                  <option value="semana">7 días</option>
-                  <option value="mes">30 días</option>
-                </select>
+              <div className="ad-filrow">
+                <label className="ad-searchbox">
+                  {Ico.search}
+                  <input className="ad-search" value={busquedaHist} onChange={e=>{setBusquedaHist(e.target.value);setLimiteHist(30);}} placeholder="Buscar en historial..." aria-label="Buscar en historial"/>
+                </label>
+                <button className={`ad-iconbtn${periodoHist!=='todo'||catHist!=='todas'?' is-on':''}`} aria-label="Filtros: período y categoría" onClick={()=>setFiltrosHist(true)}>{Ico.filtros}</button>
+                <button className="ad-iconbtn" aria-label="Exportar historial a CSV" onClick={exportarHistorial} disabled={histFiltrado.length===0}>{Ico.exportar}</button>
               </div>
-              {historial.length>0&&(
-                <div className="ad-histbar">
-                  <select className="ad-select-sm" aria-label="Categoría" value={catHist} onChange={e=>{setCatHist(e.target.value);setLimiteHist(30);}}>
-                    <option value="todas">Todas las categorías</option>
-                    {catsHist.map(c=><option key={c} value={c}>{c}</option>)}
-                  </select>
-                  <button className="ad-btn ad-btn--ghost ad-btn--sm" style={{width:'auto'}} onClick={exportarHistorial} disabled={histFiltrado.length===0}>Exportar</button>
+              {(periodoHist!=='todo'||catHist!=='todas')&&(
+                <div className="ad-filchips" aria-label="Filtros activos">
+                  {periodoHist!=='todo'&&<button className="ad-filchip" onClick={()=>{setPeriodoHist('todo');setLimiteHist(30);}}>{{hoy:'Hoy',semana:'7 días',mes:'30 días'}[periodoHist]} <span aria-hidden="true">×</span></button>}
+                  {catHist!=='todas'&&<button className="ad-filchip" onClick={()=>{setCatHist('todas');setLimiteHist(30);}}>{catHist} <span aria-hidden="true">×</span></button>}
                 </div>
               )}
               {historial.length>0&&(

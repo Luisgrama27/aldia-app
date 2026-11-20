@@ -2573,3 +2573,33 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
 }
 .ad-catcard__n { font-size: 0.6875rem; font-weight: 400; color: var(--text2); margin-top: 1px; }
 .ad-catcard__st { font-size: 0.6875rem; font-weight: 700; margin-top: 1px; }
+
+/* ---------- Buscadores con lupa y filtro compacto del historial ---------- */
+.ad-searchbox { position: relative; display: block; flex: 1; min-width: 0; }
+.ad-searchbox > svg { position: absolute; left: 16px; top: 23px; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text2); opacity: 0.75; pointer-events: none; }
+.ad-searchbox .ad-search { padding-left: 44px; transition: border-color 0.18s ease, box-shadow 0.18s ease; }
+.ad-searchbox .ad-search:focus { border-color: var(--green); box-shadow: 0 0 0 4px var(--green-soft); }
+.ad-toolbar .ad-searchbox .ad-search { margin-bottom: 0; }
+.ad-filrow { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; }
+.ad-filrow .ad-searchbox .ad-search { margin-bottom: 0; }
+.ad-iconbtn {
+  position: relative; flex: none; width: 46px; height: 46px; display: grid; place-items: center;
+  border: 1px solid var(--border); border-radius: 50%; background: var(--card); color: var(--text); cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: transform 0.15s ease, background 0.2s ease;
+}
+.ad-iconbtn svg { width: 20px; height: 20px; }
+.ad-iconbtn:active { transform: scale(0.94); }
+.ad-iconbtn:disabled { opacity: 0.45; cursor: default; }
+.ad-iconbtn.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ad-iconbtn.is-on::after { content: ""; position: absolute; top: -1px; right: -1px; width: 10px; height: 10px; border-radius: 50%; background: #e07814; box-shadow: 0 0 0 2px var(--bg); }
+.ad-filchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.ad-filchip {
+  padding: 6px 10px 6px 12px; border: 0; border-radius: 999px; background: var(--green-soft); color: var(--green);
+  font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+}
+.ad-filchip span { margin-left: 4px; opacity: 0.7; }
+.ad-filopts { display: flex; flex-wrap: wrap; gap: 8px; }
+.ad-filacts { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 22px; }
+.ad-filopts .ad-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) .ad-filopts .ad-chip[aria-pressed="true"] { color: #06150d; } }
+:root[data-tema="oscuro"] .ad-filopts .ad-chip[aria-pressed="true"] { color: #06150d; }
