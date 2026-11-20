@@ -1687,15 +1687,6 @@ export default function App(){
               ):(
                 <>
                   <section className="ad-card ad-desp" aria-label="Estado de tu despensa">
-                    <div className="ad-desp__top">
-                      <h2>Tu despensa</h2>
-                      <span>{activos.length} producto{activos.length!==1?'s':''}</span>
-                    </div>
-                    <div className="ad-desp__bar" aria-hidden="true">
-                      {expired>0&&<i className="is-d" style={{flex:expired}}/>}
-                      {danger+warn>0&&<i className="is-w" style={{flex:danger+warn}}/>}
-                      {ok>0&&<i className="is-o" style={{flex:ok}}/>}
-                    </div>
                     <div className={`ad-desp__cnt${filtroEstado?' ad-desp--hay':''}`}>
                       {[['vencidos',expired,'danger','Vencidos'],['porvencer',danger+warn,'warn','Por vencer'],['aldia',ok,'ok','Al día']].map(([clave,cantidad,color,texto])=>(
                         <button key={clave} type="button" className={`ad-desp__b${filtroEstado===clave?' is-activo':''}`} aria-pressed={filtroEstado===clave}
