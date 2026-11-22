@@ -33,6 +33,8 @@ self.addEventListener('fetch', event => {
   // Solo contenido de la propia app; lo demás pasa directo a la red
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/__/') || url.pathname.startsWith('/api/')) return;
+  // El motor de lectura de fechas (/ocr/) es pesado: se sirve desde la red y la caché del navegador, no del service worker
+  if (url.pathname.startsWith('/ocr/')) return;
   // Las listas compartidas (?c=...) nunca se guardan
   if (url.searchParams.has('c')) return;
 

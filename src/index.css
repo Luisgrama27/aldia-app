@@ -2603,3 +2603,14 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
 .ad-filopts .ad-chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
 @media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) .ad-filopts .ad-chip[aria-pressed="true"] { color: #06150d; } }
 :root[data-tema="oscuro"] .ad-filopts .ad-chip[aria-pressed="true"] { color: #06150d; }
+
+/* ---------- Leer la fecha de vencimiento con la cámara ---------- */
+.ad-field__row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ad-ocrbtn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 0; border-radius: 999px;
+  background: var(--green-soft); color: var(--green); font: inherit; font-size: 0.75rem; font-weight: 700; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: transform 0.15s ease, opacity 0.2s ease;
+}
+.ad-ocrbtn svg { width: 15px; height: 15px; }
+.ad-ocrbtn:active { transform: scale(0.96); }
+.ad-ocrbtn:disabled { opacity: 0.7; cursor: progress; }

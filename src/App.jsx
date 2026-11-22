@@ -9,6 +9,7 @@ import Login from "./Login";
 // El escáner (librería pesada) se descarga solo cuando se toca la cámara
 const Scanner = lazy(() => import("./Scanner"));
 import { recordarProducto } from "./productos";
+import { fechaLegible } from "./fechas";
 import { sugerirRecetas } from "./recetas";
 import "./index.css";
 
@@ -135,6 +136,7 @@ const Ico = {
   search:(<svg {...svgProps}><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>),
   filtros:(<svg {...svgProps}><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>),
   exportar:(<svg {...svgProps}><path d="M12 4v11M8 8l4-4 4 4M5 14v5h14v-5"/></svg>),
+  escanear:(<svg {...svgProps}><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M8 12h8"/></svg>),
   camera:(<svg {...svgProps}><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>),
   plus:(<svg {...svgProps} width={28} height={28} strokeWidth={2.6}><path d="M12 5v14M5 12h14"/></svg>),
 };
@@ -966,6 +968,10 @@ export default function App(){
   const [listKey,setListKey]=useState(0);
   const [scanner,setScanner]=useState(false);
   const [scanMsg,setScanMsg]=useState('');
+  const [leyendoFecha,setLeyendoFecha]=useState(false);
+  const [msgFecha,setMsgFecha]=useState('');
+  const [fechasAlt,setFechasAlt]=useState([]);
+  const fotoFechaRef=useRef(null);
   const [compartir,setCompartir]=useState(false);
   const [pista,setPista]=useState(()=>{try{return localStorage.getItem('aldia_pista')!=='1';}catch{return true;}});
   const [masCats,setMasCats]=useState(false);
@@ -1382,12 +1388,12 @@ export default function App(){
   });
   const maxMes=Math.max(1,...porMes.map(m=>Math.max(m.c,m.d)));
 
-  const abrirNuevo=(catInicial)=>{setEditId(null);setAlertaManual(false);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:alertaDe(catInicial||'Lácteos',prefs),precio:''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const abrirNuevo=(catInicial)=>{setEditId(null);setAlertaManual(false);setForm({name:'',cat:catInicial||'Lácteos',exp:'',qty:'',alert:alertaDe(catInicial||'Lácteos',prefs),precio:''});setScanMsg('');setMsgFecha('');setFechasAlt([]);setErrorMsg('');setPantalla('form');};
   // Abre el formulario con los datos de un producto del historial; solo falta la nueva fecha
-  const comprarDeNuevo=(p)=>{setEditId(null);setAlertaManual(false);setForm({name:p.name,cat:p.cat,exp:'',qty:p.qty||'',alert:alertaDe(p.cat,prefs),precio:p.precio||'',...(p.barcode?{barcode:p.barcode}:{})});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const comprarDeNuevo=(p)=>{setEditId(null);setAlertaManual(false);setForm({name:p.name,cat:p.cat,exp:'',qty:p.qty||'',alert:alertaDe(p.cat,prefs),precio:p.precio||'',...(p.barcode?{barcode:p.barcode}:{})});setScanMsg('');setMsgFecha('');setFechasAlt([]);setErrorMsg('');setPantalla('form');};
   // En un producto nuevo, la alerta sigue a la categoría mientras la persona no la cambie
   const cambiarCategoria=(cat)=>setForm(f=>({...f,cat,alert:(editId||alertaManual)?f.alert:alertaDe(cat,prefs)}));
-  const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setErrorMsg('');setPantalla('form');};
+  const abrirEditar=(p)=>{setEditId(p.id);setForm({name:p.name,cat:p.cat,exp:p.exp,qty:p.qty||'',alert:p.alert,precio:p.precio||''});setScanMsg('');setMsgFecha('');setFechasAlt([]);setErrorMsg('');setPantalla('form');};
 
   const actualizarPrefs=(cambios)=>{
     const nuevas={...prefs,...cambios};
@@ -1405,6 +1411,28 @@ export default function App(){
 
   // Las escrituras no esperan la respuesta del servidor: la pantalla vuelve al inicio
   // enseguida y Firestore sincroniza en segundo plano (también sin conexión).
+  // Lee la fecha de vencimiento de una foto del empaque (todo en el dispositivo)
+  const leerFechaFoto=async(e)=>{
+    const archivo=e.target.files&&e.target.files[0];
+    e.target.value='';
+    if(!archivo)return;
+    setLeyendoFecha(true);setMsgFecha('');setFechasAlt([]);
+    try{
+      const {leerFechaDeImagen}=await import('./leerFecha');
+      const r=await leerFechaDeImagen(archivo);
+      if(r.fechas.length){
+        setForm(f=>({...f,exp:r.fechas[0].iso}));
+        setFechasAlt(r.fechas.slice(1,3).map(x=>x.iso));
+        setMsgFecha(`✓ Fecha detectada: ${fechaLegible(r.fechas[0].iso)}. Revísala antes de guardar.`);
+      }else{
+        setMsgFecha('No pude leer una fecha. Prueba con más luz, la fecha centrada y sin reflejos, o escríbela a mano.');
+      }
+    }catch(err){
+      console.error(err);
+      setMsgFecha('No se pudo abrir el lector de fechas. Escríbela a mano.');
+    }finally{setLeyendoFecha(false);}
+  };
+
   const guardar=(otro=false)=>{
     if(!form.name.trim()){setErrorMsg('Escribe el nombre del producto.');return;}
     if(!form.exp){setErrorMsg('Elige la fecha de vencimiento.');return;}
@@ -1418,7 +1446,7 @@ export default function App(){
     if(otro&&!editId){
       // Se queda en el formulario con la misma categoría para registrar el siguiente
       setForm({name:'',cat:datos.cat,exp:'',qty:'',alert:alertaDe(datos.cat,prefs),precio:''});
-      setAlertaManual(false);setScanMsg('');
+      setAlertaManual(false);setScanMsg('');setMsgFecha('');setFechasAlt([]);
       avisar(`Guardado: ${datos.name}`);
       try{window.scrollTo({top:0});document.querySelector('.ad-screen')?.scrollTo?.({top:0});}catch{ /* sin desplazamiento */ }
       return;
@@ -1555,9 +1583,23 @@ export default function App(){
                 )}
               </div>
             </div>
-            <label className="ad-field"><span className="ad-field__label">Fecha de vencimiento</span>
-              <input type="date" value={form.exp} onChange={e=>setForm({...form,exp:e.target.value})}/>
-            </label>
+            <div className="ad-field">
+              <div className="ad-field__row">
+                <span className="ad-field__label">Fecha de vencimiento</span>
+                <button type="button" className="ad-ocrbtn" onClick={()=>fotoFechaRef.current&&fotoFechaRef.current.click()} disabled={leyendoFecha}>
+                  {Ico.escanear}{leyendoFecha?'Leyendo…':'Leer fecha'}
+                </button>
+              </div>
+              <input type="date" aria-label="Fecha de vencimiento" value={form.exp} onChange={e=>{setForm({...form,exp:e.target.value});setMsgFecha('');setFechasAlt([]);}}/>
+              <input ref={fotoFechaRef} type="file" accept="image/*" capture="environment" hidden onChange={leerFechaFoto}/>
+            </div>
+            {msgFecha&&<div className={`ad-note${msgFecha.startsWith('✓')?'':' ad-note--warn'}`} role="status" style={{margin:'10px 16px 4px'}}>{msgFecha}</div>}
+            {fechasAlt.length>0&&(
+              <div className="ad-filters" role="group" aria-label="Otras fechas encontradas" style={{padding:'0 16px'}}>
+                <span className="ad-muted" style={{alignSelf:'center',fontSize:'.8125rem'}}>¿Es otra?</span>
+                {fechasAlt.map(iso=><button type="button" key={iso} className="ad-chip" onClick={()=>{setForm(f=>({...f,exp:iso}));setFechasAlt([]);setMsgFecha(`✓ Fecha elegida: ${fechaLegible(iso)}.`);}}>{fechaLegible(iso)}</button>)}
+              </div>
+            )}
             {!form.exp&&VIDA_UTIL[form.cat]&&(
               <button type="button" className="ad-suggest" onClick={()=>setForm(f=>({...f,exp:fechaEn(VIDA_UTIL[f.cat])}))}>
                 Sugerido para {form.cat.toLowerCase()}: {textoVida(VIDA_UTIL[form.cat])} · <b>Usar</b>
