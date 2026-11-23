@@ -25,6 +25,7 @@ export function useHogar(usuario, nombre) {
   const [activo, setActivo] = useState(null); // hogar que se está viendo
   const [hogar, setHogar] = useState(null);
   const [listo, setListo] = useState(false); // el hogar personal existe y se migraron productos antiguos
+  const [fallo, setFallo] = useState(""); // último error al preparar o leer el hogar, para mostrarlo en pantalla
   const perfilExiste = useRef(false);
   const nombreRef = useRef(nombre);
   nombreRef.current = nombre || (usuario && usuario.email ? usuario.email.split("@")[0] : "Persona");
@@ -54,6 +55,7 @@ export function useHogar(usuario, nombre) {
         }
       } catch (e) {
         console.error(e);
+        if (vivo) setFallo(`preparar: ${(e && (e.code || e.message)) || e}`);
       } finally {
         if (vivo) setListo(true);
       }
@@ -83,7 +85,7 @@ export function useHogar(usuario, nombre) {
     const unsub = onSnapshot(doc(db, "hogares", activo), (snap) => {
       if (!snap.exists()) { setHogar(null); volver(); return; }
       setHogar({ id: snap.id, ...snap.data() });
-    }, (e) => { console.error(e); setHogar(null); volver(); });
+    }, (e) => { console.error(e); setFallo(`leer: ${(e && (e.code || e.message)) || e}`); setHogar(null); volver(); });
     return () => unsub();
   }, [uid, activo, listo, guardarActivo]);
 
@@ -155,7 +157,7 @@ export function useHogar(usuario, nombre) {
     return m ? m.nombre : "";
   };
 
-  return { hogarId: activo, hogar, listo: listo && !!activo && (activo === uid || (!!hogar && hogar.id === activo)), esDueno, miembros, compartido, nombreDe, crearCodigo, anularCodigo, unirse, salir, quitar, renombrar };
+  return { fallo, hogarId: activo, hogar, listo: listo && !!activo && (activo === uid || (!!hogar && hogar.id === activo)), esDueno, miembros, compartido, nombreDe, crearCodigo, anularCodigo, unirse, salir, quitar, renombrar };
 }
 
 const venceTexto = (ms) => new Date(ms).toLocaleDateString("es-CO", { day: "numeric", month: "short" });
@@ -196,6 +198,7 @@ export function HogarVista({ usuario, h }) {
         {tarda
           ? "No se pudo cargar tu hogar. Revisa tu conexión; si sigue igual, las reglas de la base de datos aún no incluyen los hogares (hay que publicarlas en Firebase)."
           : "Cargando tu hogar…"}
+        {tarda && h.fallo && <span style={{ display: "block", marginTop: 8, fontSize: ".75rem", wordBreak: "break-all" }}>Detalle técnico: {h.fallo}</span>}
       </p>
     );
   }
