@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "firebase/app-check";
 import { initializeFirestore, getFirestore, persistentLocalCache, persistentMultipleTabManager, waitForPendingWrites, terminate, clearIndexedDbPersistence } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -12,6 +13,17 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// App Check: demuestra a Firebase que las peticiones vienen de la app real y no de un script ajeno.
+// La clave del sitio de reCAPTCHA Enterprise es pública.
+try {
+  initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider("6LfLIS8uAAAAAE2wvTJhMc_UViL3LCuXXKguXFyP"),
+    isTokenAutoRefreshEnabled: true,
+  });
+} catch (e) {
+  console.error("App Check no se pudo iniciar", e);
+}
 export const auth = getAuth(app);
 
 // Caché en el dispositivo: la app abre con tus datos sin conexión y guarda los cambios hechos sin internet.
