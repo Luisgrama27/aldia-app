@@ -2614,3 +2614,41 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
 .ad-ocrbtn svg { width: 15px; height: 15px; }
 .ad-ocrbtn:active { transform: scale(0.96); }
 .ad-ocrbtn:disabled { opacity: 0.7; cursor: progress; }
+
+/* ---------- Pulido: columna centrada, transiciones, esqueletos y aviso al agregar ---------- */
+
+/* En tablet y escritorio la app es una columna central; la barra inferior se queda dentro de ella */
+@media (min-width: 700px) {
+  html, body { background: var(--input); }
+  #root {
+    right: 0; left: 0;
+    width: 100%; max-width: 560px;
+    margin: 0 auto;
+    box-shadow: 0 0 0 1px var(--border), 0 24px 60px -30px rgba(20, 40, 30, 0.35);
+  }
+}
+
+/* Cada pantalla entra con un fundido corto */
+@keyframes ad-pantalla { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ad-screen { animation: ad-pantalla 0.24s ease-out both; }
+
+/* Esqueletos mientras llegan los productos */
+@keyframes ad-brillo { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+.ad-skel {
+  min-height: 118px; border: 0;
+  background: linear-gradient(100deg, var(--input) 30%, var(--bg2) 50%, var(--input) 70%);
+  background-size: 220% 100%;
+  animation: ad-brillo 1.3s linear infinite;
+}
+
+/* La categoría donde se agregó el producto destaca un instante */
+@keyframes ad-nueva {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(47, 107, 79, 0.55); }
+  35% { transform: scale(1.04); box-shadow: 0 0 0 6px rgba(47, 107, 79, 0.25); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(47, 107, 79, 0); }
+}
+.ad-catcard.is-nueva { animation: ad-nueva 0.9s ease-out 0.15s 2; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-screen, .ad-skel, .ad-catcard.is-nueva { animation: none !important; }
+}

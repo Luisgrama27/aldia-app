@@ -966,6 +966,8 @@ export default function App(){
   const [editandoMeta,setEditandoMeta]=useState(false);
   const [valorMeta,setValorMeta]=useState('');
   const [listKey,setListKey]=useState(0);
+  const [productosListos,setProductosListos]=useState(false);
+  const [catNueva,setCatNueva]=useState('');
   const [scanner,setScanner]=useState(false);
   const [scanMsg,setScanMsg]=useState('');
   const [leyendoFecha,setLeyendoFecha]=useState(false);
@@ -1070,10 +1072,11 @@ export default function App(){
 
   useEffect(()=>{
     if(!usuario)return;
+    setProductosListos(false);
     const q=query(collection(db,"productos"),where("uid","==",usuario.uid));
     const unsub=onSnapshot(q,(snap)=>{
       const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
-      setProducts(prods);setListKey(k=>k+1);
+      setProducts(prods);setListKey(k=>k+1);setProductosListos(true);
       if(prods.length>0) setEsUsuarioNuevo(false);
       let correoActivo=true;
       try{
@@ -1452,6 +1455,7 @@ export default function App(){
       return;
     }
     setFiltro('Todos');setBusqueda('');setVerTodos(false);
+    if(!editId){setCatNueva(datos.cat);setTimeout(()=>setCatNueva(''),1800);avisar(`Agregado: ${datos.name}`);}
     setTab('home');setPantalla('');
   };
 
@@ -1728,7 +1732,7 @@ export default function App(){
         </div>
       )}
       {cuentaSheet}
-      <div className="ad-screen">
+      <div className="ad-screen" key={tab}>
 
         {tab==='home'&&(
           <>
@@ -1793,10 +1797,14 @@ export default function App(){
                       </select>
                     )}
                   </div>
-                  {modoCategorias?(
+                  {!productosListos?(
+                    <div className="ad-catgrid2" aria-hidden="true">
+                      {[0,1,2,3,4,5].map(i=><div key={i} className="ad-card ad-skel"/>)}
+                    </div>
+                  ):modoCategorias?(
                     <div className="ad-catgrid2">
                       {resumenCats.map(r=>(
-                        <button key={r.cat} type="button" className="ad-card ad-catcard" onClick={()=>setFiltro(r.cat)} aria-label={`${r.cat}: ${r.total} producto${r.total!==1?'s':''}`}>
+                        <button key={r.cat} type="button" className={`ad-card ad-catcard${catNueva===r.cat?' is-nueva':''}`} onClick={()=>setFiltro(r.cat)} aria-label={`${r.cat}: ${r.total} producto${r.total!==1?'s':''}`}>
                           <ArtCat cat={r.cat} size={68} libre className="ad-catcard__art"/>
                           <span className="ad-catcard__name">{r.cat}</span>
                           <span className="ad-catcard__n">{r.total} producto{r.total!==1?'s':''}</span>
