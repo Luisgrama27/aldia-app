@@ -167,6 +167,12 @@ export function HogarVista({ usuario, h }) {
   const [copiado, setCopiado] = useState(false);
   const [confirmaSalir, setConfirmaSalir] = useState(false);
   const [nombreHogar, setNombreHogar] = useState("");
+  const [tarda, setTarda] = useState(false);
+  useEffect(() => {
+    if (h.hogar) { setTarda(false); return; }
+    const t = setTimeout(() => setTarda(true), 6000);
+    return () => clearTimeout(t);
+  }, [h.hogar]);
   const propio = !h.hogar || h.hogar.id === usuario.uid;
   const vigente = h.hogar && h.hogar.codigo && h.hogar.codigoVenceMs > Date.now();
 
@@ -184,7 +190,15 @@ export function HogarVista({ usuario, h }) {
   };
   const whatsapp = () => window.open(`https://wa.me/?text=${encodeURIComponent(mensaje())}`, "_blank", "noopener,noreferrer");
 
-  if (!h.hogar) return <p className="ad-muted">Cargando tu hogar…</p>;
+  if (!h.hogar) {
+    return (
+      <p className="ad-muted" style={{ lineHeight: 1.5 }}>
+        {tarda
+          ? "No se pudo cargar tu hogar. Revisa tu conexión; si sigue igual, las reglas de la base de datos aún no incluyen los hogares (hay que publicarlas en Firebase)."
+          : "Cargando tu hogar…"}
+      </p>
+    );
+  }
 
   return (
     <div>
