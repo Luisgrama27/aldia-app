@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { auth, db, limpiarDatosLocales } from "./firebase";
 import LegalVista, { SOPORTE_EMAIL } from "./Legal";
 import { ArtCat } from "./ilustraciones";
+import { useHogar, HogarVista } from "./Hogar";
 import { onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail, deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider } from "firebase/auth";
 import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, where, writeBatch, getDocs, limit, setDoc, Timestamp } from "firebase/firestore";
 import emailjs from "@emailjs/browser";
@@ -231,8 +232,8 @@ function redimensionarFoto(archivo,lado=256){
   });
 }
 
-const TITULOS = {perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',eliminar:'Eliminar cuenta',version:'Versión'};
-const PADRE = {perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',eliminar:'config',version:'config'};
+const TITULOS = {hogar:'Mi hogar',perfil:'Editar perfil',prefs:'Preferencias',config:'Configuración',faq:'Ayuda y FAQ',contacto:'Contacto y soporte',legal:'Términos y privacidad',eliminar:'Eliminar cuenta',version:'Versión'};
+const PADRE = {hogar:'menu',perfil:'menu',prefs:'menu',config:'menu',faq:'config',contacto:'config',legal:'config',eliminar:'config',version:'config'};
 
 function PerfilVista({usuario,nombre,iniciales,foto,fotoPropia,onNombre}){
   const [valor,setValor]=useState(nombre);
@@ -509,6 +510,7 @@ function EliminarCuentaVista({usuario}){
         snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
         await batch.commit();
       }
+      try{await deleteDoc(doc(db,'hogares',usuario.uid));}catch(e){console.error(e);}
       try{await deleteDoc(doc(db,'perfiles',usuario.uid));}catch(e){console.error(e);}
       // 3) Borrar la cuenta de acceso
       await deleteUser(usuario);
@@ -575,9 +577,10 @@ function VersionVista(){
   );
 }
 
-function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout}){
+function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout,hogarCtx}){
   const [vista,setVista]=useState('menu');
   const principal=[
+    {t:'Mi hogar',to:'hogar'},
     {t:'Editar perfil',to:'perfil'},
     {t:'Preferencias',to:'prefs'},
     {t:'Configuración',to:'config'},
@@ -627,6 +630,7 @@ function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPr
         {vista==='menu'&&(
           <button className="ad-btn ad-btn--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
+        {vista==='hogar'&&<HogarVista usuario={usuario} h={hogarCtx}/>}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
         {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs} onAplicar={onAplicarAlertas} numActivos={numActivos} verificado={usuario.emailVerified}/>}
         {vista==='faq'&&<FaqVista/>}
@@ -880,7 +884,7 @@ function RecetaSheet({sug,onClose}){
   );
 }
 
-function ProductCard({p,index,onClick,onConsumido,onEliminar}){
+function ProductCard({p,index,agrego,onClick,onConsumido,onEliminar}){
   const [visible,setVisible]=useState(false);
   const [barW,setBarW]=useState(0);
   const d=daysUntil(p.exp);const st=status(p);
@@ -935,7 +939,7 @@ function ProductCard({p,index,onClick,onConsumido,onEliminar}){
         <span className={`ad-pill ${pillClass(st)}`}>{pillIcon(st)} {daysLabel(d)}</span>
         <div className="ad-item__body">
           <div className="ad-item__name">{p.name}</div>
-          {(p.qty||p.precio)&&<div className="ad-product__qty">{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:''].filter(Boolean).join(' · ')}</div>}
+          {(p.qty||p.precio||agrego)&&<div className="ad-product__qty">{[p.qty,p.precio?`$${parseFloat(p.precio).toLocaleString('es-CO')}`:'',agrego].filter(Boolean).join(' · ')}</div>}
         </div>
       </div>
       <div className={`ad-bar ${barClass(st)}`}><span style={{width:`${barW}%`,transition:'width 0.8s ease'}}/></div>
@@ -1070,10 +1074,12 @@ export default function App(){
     }).catch(()=>{setEsUsuarioNuevo(false);setCheckingNuevo(false);});
   },[usuario]);
 
+  const hogar=useHogar(usuario,nombreExtra||(usuario&&usuario.displayName)||'');
+
   useEffect(()=>{
-    if(!usuario)return;
+    if(!usuario||!hogar.listo)return;
     setProductosListos(false);
-    const q=query(collection(db,"productos"),where("uid","==",usuario.uid));
+    const q=query(collection(db,"productos"),where("hogarId","==",hogar.hogarId));
     const unsub=onSnapshot(q,(snap)=>{
       const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
       setProducts(prods);setListKey(k=>k+1);setProductosListos(true);
@@ -1097,7 +1103,7 @@ export default function App(){
       }
     },(e)=>{console.error(e);avisar('No se pudieron cargar tus productos. Revisa tu conexión.');});
     return()=>unsub();
-  },[usuario]);
+  },[usuario,hogar.listo,hogar.hogarId]);
 
   useEffect(()=>{
     if(!usuario)return;
@@ -1444,7 +1450,7 @@ export default function App(){
     if(datos.barcode)recordarProducto(datos.barcode,{nombre:datos.name,categoria:datos.cat,cantidad:datos.qty});
     const op=editId
       ?updateDoc(doc(db,"productos",editId),datos)
-      :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,hogarId:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
+      :addDoc(collection(db,"productos"),{...datos,uid:usuario.uid,hogarId:hogar.hogarId||usuario.uid,estado:null,fechaCreacion:new Date().toISOString()});
     op.catch(e=>falla(e,'guardar el producto'));
     if(otro&&!editId){
       // Se queda en el formulario con la misma categoría para registrar el siguiente
@@ -1472,7 +1478,7 @@ export default function App(){
   };
 
   const agregarEjemplo=(ej)=>{
-    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:alertaDe(ej.cat,prefs),precio:'',uid:usuario.uid,hogarId:usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
+    addDoc(collection(db,"productos"),{name:ej.name,cat:ej.cat,exp:ej.exp,qty:'',alert:alertaDe(ej.cat,prefs),precio:'',uid:usuario.uid,hogarId:hogar.hogarId||usuario.uid,estado:null,fechaCreacion:new Date().toISOString()}).catch(e=>falla(e,'agregar el ejemplo'));
   };
 
   const eliminar=()=>{
@@ -1535,7 +1541,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} onClose={()=>setMenuAbierto(false)} onLogout={async()=>{setMenuAbierto(false);try{await signOut(auth);}catch(e){console.error(e);}await limpiarDatosLocales();window.location.reload();}}/>
+    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} hogarCtx={hogar} onClose={()=>setMenuAbierto(false)} onLogout={async()=>{setMenuAbierto(false);try{await signOut(auth);}catch(e){console.error(e);}await limpiarDatosLocales();window.location.reload();}}/>
   );
 
   if(pantalla==='form') return (
@@ -1832,7 +1838,7 @@ export default function App(){
                       )}
                       <div key={listKey} className="ad-grid">
                         {filtered.length===0&&<div className="ad-card ad-pad ad-muted" style={{textAlign:'center'}}>Sin resultados.</div>}
-                        {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
+                        {filtered.map((p,i)=><ProductCard key={p.id} p={p} index={i} agrego={hogar.compartido&&p.uid?(p.uid===usuario.uid?'Por ti':('Por '+hogar.nombreDe(p.uid))):''} onClick={()=>setAccionProd(p)} onConsumido={()=>marcarProducto(p.id,'consumido')} onEliminar={()=>eliminarProducto(p.id)}/>)}
                       </div>
                     </>
                   )}
