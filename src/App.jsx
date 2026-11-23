@@ -1079,9 +1079,15 @@ export default function App(){
   useEffect(()=>{
     if(!usuario||!hogar.listo)return;
     setProductosListos(false);
-    const q=query(collection(db,"productos"),where("hogarId","==",hogar.hogarId));
-    const unsub=onSnapshot(q,(snap)=>{
-      const prods=snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Productos del hogar activo. En el hogar personal también se leen tus propios productos por uid (los antiguos sin hogarId),
+    // así nunca se pierde nada de vista aunque la migración tarde o falle.
+    const personal=hogar.hogarId===usuario.uid;
+    let delHogar=null,antiguos=personal?null:[];
+    const procesar=()=>{
+      if(delHogar===null&&antiguos===null)return;
+      const mapa=new Map();
+      [...(delHogar||[]),...(antiguos||[])].forEach(d=>mapa.set(d.id,{id:d.id,...d.data()}));
+      const prods=[...mapa.values()];
       setProducts(prods);setListKey(k=>k+1);setProductosListos(true);
       if(prods.length>0) setEsUsuarioNuevo(false);
       let correoActivo=true;
@@ -1101,8 +1107,14 @@ export default function App(){
             .catch(e=>console.error(e));
         }
       }
-    },(e)=>{console.error(e);avisar('No se pudieron cargar tus productos. Revisa tu conexión.');});
-    return()=>unsub();
+    };
+    const falla1=(e)=>{console.error(e);if(delHogar===null)delHogar=[];procesar();};
+    const unsub1=onSnapshot(query(collection(db,"productos"),where("hogarId","==",hogar.hogarId)),(snap)=>{delHogar=snap.docs;procesar();},falla1);
+    let unsub2=()=>{};
+    if(personal){
+      unsub2=onSnapshot(query(collection(db,"productos"),where("uid","==",usuario.uid)),(snap)=>{antiguos=snap.docs.filter(d=>{const h=d.data().hogarId;return !h||h===usuario.uid;});procesar();},(e)=>{console.error(e);if(antiguos===null)antiguos=[];procesar();});
+    }
+    return()=>{unsub1();unsub2();};
   },[usuario,hogar.listo,hogar.hogarId]);
 
   useEffect(()=>{
