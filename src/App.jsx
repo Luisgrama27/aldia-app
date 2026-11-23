@@ -577,7 +577,7 @@ function VersionVista(){
   );
 }
 
-function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout,hogarCtx}){
+function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPrefs,onAplicarAlertas,numActivos,onNombre,onClose,onLogout,hogarCtx,productos}){
   const [vista,setVista]=useState('menu');
   const principal=[
     {t:'Mi hogar',to:'hogar'},
@@ -630,7 +630,7 @@ function CuentaSheet({saludo,usuario,nombre,iniciales,foto,fotoPropia,prefs,onPr
         {vista==='menu'&&(
           <button className="ad-btn ad-btn--danger" onClick={onLogout}>Cerrar sesión</button>
         )}
-        {vista==='hogar'&&<HogarVista usuario={usuario} h={hogarCtx}/>}
+        {vista==='hogar'&&<HogarVista usuario={usuario} h={hogarCtx} productos={productos}/>}
         {vista==='perfil'&&<PerfilVista usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={fotoPropia} onNombre={onNombre}/>}
         {vista==='prefs'&&<PrefsVista prefs={prefs} onPrefs={onPrefs} onAplicar={onAplicarAlertas} numActivos={numActivos} verificado={usuario.emailVerified}/>}
         {vista==='faq'&&<FaqVista/>}
@@ -1553,7 +1553,7 @@ export default function App(){
   );
 
   const cuentaSheet=menuAbierto&&(
-    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} hogarCtx={hogar} onClose={()=>setMenuAbierto(false)} onLogout={async()=>{setMenuAbierto(false);try{await signOut(auth);}catch(e){console.error(e);}await limpiarDatosLocales();window.location.reload();}}/>
+    <CuentaSheet saludo={saludo} usuario={usuario} nombre={nombre} iniciales={iniciales} foto={foto} fotoPropia={!!fotoPerfil} prefs={prefs} onPrefs={actualizarPrefs} onAplicarAlertas={aplicarAlertas} numActivos={activos.length} onNombre={setNombreExtra} hogarCtx={hogar} productos={products} onClose={()=>setMenuAbierto(false)} onLogout={async()=>{setMenuAbierto(false);try{await signOut(auth);}catch(e){console.error(e);}await limpiarDatosLocales();window.location.reload();}}/>
   );
 
   if(pantalla==='form') return (

@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { db } from "./firebase";
-import { collection, doc, onSnapshot, getDoc, getDocs, setDoc, updateDoc, deleteDoc, deleteField, writeBatch, query, where } from "firebase/firestore";
+import { collection, doc, onSnapshot, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, deleteField, writeBatch, query, where } from "firebase/firestore";
 
 // Un "hogar" agrupa a varias personas que comparten la misma lista de productos.
 // Cada persona tiene su hogar personal (su id es su uid). Para unirse a otro hogar se usa un código de 8 caracteres.
 // Datos:
 //   hogares/{hogarId}        -> { duenoUid, nombre, miembros: {uid: nombre}, creado, codigo?, codigoVenceMs?, codigoUsado? }
+//   hogares/{hogarId}/compras/{id} -> { texto, por, creado, hecho }  (lista de compras compartida)
 //   invitaciones/{codigo}    -> { hogarId, duenoUid, expiraMs }
 //   perfiles/{uid}.hogarActivo -> hogar que la persona está viendo (si falta, su hogar personal)
 
@@ -89,6 +90,31 @@ export function useHogar(usuario, nombre) {
     return () => unsub();
   }, [uid, activo, listo, guardarActivo]);
 
+  // Lista de compras del hogar activo
+  const [compras, setCompras] = useState([]);
+  useEffect(() => {
+    if (!uid || !hogar) { setCompras([]); return; }
+    const unsub = onSnapshot(collection(db, "hogares", hogar.id, "compras"), (snap) => {
+      setCompras(snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.creado || "").localeCompare(b.creado || "")));
+    }, (e) => { console.error(e); setCompras([]); });
+    return () => unsub();
+  }, [uid, hogar && hogar.id]);
+
+  const agregarCompra = async (texto) => {
+    const t = String(texto || "").trim().slice(0, 80);
+    if (!t || !hogar) return;
+    await addDoc(collection(db, "hogares", hogar.id, "compras"), { texto: t, por: uid, creado: new Date().toISOString(), hecho: false });
+  };
+  const alternarCompra = (c) => updateDoc(doc(db, "hogares", hogar.id, "compras", c.id), { hecho: !c.hecho });
+  const borrarCompra = (c) => deleteDoc(doc(db, "hogares", hogar.id, "compras", c.id));
+  const limpiarHechas = async () => {
+    const hechas = compras.filter((c) => c.hecho);
+    if (!hechas.length) return;
+    const lote = writeBatch(db);
+    hechas.forEach((c) => lote.delete(doc(db, "hogares", hogar.id, "compras", c.id)));
+    await lote.commit();
+  };
+
   // Mantener actualizado mi nombre dentro del hogar
   useEffect(() => {
     if (!uid || !hogar || !hogar.miembros || hogar.miembros[uid] === undefined) return;
@@ -157,12 +183,13 @@ export function useHogar(usuario, nombre) {
     return m ? m.nombre : "";
   };
 
-  return { fallo, hogarId: activo, hogar, listo: listo && !!activo && (activo === uid || (!!hogar && hogar.id === activo)), esDueno, miembros, compartido, nombreDe, crearCodigo, anularCodigo, unirse, salir, quitar, renombrar };
+  return { compras, agregarCompra, alternarCompra, borrarCompra, limpiarHechas, fallo, hogarId: activo, hogar, listo: listo && !!activo && (activo === uid || (!!hogar && hogar.id === activo)), esDueno, miembros, compartido, nombreDe, crearCodigo, anularCodigo, unirse, salir, quitar, renombrar };
 }
 
 const venceTexto = (ms) => new Date(ms).toLocaleDateString("es-CO", { day: "numeric", month: "short" });
 
-export function HogarVista({ usuario, h }) {
+export function HogarVista({ usuario, h, productos = [] }) {
+  const [pestana, setPestana] = useState("resumen");
   const [codigoIn, setCodigoIn] = useState("");
   const [msg, setMsg] = useState("");
   const [ocupado, setOcupado] = useState(false);
@@ -203,8 +230,17 @@ export function HogarVista({ usuario, h }) {
     );
   }
 
+  const tabs = [["resumen", "Resumen"], ["compras", "Compras"], ["miembros", "Miembros"]];
   return (
     <div>
+      <div className="ad-filters" role="tablist" aria-label="Secciones del hogar" style={{ marginBottom: 14 }}>
+        {tabs.map(([k, t]) => (
+          <button key={k} type="button" role="tab" className="ad-chip" aria-selected={pestana === k} aria-pressed={pestana === k} onClick={() => setPestana(k)}>{t}</button>
+        ))}
+      </div>
+      {pestana === "resumen" && <ResumenHogar productos={productos} h={h} usuario={usuario} />}
+      {pestana === "compras" && <ComprasHogar productos={productos} h={h} usuario={usuario} />}
+      {pestana === "miembros" && (<>
       <p className="ad-muted" style={{ marginBottom: 14, lineHeight: 1.5 }}>
         {propio
           ? "Invita a tu familia o a quienes viven contigo: todos ven y actualizan la misma lista de productos."
@@ -281,6 +317,126 @@ export function HogarVista({ usuario, h }) {
         )
       )}
 
+      {msg && <div className="ad-note ad-note--danger" role="alert" style={{ marginTop: 12 }}>{msg}</div>}
+      </>)}
+    </div>
+  );
+}
+
+const diasHasta = (iso) => {
+  const [y, m, d] = String(iso).split("-").map(Number);
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  return Math.round((new Date(y, m - 1, d) - hoy) / 86400000);
+};
+
+const hace = (iso) => {
+  const t = new Date(iso);
+  if (isNaN(t)) return "";
+  const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+  const dia = new Date(t); dia.setHours(0, 0, 0, 0);
+  const n = Math.round((hoy - dia) / 86400000);
+  return n <= 0 ? "hoy" : n === 1 ? "ayer" : `hace ${n} días`;
+};
+
+function ResumenHogar({ productos, h, usuario }) {
+  const activos = productos.filter((p) => !p.estado);
+  let venc = 0, pronto = 0, ok = 0;
+  activos.forEach((p) => {
+    const d = diasHasta(p.exp);
+    if (d < 0) venc++; else if (d <= 3 || d <= (p.alert || 0)) pronto++; else ok++;
+  });
+  const quien = (id) => (id === usuario.uid ? "Tú" : h.nombreDe(id) || "Alguien");
+  const eventos = [];
+  productos.forEach((p) => {
+    if (p.fechaCreacion) eventos.push({ t: p.fechaCreacion, txt: h.compartido ? `${quien(p.uid)} agregó ${p.name}` : `Agregaste ${p.name}` });
+    if (p.estado && p.fechaEstado) eventos.push({ t: p.fechaEstado, txt: `${p.name}: ${p.estado === "consumido" ? "consumido" : "descartado"}` });
+  });
+  eventos.sort((a, b) => b.t.localeCompare(a.t));
+  const recientes = eventos.slice(0, 6);
+  const nombre = h.hogar ? h.hogar.nombre : "Mi hogar";
+  return (
+    <div>
+      <p className="ad-muted" style={{ marginBottom: 10 }}>{nombre} · {h.miembros.length} {h.miembros.length === 1 ? "persona" : "personas"}</p>
+      <div className="ad-desp-row" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+        {[["Vencidos", venc, "var(--danger)"], ["Por vencer", pronto, "#e07814"], ["Al día", ok, "var(--green)"]].map(([t, n, c]) => (
+          <div key={t} className="ad-card ad-pad" style={{ textAlign: "center", padding: "12px 6px" }}>
+            <div style={{ fontSize: "1.5rem", fontWeight: 800, color: c }}>{n}</div>
+            <div className="ad-muted" style={{ fontSize: ".75rem" }}>{t}</div>
+          </div>
+        ))}
+      </div>
+      <p className="ad-eyebrow">Actividad reciente</p>
+      {recientes.length === 0 ? (
+        <p className="ad-muted">Todavía no hay movimientos.</p>
+      ) : (
+        <div className="ad-card ad-group">
+          {recientes.map((e, i) => (
+            <div key={i} className="ad-sheet__row" style={{ cursor: "default" }}>
+              <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{e.txt}</span>
+              <span className="ad-muted" style={{ marginLeft: "auto", fontSize: ".75rem", whiteSpace: "nowrap" }}>{hace(e.t)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ComprasHogar({ productos, h, usuario }) {
+  const [texto, setTexto] = useState("");
+  const [msg, setMsg] = useState("");
+  const pendientes = h.compras.filter((c) => !c.hecho);
+  const hechas = h.compras.filter((c) => c.hecho);
+  const enLista = new Set(pendientes.map((c) => c.texto.toLowerCase()));
+  const sugeridos = [];
+  productos
+    .filter((p) => p.estado && p.fechaEstado)
+    .sort((a, b) => b.fechaEstado.localeCompare(a.fechaEstado))
+    .forEach((p) => {
+      const k = p.name.toLowerCase();
+      if (!enLista.has(k) && !sugeridos.some((x) => x.toLowerCase() === k) && sugeridos.length < 5) sugeridos.push(p.name);
+    });
+  const hacer = async (fn) => { setMsg(""); try { await fn(); } catch (e) { console.error(e); setMsg("No se pudo guardar. Revisa tu conexión e inténtalo de nuevo."); } };
+  const agregar = (t) => hacer(async () => { await h.agregarCompra(t); setTexto(""); });
+  const quien = (id) => (id === usuario.uid ? "tú" : h.nombreDe(id));
+  const fila = (c) => (
+    <div key={c.id} className="ad-sheet__row" style={{ cursor: "default", gap: 12 }}>
+      <button type="button" aria-label={c.hecho ? `Desmarcar ${c.texto}` : `Marcar ${c.texto}`} onClick={() => hacer(() => h.alternarCompra(c))}
+        style={{ width: 24, height: 24, flex: "none", borderRadius: 8, border: `2px solid ${c.hecho ? "var(--accent)" : "var(--border)"}`, background: c.hecho ? "var(--accent)" : "transparent", color: "#fff", fontSize: ".8125rem", lineHeight: 1, cursor: "pointer" }}>{c.hecho ? "✓" : ""}</button>
+      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", textDecoration: c.hecho ? "line-through" : "none", opacity: c.hecho ? 0.55 : 1 }}>
+        {c.texto}{h.compartido && quien(c.por) ? <span className="ad-muted" style={{ fontSize: ".75rem" }}> · {quien(c.por)}</span> : null}
+      </span>
+      <button type="button" className="ad-link ad-link--danger" style={{ marginLeft: "auto" }} aria-label={`Quitar ${c.texto}`} onClick={() => hacer(() => h.borrarCompra(c))}>Quitar</button>
+    </div>
+  );
+  return (
+    <div>
+      <p className="ad-muted" style={{ marginBottom: 12, lineHeight: 1.5 }}>
+        {h.compartido ? "Lista de compras compartida: todos en el hogar la ven y la marcan." : "Tu lista de compras. Si invitas a alguien al hogar, la verán juntos."}
+      </p>
+      <form onSubmit={(e) => { e.preventDefault(); agregar(texto); }} style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        <div className="ad-field" style={{ flex: 1, margin: 0 }}>
+          <input value={texto} maxLength={80} onChange={(e) => setTexto(e.target.value)} placeholder="Ej: Leche, huevos…" aria-label="Producto a comprar" />
+        </div>
+        <button type="submit" className="ad-btn" style={{ width: "auto", padding: "0 18px" }} disabled={!texto.trim()}>Agregar</button>
+      </form>
+      {sugeridos.length > 0 && (
+        <>
+          <p className="ad-eyebrow">Se acabaron o se descartaron</p>
+          <div className="ad-filters" style={{ marginBottom: 12 }}>
+            {sugeridos.map((n) => <button key={n} type="button" className="ad-chip" onClick={() => agregar(n)}>+ {n}</button>)}
+          </div>
+        </>
+      )}
+      {pendientes.length === 0 && hechas.length === 0 ? (
+        <p className="ad-muted">La lista está vacía.</p>
+      ) : (
+        <div className="ad-card ad-group">
+          {pendientes.map(fila)}
+          {hechas.map(fila)}
+        </div>
+      )}
+      {hechas.length > 0 && <button type="button" className="ad-link" onClick={() => hacer(h.limpiarHechas)}>Quitar los marcados ({hechas.length})</button>}
       {msg && <div className="ad-note ad-note--danger" role="alert" style={{ marginTop: 12 }}>{msg}</div>}
     </div>
   );

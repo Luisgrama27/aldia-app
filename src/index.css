@@ -2652,3 +2652,8 @@ html.vp-gap .ad-nav { border-width: 1px 0 0 0; }
 @media (prefers-reduced-motion: reduce) {
   .ad-screen, .ad-skel, .ad-catcard.is-nueva { animation: none !important; }
 }
+
+/* ---------- Mi hogar: pestañas ---------- */
+.ad-filters[role="tablist"] .ad-chip[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) .ad-filters[role="tablist"] .ad-chip[aria-selected="true"] { color: #06150d; } }
+:root[data-tema="oscuro"] .ad-filters[role="tablist"] .ad-chip[aria-selected="true"] { color: #06150d; }
